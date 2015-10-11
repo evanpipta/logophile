@@ -1,0 +1,23 @@
+{
+
+	"/": {
+		"type": "main"
+	},
+	"/index.html": {
+		"redirect": "/",
+		"status": 301
+	},
+
+	"/game/": {
+		"type": "game"
+	},
+	"/game/index.html": {
+		"redirect": "/game/",
+		"status": 301
+	},
+	"/game.html": {
+		"redirect": "/game/",
+		"status": 301
+	}
+
+}

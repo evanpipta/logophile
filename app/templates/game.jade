@@ -1,0 +1,108 @@
+
+include ./parts/header.jade
+title Logophile | Game
+meta( name="description", content="Logophile is a fast-paced word finding game similar to boggle." )
+include ./parts/assets.jade
+
+!= "</head>"
+
+body
+	include ./parts/game-info.jade
+	include ./parts/sidebar.jade
+	
+	div( class="game" )
+		include ./parts/logo-small.jade
+		include ./parts/share.jade
+		include ./parts/playercard.jade
+
+		div( class="inner" )
+			div( class="col left" )
+				div( class="remaining" )
+					div( class="list nowrap" )
+							h2 Remaining: 
+								//- I think the following takes up too much space, but I'll leave it commented in case we decide to add it again:
+								//- span( class="remaining-num" ) 95
+								//- span( class="remaining-percentage" ) (90%)
+							div
+								ul( class="lengths" )
+									li length
+									li 10
+									li 9
+									li 8
+									li 5
+									li 4
+								ul( class="counts" )
+									li count
+									li 1
+									li 1
+									li 6
+									li 60
+									li 34
+
+			div( class="col center" )
+				div( class="game-center" )
+					div( class="hud" id="hud" )
+						p( class="timer-label" ) Time:
+						h2( class="timer" ) [[timeRemaining | time]]
+						p( class="round-starts" ) Round starts in:
+						h2( class="round-starts-timer" ) 00:00
+						h2( class="waiting-to-start" ) Waiting to start first round
+						h3( class="score" ) Score: [[score]]
+						h4( class="place" ) Place [[place]] / [[numplayers]]
+					div( class="board" )
+						div( class="row" )
+							div( class="cell" ) A
+							div( class="cell" ) A
+							div( class="cell" ) A
+							div( class="cell" ) A
+						div( class="row" )
+							div( class="cell" ) A
+							div( class="cell" ) A
+							div( class="cell" ) A
+							div( class="cell" ) A
+						div( class="row" )
+							div( class="cell" ) A
+							div( class="cell" ) A
+							div( class="cell" ) A
+							div( class="cell" ) A
+						div( class="row" )
+							div( class="cell" ) A
+							div( class="cell" ) A
+							div( class="cell" ) A
+							div( class="cell" ) A
+
+					div( class="word" )
+						input( type="text" placeholder="type here" )
+						h3 [[inputlength]] Letters 
+							span( class="word-score" ) +[[inputscore]]
+								span( class="word-points" ) points
+
+			div( class="col right" )
+				div( class="found" )
+					h2 Found: 
+						span( class="found-num" ) [[playerwords]] 
+							span( class="found-percentage" ) (10%)
+					div( class="found-section" )
+						h4( class="" ) N Letters 
+							span( class="found-num" ) 5 
+								span( class="found-percentage" ) (X points)
+						ul( class="inline" )
+							li Phrase
+							li Phrase
+							li Phrase
+							li Phrase
+							li Phrase
+							li Phrase
+					div( class="found-section" )
+						h4( class="" ) N Letters 
+							span( class="found-num" ) 5 
+								span( class="found-percentage" ) (X points)
+						ul( class="inline" )
+							li Phrase
+							li Phrase
+							li Phrase
+							li Phrase
+							li Phrase
+							li Phrase
+
+!= "</html>"

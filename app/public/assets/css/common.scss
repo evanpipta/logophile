@@ -1,0 +1,44 @@
+* {
+	margin: 0; padding: 0;
+	box-sizing: border-box;
+	font: 400 16px/22px $fontStack;
+	color: $white;
+}
+html {
+	height: 100%;
+}
+body {
+	background: $grey;
+	height: 100%;
+}
+ul li {
+	list-style-type: none;
+}
+ul.inline li {
+	display: inline-block; vertical-align: top;
+}
+.nowrap {
+	white-space: nowrap;
+}
+a {
+	text-decoration: none;
+	transition: opacity 0.3s, color 0.3s;
+	opacity: 1;
+	outline: 0;
+}
+a:hover {
+	opacity: 0.7;
+}
+a.disabled {
+	cursor: default;
+	opacity: 0.5;
+	position: relative;
+}
+a.disabled:hover {
+	cursor: default;
+	opacity: 0.5;
+}
+
+.hidden {
+	display: none;
+}

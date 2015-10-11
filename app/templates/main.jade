@@ -1,0 +1,27 @@
+include ./parts/header.jade
+title Logophile
+meta( name="description", content="Logophile is a fast-paced word finding game similar to boggle." )
+include ./parts/assets.jade
+
+!= "</head>"
+
+body
+	include ./parts/playercard.jade
+	include ./parts/logo-small.jade
+	include ./parts/share.jade
+
+	div( id="mainpage" )
+		div( class="menu" v-class="open : !!openScreen" )
+			div( class="inner" )
+				h2 Logophile is a fast-paced multiplayer word find game inspired by boggle.
+				ul( class="options inline" )
+					li
+						a( href="#" /*v-on="click: changeScreen('gameList')"*/ class="disabled" title="Currently Unavailable" v-class="active : openScreen == 'gameList' " ) Join Game
+					li
+						a( href="#" v-on="click: changeScreen('createNew')" v-class="active : openScreen == 'createNew' " ) Create New Game
+					li
+						a( href="#" /*v-on="click: changeScreen('howToPlay')"*/ class="disabled" title="Currently Unavailable" v-class="active : openScreen == 'howToPlay' " ) How to Play
+
+
+
+!= "</html>"

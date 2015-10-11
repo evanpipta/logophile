@@ -1,0 +1,22 @@
+{
+  "name": "logophile",
+  "version": "0.1.0",
+  "description": "a word solving game",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Evan Pipta",
+  "license": "ISC",
+  "dependencies": {
+    "async": "^1.4.2",
+    "bcrypt": "^0.8.5",
+    "cookie-parser": "^1.4.0",
+    "defaults": "^1.0.3",
+    "express": "^4.13.3",
+    "jade": "^1.11.0",
+    "node-sass": "^3.3.3",
+    "vue": "^0.12.16",
+    "ws": "^0.8.0"
+  }
+}

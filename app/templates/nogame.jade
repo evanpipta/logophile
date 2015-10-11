@@ -1,0 +1,22 @@
+include ./parts/header.jade
+title Logophile | 404
+meta( name="description", content="Page not found." )
+include ./parts/assets.jade
+
+!= "</head>"
+
+body
+	include ./parts/playercard.jade
+	include ./parts/logo-small.jade
+	include ./parts/share.jade
+
+	div( id="mainpage" )
+		div( class="menu" )
+			div( class="inner" )
+				h1( class="notfound" ) One problem here:
+				h2 The game you requested doesn't exist.
+				a( href="/" ) Create a new one?
+
+
+
+!= "</html>"
