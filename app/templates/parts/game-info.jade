@@ -1,13 +1,13 @@
-div( class="game-info" )
+div( class="game-info" id="game-info" )
 	span( class="desktop-view" )
 		p( class="label" ) Game:
-		h2 [[Game Name]]
+		h2 [[game.name]]
 		ul( class="menu inline" )
 			li
 				a( href="/" ) Leave
 			li
-				a( href="#" ) Setup
+				a( href="#" ) Info
 			li
-				a( href="#" ) Start
+				a( href="#" v-if="!game.initd" ) Start
 
 	span( class="mobile-view" )

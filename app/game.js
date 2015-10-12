@@ -15,15 +15,19 @@ module.exports = function( options ) {
 
 	this.data = Defaults( options, {
 		boardSize: 5,
-		frequences: Frequencies.classic,
+		frequences: "Uniques",
 		name: Dictionary.getRandom( Math.round( ( Math.random() ) * 12 ) + 3 ) +" "+ Dictionary.getRandom( Math.round( ( Math.random() ) * 12 ) + 3 ),
 		timeLimit: 90,
 		pauseTime: 15,
 		private: false,
 		ranked: false,
 		allowGuests: true,
-		scoreStyle: "normal", // "normal" or "prolific"
-		initd: false
+		scoreStyle: "Normal", // "normal" or "prolific"
+		initd: false,
+		minLettersToScore: 4,	
+		boardHighFrequency: true,
+		boardMinWords: 280,			// Only applies if high frequency is false
+		boardRequireLength: 9		// Only applies if high frequency is false
 	});
 
 	this.initTime = 10;
@@ -75,6 +79,12 @@ module.exports = function( options ) {
 		if ( !this.data.initd )
 		{
 			this.data.initd = true;
+
+			this.data.board.minLettersToScore = this.data.minLettersToScore;
+			this.data.board.minWords = this.data.boardMinWords;
+			this.data.board.wordLengthRequirement = this.data.boardRequireLength;
+			this.data.board.minLettersToScore = this.data.minLettersToScore;
+
 			this.startPauseTimer( this.initTime );
 
 			// Send full game state to clients
@@ -101,9 +111,18 @@ module.exports = function( options ) {
 
 		// Star generating the next board
 		this.data.board.boardSize = this.data.boardSize;
-		this.data.board.letters = this.data.frequences;
+		this.data.board.letters = Frequencies[this.data.frequencies];
 		this.data.board.gameRef = this;
-		this.data.board.startOptimalRandomize( this.data.boardSize, this.data.pauseTime - 1 );
+		if ( this.data.boardHighFrequency )
+		{
+			// If we're doing high frequency, start high-frequency randomization
+			this.data.board.startHighFrequencyRandomize( this.data.boardSize, this.data.pauseTime - 1 );
+		}
+		else 
+		{
+			// Otherwise just randomize once
+			this.data.board.randomize();
+		}
 
 		var game = this;
 		var pauseTime = typeof time == "number" ? time : game.data.pauseTime;
@@ -279,12 +298,8 @@ module.exports = function( options ) {
 		// Then reset timer
 		this.timer = this.timeLimit;
 
-		// Then generate a new board and callback to start the round
-		// this.data.board.boardSize = this.data.boardSize;
-		// this.data.board.letters = this.data.frequences;
-		// this.data.board.gameRef = this;
-		// this.data.board.randomize( this.data.boardSize, this.startRound );
-		this.data.board.stopOptimalRandomize( this.startRound );
+		// If we're doing high frequency generation, stop randomizing the board now
+		this.data.board.stopHighFrequencyRandomize( this.startRound );
 	}
 
 	/**
@@ -416,11 +431,28 @@ module.exports = function( options ) {
 	 * @return {Object} Game data object
 	 */
 	this.getPublicGameData = function() {
-		// Varies depending on whether the round is in progress or finished
+		
+		// If the board has nothing in it, send an empty board instead.
+		// This should only happen before the gamehas been initialized
+		var boardArr = this.data.board.boardArray;
+		if ( !boardArr.length )
+		{
+			for ( var x = 0; x < this.data.boardSize; x++ )
+			{
+				boardArr[x] = [];
+				for ( var y = 0; y < this.data.boardSize; y++ )
+				{
+					boardArr[x][y] = " ";
+				}
+			}
+		}
+
 		var pubGameData = {
 			id: this.id,
+			initd: this.data.initd,
 			name: this.data.name,
-			board: this.data.board.boardArray,
+			board: boardArr,
+			boardSize: this.data.boardSize,
 			timeLimit: this.data.timeLimit,
 			pauseTime: this.data.pauseTime,
 			ranked: this.data.ranked,
@@ -430,7 +462,13 @@ module.exports = function( options ) {
 			roundStarted: this.data.round.started,
 			roundTime: this.data.round.elapsed,
 			paused: this.data.isPaused,
-			pauseTime: this.data.pauseElapsed
+			pauseTime: this.data.pauseElapsed,
+			minLettersToScore: this.data.minLettersToScore,
+			boardHighFrequency: this.data.boardHighFrequency,
+			boardRequireLength: this.data.boardRequireLength,
+			boardMinWords: this.data.boardMinWords,
+			// We always send the number of words of each length in the solution, just not the actual strings of what they are
+			wordCounts: this.data.board.getSortedSolutionCounts()
 		}
 		// If the game has ended, we also want to send the solution
 		if ( !this.data.round.started )

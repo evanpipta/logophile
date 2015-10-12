@@ -15,7 +15,7 @@ body
 		include ./parts/share.jade
 		include ./parts/playercard.jade
 
-		div( class="inner" )
+		div( class="inner" id="game-inner" )
 			div( class="col left" )
 				div( class="remaining" )
 					div( class="list nowrap" )
@@ -26,18 +26,11 @@ body
 							div
 								ul( class="lengths" )
 									li length
-									li 10
-									li 9
-									li 8
-									li 5
-									li 4
+									li( v-repeat="gameData.game.wordCounts" ) [[$key]]
+
 								ul( class="counts" )
 									li count
-									li 1
-									li 1
-									li 6
-									li 60
-									li 34
+									li( v-repeat="gameData.game.wordCounts" ) [[ $value.length ]]
 
 			div( class="col center" )
 				div( class="game-center" )
@@ -50,26 +43,8 @@ body
 						h3( class="score" ) Score: [[score]]
 						h4( class="place" ) Place [[place]] / [[numplayers]]
 					div( class="board" )
-						div( class="row" )
-							div( class="cell" ) A
-							div( class="cell" ) A
-							div( class="cell" ) A
-							div( class="cell" ) A
-						div( class="row" )
-							div( class="cell" ) A
-							div( class="cell" ) A
-							div( class="cell" ) A
-							div( class="cell" ) A
-						div( class="row" )
-							div( class="cell" ) A
-							div( class="cell" ) A
-							div( class="cell" ) A
-							div( class="cell" ) A
-						div( class="row" )
-							div( class="cell" ) A
-							div( class="cell" ) A
-							div( class="cell" ) A
-							div( class="cell" ) A
+						div( class="row" v-repeat="gameData.game.board" )
+							div( class="cell" v-repeat="gameData.game.board[$index]" )
 
 					div( class="word" )
 						input( type="text" placeholder="type here" )

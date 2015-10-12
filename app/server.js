@@ -169,10 +169,10 @@ module.exports = new function() {
 					if ( !g )
 					{
 						// If the game doesn't exist, return a game doesn't exist page
-						// res.send( Jade.renderFile( __dirname + "/templates/nogame.jade" , {
-						// 	version: PackageInfo.version
-						// } ) );
-						// return;
+						res.send( Jade.renderFile( __dirname + "/templates/nogame.jade" , {
+							version: PackageInfo.version
+						} ) );
+						return;
 					}
 					else
 					{

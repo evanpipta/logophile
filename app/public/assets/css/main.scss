@@ -77,6 +77,7 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 #mainpage {
 	height: 100%; width: 100%;
 	.menu {
+		background: $grey;
 		width: 460px;
 		margin: 0 auto;
 		position: relative;
@@ -107,11 +108,11 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 		.options li {
 			border-right: 1px solid $grey2;
 		}
-		.options li a { padding: 10px 20px; }
-		.options li a.active { color: $orange; }
-		.options li a:hover { color: $orange; opacity: 1; }
-		.options li a.disabled { color: $grey3; opacity: 0.5; }
-		.options li a.disabled:hover { color: $grey3; opacity: 0.5; }
+		.options li a { padding: 10px 20px; opacity: 0.6; }
+		.options li a.active { color: $white; opacity: 1; }
+		.options li a:hover { color: $white; opacity: 1; }
+		.options li a.disabled { color: $grey3; opacity: 0.4; }
+		.options li a.disabled:hover { color: $grey3; opacity: 0.4; }
 		.options li:first-child a { padding-left: 0; }
 		.options li:last-child a { padding-right: 0; }
 		.options li:last-child { border: 0; }
@@ -125,9 +126,45 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 			transform: translateY(0);
 		}
 	}
+	.create-game-wrapper {
+		height: 0;
+		position: absolute;
+		width: 100%;
+		bottom: 0px;
+		// padding: 120px 0;
+		opacity: 0;
+		transition: opacity 0.3s, height 0.3s, padding 0.3s;
+		overflow: hidden;
+		a.button {
+			font-weight: 300;
+			letter-spacing: -0.2px;
+			position: absolute;
+			bottom: $cornerOffset + 10px;
+			left: 50%;
+			transform: translateX(-50%);
+			border: 1px solid $grey3;
+			border-radius: 20px;
+			padding: 10px 40px 8px;
+			transition: background 0.3s, border 0.3s;
+		}
+		a.button:hover {
+			opacity: 1;
+			background: $orange;
+			border: 1px solid $orange;
+		}
+		.options {
+			height: 100%;
+			overflow-x: hidden;
+			overflow-y: scroll;
+		}
+	}
+	.create-game-wrapper.active {
+		opacity: 1; height: 100%; padding: 120px 0;
+	}
 }
 
 .share {
+	z-index: 5;
 	position: absolute;
 	transition: left 0.2s, opacity 0.3s;
 	bottom: $cornerOffset * 0.7; left: $cornerOffset;
@@ -146,6 +183,7 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 	transition: left 0.2s;
 	margin-top: -3px;
 	top: $cornerOffset; left: $cornerOffset;
+	z-index: 5;
 	span {
 		text-transform: uppercase;
 		color: $orange;
@@ -177,6 +215,7 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 }
 
 .playercard {
+	z-index: 5;
 	position: absolute;
 	top: 0;
 	right: 0;
@@ -267,8 +306,9 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 		font-size: 13px;
 	}
 	h2 {
-		font: 500 24px/28px $fontStack;
-		overflow: hidden;
+		font: 500 22px/28px $fontStack;
+		letter-spacing: -1px;
+		// overflow: hidden;
 		max-height: 58px;
 	}	
 	.menu {

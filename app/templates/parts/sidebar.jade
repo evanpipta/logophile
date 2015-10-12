@@ -1,23 +1,25 @@
-div( class="sidebar" )
+div( class="sidebar" id="sidebar" )
 	div( class="upper" )
 		div( class="leaderboard" )
 			h3 Leaderboard
 			ul
-				li 1. Sam August
-					span 224
-				li 2. Mu Te
+				//- We need to figure out how to make sure this is sorted by the user scores, not just their position in the array
+				li( v-repeat="gameData.users.playing" v-class="me : [[name]] == userData.name" ) [[$index+1]]. [[name]]
+					span [[score]]
+				//- li 2. Mu Te
 					span 215
-				li( class="me" ) 3. Cosine Pi
+				//- li( class="me" ) 3. Cosine Pi
 					span 59
 		div( class="game-setup" )
 	div( class="chat" )
 		div( class="resizer" )
 		div( class="log" )
 			ul
-				li
+				//- Eventually we will add chat here
+				//- li
 					span( class="name" ) Name:
 					| Test message
-				li
+				//- li
 					span( class="name" ) Test:
 					| Test message
 		input( type="text" placeholder="Type here to chat" )

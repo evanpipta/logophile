@@ -56,7 +56,16 @@ module.exports = function( options ) {
 		 * @return {[type]} [description]
 		 */
 		joinGame: function( args ) {
-
+			var newGame = GameList.getById( args.id );
+			if ( newGame )
+			{
+				console.log("Moving user " + self.id + " to game " + args.id );
+				if ( self.gameRef )
+				{
+					self.leaveGame();
+				}
+				newGame.addUser( self, !!args.playing ? args.playing : false );
+			}
 		},
 
 		/**
@@ -106,11 +115,17 @@ module.exports = function( options ) {
 		 * @return {[type]} [description]
 		 */
 		createGame: function( args ) {
+			// Temporarily deleting args name for fun
+			delete args.name;
 			console.log("Creating game");
 			self.actions.leaveGame();
 			var g = GameList.create( args );
 			g.addUser( self, true );
 			// self.broadcastUpdateFull();
+			self.connection.send( JSON.stringify({
+				action: "onGameCreated",
+				args: { id: g.id }
+			}));
 		},
 
 		/**

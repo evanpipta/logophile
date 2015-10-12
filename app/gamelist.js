@@ -9,7 +9,7 @@ module.exports = new function() {
 	this.games = {};
 
 	// Timeout for auto-destroying games if nobody is in them
-	this.killTime = 1;
+	this.killTime = 10;
 
 	/**
 	 * Create a new game and add it to the list of games

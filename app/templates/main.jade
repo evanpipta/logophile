@@ -11,6 +11,10 @@ body
 	include ./parts/share.jade
 
 	div( id="mainpage" )
+		div( class="create-game-wrapper" v-class="active : openScreen == 'createNew' " )
+			div( class="options")
+			a( href="#" class="button" v-on="click: createGame()" ) Create
+
 		div( class="menu" v-class="open : !!openScreen" )
 			div( class="inner" )
 				h2 Logophile is a fast-paced multiplayer word find game inspired by boggle.

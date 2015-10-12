@@ -11,7 +11,7 @@ module.exports = function( size )
 {
 
 	// keys are the letters and values are their frequency
-	this.letters = Frequencies.pro;
+	this.letters = Frequencies["Uniques"];
 
 	// All the words in the board
 	this.solution = {};
@@ -29,12 +29,19 @@ module.exports = function( size )
 	this.bestSolutionLength = 0;
 	this.boardsChecked = 0;
 	this.bestMinWordLength = 0;
+	this.isRandomizing = false;
 
 	// Boards being generated must have at least one word with this length to be used
 	this.wordLengthRequirement = 9;
 
+	// Minimum word requirement
+	this.minWords = 0;
+
 	// The game this board is part of, if any
 	this.gameRef = null;
+
+	// Minimum number of letters to include a word in the solution
+	this.minLettersToScore = 4;
 
 	/**
 	 * Return a kv object where letter frequencies are points from 0 to 1 corresponding to their percentage of the summed frequency weights
@@ -102,19 +109,15 @@ module.exports = function( size )
 		// If the frequency object has minWords defined, we throw away any boards that don't meet the minimum number of words
 		// For smaller board sizes (4, 5), we can push the minimum way up since they generate so fast
 		// This will alter the output frequencies, boards with letters like X, Q, Z will be much less common
-		if ( !!this.letters.minWords )
+		// Clamp this between 0 and a value depending on board size so we can't get stuck in an infinite loop
+		var min = Math.max( 0, this.minWords );
+		min = Math.min( min, ( Math.pow( 1.5*this.boardSize, 1.1 ) - 2.8 ) * 100 );
+		if ( this.solutionLength < min )
 		{
-			var avg = this.letters.minWords[ this.boardSize.toString() ];
-			if ( !!avg )
-			{
-				if ( this.solutionLength < avg )
-				{
-					// console.log("not enough words, randomizing again");
-					// Too few words, randomize again
-					this.randomize( size, callback );
-					return;
-				}
-			}
+			// console.log("not enough words, randomizing again");
+			// Too few words, randomize again
+			this.randomize( size, callback );
+			return;
 		}
 
 		// If the word length requirement isn't met, throw away the board and generate a ne wone
@@ -127,7 +130,9 @@ module.exports = function( size )
 				longest = k.length;
 			}
 		}
-		if ( longest < this.wordLengthRequirement )
+		// Set a cap on the word length requirement to avoid infinite looping, this will depend on on board size
+		var worthLengthMaxReq = Math.min( 6 + boardSize, 15 );
+		if ( longest < Math.min( worthLengthMaxReq, this.wordLengthRequirement ) )
 		{
 			// Longest word is too short, randomizing again
 			this.randomize( size, callback );
@@ -152,36 +157,41 @@ module.exports = function( size )
 		// Reset sorted solution
 		this.solutionSorted = {};
 
-		// Make an array of 11 empty objects
-		var wordsSorted = [{},{},{},{},{},{},{},{},{},{},{} ];
-
 		// Put words in the the object at the index matching their length
 		// E.g. wordsSorted[5] will contain all 5 letter words
 		for ( var w in this.solution )
 		{
-			if ( w.length < wordsSorted.length - 1 )
+			if ( !!this.solutionSorted[ w.length ] )
 			{
-				wordsSorted[ w.length ][ w ] = this.solution[ w ];
+				// Create a new list in the sorted words using this key's length
+				this.solutionSorted[ w.length ] = {};
 			}
-			else
-			{
-				wordsSorted[ wordsSorted.length - 1 ][ w ] = this.solution[ w ]; 	// Also set the value to the word score
-			}
-		}
-		for ( var i = 0; i < wordsSorted.length; i++ )
-		{
-			if ( Object.keys( wordsSorted[ i ] ).length > 0 )
-			{
-				this.solutionSorted[ i ] = wordsSorted[ i ];
-			}
+			this.solutionSorted[ w.length ][ w ] = this.solution[ w ];
 		}
 	}
 
 	/**
-	 * Generates the best board possible in the given amount of time
+	 * Gets a count of each word length in the sorted solution
+	 * @return {Object} - key == word length, value == number of words of that length
 	 */
-	this.startOptimalRandomize = function( size, timeLimit, callback )
+	this.getSortedSolutionCounts = function() {
+		var lengths = {};
+		for ( len in this.solutionSorted )
+		{
+			lengths[ len ] = Object.keys( this.solutionSorted[ len ] ).length;
+		}
+		return lengths;
+	}
+
+	/**
+	 * Generates the best board possible in the given amount of time
+	 * If the "high frequency" option is selected for a game, this will be run for the duration of the pauses between rounds
+	 * And the game will use the highest frequency board found in that time
+	 */
+	this.startHighFrequencyRandomize = function( size, timeLimit, callback )
 	{
+
+		this.isRandomizing = true;
 
 		// Reset best board
 		this.bestBoard = [];
@@ -244,13 +254,23 @@ module.exports = function( size )
 			else
 			{
 				// clearInterval( tid );
-				// self.stopOptimalRandomize( callback );
+				// self.stopHighFrequencyRandomize( callback );
 			}
 		}, 5 );
 	}
 
-	this.stopOptimalRandomize = function( callback )
+	/**
+	 * Stops the interval for the high frequency randomization
+	 * @param  {Function} callback [description]
+	 * @return {[type]}            [description]
+	 */
+	this.stopHighFrequencyRandomize = function( callback )
 	{
+		if ( !this.isRandomizing )
+		{
+			return false;
+		}
+		this.isRandomizing = false;
 		clearInterval( this.tid );
 		// Set the board/solution the best one found
 		this.boardArray = this.bestBoard;
@@ -259,18 +279,6 @@ module.exports = function( size )
 
 		console.log( "Best board found: " + this.solutionLength + " words " + " out of " + this.boardsChecked + " checked." );
 		console.log( this.boardArray );
-
-		// Sort the solution by word length
-		this.sortSolution();
-
-		// Display the number of words of each length
-		this.sortedWordLengths = {};
-		for ( k in this.solutionSorted )
-		{
-			this.sortedWordLengths[ k ] = Object.keys( this.solutionSorted[ k ] ).length;
-		}
-
-		console.log( JSON.stringify( this.sortedWordLengths ) );
 
 		if ( typeof callback == "function" )
 		{
@@ -312,6 +320,8 @@ module.exports = function( size )
 				this.solveSequence( 1, seq );
 			}
 		}
+
+		this.sortSolution();
 
 		// console.log( Object.keys( this.solution ).length + " words found" );
 		// console.timeEnd( "solve time" );
@@ -357,7 +367,7 @@ module.exports = function( size )
 			{
 				var found = !!Dictionary.words[ seq.letters ];
 				var sub = !!Dictionary.subs[ seq.letters ];
-				if ( found && seq.letters.length > 2 )
+				if ( found && seq.letters.length >= this.minLettersToScore )
 				{
 					// We can score the word as we add it to the solution
 					this.solution[ seq.letters ] = Score( seq.letters );

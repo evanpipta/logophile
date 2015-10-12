@@ -1,6 +1,6 @@
 
-var Game = require("./game.js");
-var User = require("./user.js");
+var GameData = require("./gamedata.js");
+var User = require("./userdata.js");
 
 module.exports = new function() {
 
@@ -12,10 +12,22 @@ module.exports = new function() {
 
 	this.connection.onopen = function() {
 		console.log("Websocket connection opened.");
+		// If this page is a game, join the game
+		if ( window.location.toString().indexOf("/game/") > -1 )
+		{
+			var gameId = window.location.toString("").split("?")[1];
+			self.action( "joinGame", { id: gameId, playing: true } );
+			console.log("Joining game " + gameId );
+		}
 	}
 
 	this.connection.onclose = function() {
 		console.log("Websocket connection closed.");
+		// if ( window.location.href.indexOf("/no-ws/") < 0 )
+		// {
+		// 	// Redirect if ws disconnected while in a game screen
+		// 	window.location.href = "/no-ws/";
+		// }
 	}
 
 	this.connection.onmessage = function( msg ) {
@@ -42,15 +54,15 @@ module.exports = new function() {
 			// So we only replace things if they don't exist yet
 			for ( k in args )
 			{
-				if ( !Game[k] )
+				if ( !GameData[k] )
 				{
-					Game[k] = args[k];
+					GameData[k] = args[k];
 				}
 				else
 				{	
 					for ( each in args[k] )
 					{
-						Game[k][each] = args[k][each];
+						GameData[k][each] = args[k][each];
 					}
 				}
 			}
@@ -62,6 +74,14 @@ module.exports = new function() {
 				User[k] = args[k];
 			}
 			console.log( User );
+		},
+		onGameCreated: function( args ) {
+			// Redirect the user to the newly created game
+			window.location.href = "/game/?" + args.id;
+		},
+		onGameDestroyed: function() {
+			// This should never happen because games shouldn't get destroyed while someone is connected, but whatever.
+			window.location.href = "/game/?";
 		}
 	}
 

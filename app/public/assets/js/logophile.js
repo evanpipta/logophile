@@ -1,7 +1,10 @@
 
 // Set up game and user state objects
-Game = require("./game");
-User = require("./user");
+GameData = require("./gamedata");
+User = require("./userdata");
+
+// Default game options for creating a new game
+GameOptions = require("./gameoptions");
 
 // Set up vue
 var Vue = require("vue");
@@ -16,9 +19,14 @@ window.addEventListener("load", function() {
 	var Mainpage = new Vue({
  		el: "#mainpage",
  		data: {
+ 			gameOpts: GameOptions,
 	 		openScreen: "",
 	 	 	changeScreen: function( s ) {
  				this.openScreen = s;
+ 			},
+ 			createGame: function() {
+ 				// Create a game
+ 				wsClient.action( "createGame", GameOptions );
  			}
 	 	}
 	});
@@ -37,7 +45,7 @@ window.addEventListener("load", function() {
 	var Hud = new Vue({
 		el: "#hud",
 		data: {
-			game: Game,
+			game: GameData,
 			user: User
 		}
 	});
@@ -56,6 +64,27 @@ window.addEventListener("load", function() {
 				}
 			}
 		}
+	});
+
+	var GameInner = new Vue({
+		el: "#game-inner",
+		data: {
+			gameData: GameData,
+			userData: User
+		}
+	});
+
+	var Sidebar = new Vue({
+		el: "#sidebar",
+		data: {
+			gameData: GameData,
+			userData: User
+		}
+	});
+
+	var GameInfo = new Vue({
+		el: "#game-info",
+		data: GameData
 	});
 
 });

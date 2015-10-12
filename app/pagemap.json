@@ -18,6 +18,14 @@
 	"/game.html": {
 		"redirect": "/game/",
 		"status": 301
+	},
+
+	"/no-ws/": {
+		"type": "nows"
+	},
+	"/no-ws/index.html": {
+		"redirect": "/no-ws/",
+		"status": 301
 	}
 
 }
