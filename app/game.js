@@ -17,20 +17,21 @@ module.exports = function( options ) {
 		boardSize: 5,
 		frequences: "Uniques",
 		name: Dictionary.getRandom( Math.round( ( Math.random() ) * 12 ) + 3 ) +" "+ Dictionary.getRandom( Math.round( ( Math.random() ) * 12 ) + 3 ),
-		timeLimit: 90,
-		pauseTime: 15,
+		timeLimit: 30,
+		pauseTime: 10,
 		private: false,
 		ranked: false,
 		allowGuests: true,
-		scoreStyle: "Normal", // "normal" or "prolific"
+		scoreStyle: "Normal", 			// "normal" or "prolific"
 		initd: false,
+		rounds: 0,						// rounds played so far
 		minLettersToScore: 4,	
 		boardHighFrequency: true,
 		boardMinWords: 280,			// Only applies if high frequency is false
 		boardRequireLength: 9		// Only applies if high frequency is false
 	});
 
-	this.initTime = 10;
+	this.initTime = this.data.pauseTime;
 
 	// Never allow guests is the game is ranked - for later
 	if ( this.data.ranked == true )
@@ -198,6 +199,7 @@ module.exports = function( options ) {
 
 		clearInterval( game.data.pauseTimerId );
 		game.data.isPaused = false;
+		game.data.rounds++;
 
 		game.data.round.wordsFound = {};
 		game.data.round.started = true;
@@ -449,12 +451,13 @@ module.exports = function( options ) {
 
 		var pubGameData = {
 			id: this.id,
+			rounds: this.data.rounds,
 			initd: this.data.initd,
 			name: this.data.name,
 			board: boardArr,
 			boardSize: this.data.boardSize,
 			timeLimit: this.data.timeLimit,
-			pauseTime: this.data.pauseTime,
+			pauseTimeLimit: this.data.pauseTime,
 			ranked: this.data.ranked,
 			allowGuests: this.data.allowGuests,
 			scoreStyle: this.data.scoreStyle,
@@ -468,7 +471,7 @@ module.exports = function( options ) {
 			boardRequireLength: this.data.boardRequireLength,
 			boardMinWords: this.data.boardMinWords,
 			// We always send the number of words of each length in the solution, just not the actual strings of what they are
-			wordCounts: this.data.board.getSortedSolutionCounts()
+			wordCounts: this.data.board.solutionCounts
 		}
 		// If the game has ended, we also want to send the solution
 		if ( !this.data.round.started )

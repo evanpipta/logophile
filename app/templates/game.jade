@@ -16,7 +16,7 @@ body
 		include ./parts/playercard.jade
 
 		div( class="inner" id="game-inner" )
-			div( class="col left" )
+			div( class="col left" v-style="maxWidth: ( (gameData.game.board.length > 4 ) ? 25 : 30 ) + '%'" )
 				div( class="remaining" )
 					div( class="list nowrap" )
 							h2 Remaining: 
@@ -30,21 +30,38 @@ body
 
 								ul( class="counts" )
 									li count
-									li( v-repeat="gameData.game.wordCounts" ) [[ $value.length ]]
+									li( v-repeat="gameData.game.wordCounts" ) [[$value]]
 
-			div( class="col center" )
+			div( class="col center" v-style="minWidth: boardpx+'px', maxWidth: boardpx+'px'," )
 				div( class="game-center" )
 					div( class="hud" id="hud" )
-						p( class="timer-label" ) Time:
-						h2( class="timer" ) [[timeRemaining | time]]
-						p( class="round-starts" ) Round starts in:
-						h2( class="round-starts-timer" ) 00:00
-						h2( class="waiting-to-start" ) Waiting to start first round
-						h3( class="score" ) Score: [[score]]
-						h4( class="place" ) Place [[place]] / [[numplayers]]
-					div( class="board" )
-						div( class="row" v-repeat="gameData.game.board" )
-							div( class="cell" v-repeat="gameData.game.board[$index]" )
+
+						h2(  v-if="gameData.game.initd && gameData.game.roundStarted" ).
+							Round Started
+
+						h2( class="round-ended" v-if="gameData.game.initd && !gameData.game.roundStarted && gameData.game.rounds > 0"  ).
+							Round Ended
+
+						div( class="time-wrapper" v-if="gameData.game.initd && gameData.game.roundStarted" )
+							p( class="timer-label" ) Time remaining:
+							h2( class="timer" ) [[ gameData.game.timeLimit - gameData.game.roundTime | time 'ceil' ]]
+
+						div( class="time-wrapper" v-if="gameData.game.initd && !gameData.game.roundStarted" )
+							p( class="round-starts" ) Next round starts in:
+							h2( class="round-starts-timer" ) [[ gameData.game.pauseTimeLimit - gameData.game.pauseTime | time 'ceil' ]]
+
+						div( class="place-wrapper" v-if="gameData.game.initd && gameData.game.rounds > 0" )
+							h3( class="score" ) Score: [[userData.score]]
+							h4( class="place" ) Place [[place]] / [[gameData.users.playing.length]]
+
+						h2( class="waiting-to-start" v-if="!gameData.game.initd" ) Waiting to start first round
+						a( href="#" class="button" v-if="!gameData.game.initd" v-on="click: startGame()") Start Game
+
+					div( class="board" v-style="height: boardpx+'px', width: boardpx+'px', minHeight: boardpx+'px', maxHeight: boardpx+'px'" )
+						div( class="row" v-style="height: 100/gameData.game.board.length+'%' " v-repeat="gameData.game.board" )
+							div( class="cell" v-style="width: 100/gameData.game.board.length+'%' "  v-repeat="gameData.game.board[$index]" )
+								div( class="letter" v-style="font-size: boardpx*0.5/gameData.game.board.length + 'px' " ).
+									[[ gameData.game.board[$parent.$index][$index] ]]
 
 					div( class="word" )
 						input( type="text" placeholder="type here" )

@@ -24,7 +24,7 @@ $orange: #E68729;				// Background color for inactive or static orange elements
 $orangeLit: #EBAF22;				// Background color for hovered / active orange buttons or elements
 
 $breakTablet: 1150px;			// Break point for tablet version
-$breakMobile: 400px;				// Break point for full mobile version
+$breakMobile: 680px;				// Break point for full mobile version
 
 $sidebarWidth: 270px;			// Overall Sidebar width
 $sidebarWidthMobile: 42px;		// Sidebar width on mobile
@@ -73,6 +73,21 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 	transform: scale(0.999);
 }
 
+.button {
+	display: inline-block;
+	font-weight: 300;
+	letter-spacing: -0.2px;
+	margin: 10px auto;
+	border: 1px solid $grey3;
+	border-radius: 20px;
+	padding: 10px 40px 8px;
+	transition: background 0.3s, border 0.3s;
+}
+.button:hover {
+	opacity: 1;
+	background: $orange;
+	border: 1px solid $orange;
+}
 
 #mainpage {
 	height: 100%; width: 100%;
@@ -135,27 +150,16 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 		opacity: 0;
 		transition: opacity 0.3s, height 0.3s, padding 0.3s;
 		overflow: hidden;
-		a.button {
-			font-weight: 300;
-			letter-spacing: -0.2px;
-			position: absolute;
-			bottom: $cornerOffset + 10px;
-			left: 50%;
-			transform: translateX(-50%);
-			border: 1px solid $grey3;
-			border-radius: 20px;
-			padding: 10px 40px 8px;
-			transition: background 0.3s, border 0.3s;
-		}
-		a.button:hover {
-			opacity: 1;
-			background: $orange;
-			border: 1px solid $orange;
-		}
 		.options {
 			height: 100%;
 			overflow-x: hidden;
 			overflow-y: scroll;
+		}
+		.button {	
+			position: absolute;
+			bottom: $cornerOffset + 10px;
+			left: 50%;
+			transform: translateX(-50%);
 		}
 	}
 	.create-game-wrapper.active {
@@ -482,6 +486,9 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 		padding: $gameEdgePadding;
 		// white-space: nowrap;
 		display: flex;
+		@media ( max-width: $breakMobile ) {
+			flex-direction: column;
+		}
 		align-content: stretch;
 		height: 100%;
 		.col {
@@ -493,13 +500,21 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 			// border-right: 1px solid $grey2;
 			flex: 2 1;
 		}
-		.col:first-child {
+		.col.left {
 			max-width: 30%;
 		}
-		.col:nth-child(2) {
+		.col.center {
 			flex: 3 1;
 			max-width: $boardSize;
 			min-width: $boardSize;
+			// The width of this may be set by vue depending on board size
+			// But we want to override that with !important on small viewports
+			@media( max-width: $breakMobile )
+			{
+				min-width: 100% !important;
+				max-width: 100% !important;
+				width: 100% !important;
+			}
 		}
 	}
 	h2 { margin: 0 0 20px 0; }
@@ -507,6 +522,10 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 	h2 span { float: right; }
 
 	.remaining {
+		@media( max-width: $breakMobile )
+		{
+			display: none;
+		}
 		height: 100%;
 		display: flex;
 		flex-direction: column;
@@ -515,8 +534,8 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 			float: none;
 		}
 		.list {
-			margin-bottom: 5%;
-			min-height: $boardSize;
+			// margin-bottom: 5%;
+			// min-height: $boardSize;
 			ul {
 				display: inline-block; vertical-align: top;
 				min-height: 225px;
@@ -567,16 +586,27 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 		flex-direction: column;
 		justify-content: center;
 		padding: $foundTopPadding $sidebarPadding*1.5 $foundTopPadding*1.3;
+		@media ( max-width: $breakMobile )
+		{
+			padding-top: 0;
+		}
 		text-align: left;
+		h2 {
+			height: 25px;
+			overflow: hidden;
+		}
 		.found-section { margin-bottom: 15px; }
 		.found-section:last-child { margin: 0; }
 		.found-section h4 {
+			height: 20px;
+			overflow: hidden;
 			border-bottom: 1px solid $grey3;
 			margin: 0 0 8px 0;
 			padding-bottom: 2px;
+			line-height: 20px;
 		}
 		.found-section h4, .found-section h4 span { 
-			font: 400 14px/16px $fontStack;
+			font: 400 14px/20px $fontStack;
 			color: $grey3;
 		}
 		.found-section h4 span {
@@ -601,14 +631,16 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 		justify-content: space-around;
 		.hud {
 			max-height: 33%;
-			p, h2 {
+			.round-ended, .round-starts, .round-starts-timer {
 				color: $teal;
-				font-size: 12px;
-				text-transform: uppercase;
+			}
+			.timer, .round-starts-timer {
+				margin-bottom: 0;
 			}
 			h2 {
 				margin-top: 5px;
-				font-size: 40px;
+				font-size: 36px;
+				line-height: 37px;
 			}
 			h3 {
 				font: 200 24px/28px $fontStack;
@@ -619,24 +651,26 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 			}
 			.timer, .timer-label, .round-starts, .round-starts-timer, .score, .place {
 				// These are all disabled to start with until the game state is started
-				display: none;
+				// This is now done with vue's v-if directive and not css class
+				// display: none;
 			}
 			.waiting-to-start {
 				font: 300 18px/20px $fontStack;
 				text-transform: none;
 				color: $tealLit;
-				margin-top: 50px;
+				// margin-top: 50px;
 			}
 		}
 		.board {
 			width: $boardSize;
 			height: $boardSize;
 			min-height: $boardSize;
-			margin: 0 auto 9%;
+			margin: 0 auto;
 			// border: 1px solid $grey2;
 			display: block;
 			position: relative;
 			.row {
+				margin-top:-1px;
 				height: 25%;
 				display: block;
 				white-space: nowrap;
@@ -649,8 +683,14 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 				display: inline-block; vertical-align: top;
 				text-align: center;
 				transition: background 0.2s, border 0.2s;
-				padding-top: 18px;
 				font: 400 40px/40px $fontStack;
+				position: relative;
+				.letter {
+					width: 100%;
+					position: absolute;
+					top: 50%;
+					transform: translateY(-50%);
+				}
 			}
 			.cell.on {
 				background: $teal;
@@ -659,7 +699,7 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 		.word {
 			max-height: 33%;
 			position: relative;
-			top: -8%;
+			// top: -8%;
 			input[type="text"] {
 				@include textInput(22px, 6px);
 				font-weight: 300;

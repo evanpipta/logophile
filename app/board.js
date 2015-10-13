@@ -154,34 +154,28 @@ module.exports = function( size )
 	this.sortSolution = function()
 	{
 
+		// For some reason this shit isn't working, not all the words are getting added. :/
+
 		// Reset sorted solution
 		this.solutionSorted = {};
+		this.solutionCounts = {};
 
 		// Put words in the the object at the index matching their length
 		// E.g. wordsSorted[5] will contain all 5 letter words
 		for ( var w in this.solution )
 		{
-			if ( !!this.solutionSorted[ w.length ] )
+			var len = w.length;
+			if ( !this.solutionSorted[ len ] )
 			{
 				// Create a new list in the sorted words using this key's length
-				this.solutionSorted[ w.length ] = {};
+				this.solutionSorted[ len ] = {};
+				this.solutionCounts[ len ] = 0;
 			}
-			this.solutionSorted[ w.length ][ w ] = this.solution[ w ];
+			this.solutionSorted[ len ][ w ] = this.solution[ w ];
+			this.solutionCounts[ len ] += 1;
 		}
 	}
 
-	/**
-	 * Gets a count of each word length in the sorted solution
-	 * @return {Object} - key == word length, value == number of words of that length
-	 */
-	this.getSortedSolutionCounts = function() {
-		var lengths = {};
-		for ( len in this.solutionSorted )
-		{
-			lengths[ len ] = Object.keys( this.solutionSorted[ len ] ).length;
-		}
-		return lengths;
-	}
 
 	/**
 	 * Generates the best board possible in the given amount of time
@@ -278,6 +272,7 @@ module.exports = function( size )
 		this.solutionLength = this.bestSolutionLength;
 
 		console.log( "Best board found: " + this.solutionLength + " words " + " out of " + this.boardsChecked + " checked." );
+		console.log( JSON.stringify( this.solution ) );
 		console.log( this.boardArray );
 
 		if ( typeof callback == "function" )

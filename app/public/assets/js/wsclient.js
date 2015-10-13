@@ -56,13 +56,14 @@ module.exports = new function() {
 			{
 				if ( !GameData[k] )
 				{
-					GameData[k] = args[k];
+					GameData.$add( k, args[k] );
 				}
 				else
 				{	
 					for ( each in args[k] )
 					{
-						GameData[k][each] = args[k][each];
+						// use $set method to ensure vue updates the displayed data
+						GameData[k].$set( each, args[k][each] );
 					}
 				}
 			}
@@ -71,7 +72,8 @@ module.exports = new function() {
 			// Replace local user data with remote user data
 			for ( k in args )
 			{
-				User[k] = args[k];
+				// use $set method to ensure vue updates the displayed data
+				User.$set( k, args[k] );
 			}
 			console.log( User );
 		},

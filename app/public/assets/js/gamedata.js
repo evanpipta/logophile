@@ -18,6 +18,7 @@ module.exports = {
 		"roundStarted": false,
 		"roundTime": 0,
 		"paused": true,
+		"rounds": 0,
 		"minLettersToScore": 4,
 		"boardHighFrequency": true,
 		"boardRequireLength": 9,

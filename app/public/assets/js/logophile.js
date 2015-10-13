@@ -42,14 +42,6 @@ window.addEventListener("load", function() {
 		}
 	});
 
-	var Hud = new Vue({
-		el: "#hud",
-		data: {
-			game: GameData,
-			user: User
-		}
-	});
-
 	var LogoSmall = new Vue({
 		el: "#logo-small",
 		data: {
@@ -66,11 +58,23 @@ window.addEventListener("load", function() {
 		}
 	});
 
-	var GameInner = new Vue({
+	GameInner = new Vue({
 		el: "#game-inner",
 		data: {
 			gameData: GameData,
-			userData: User
+			userData: User,
+		},
+		computed: {
+			boardpx: function() {
+				// Computed board pixel size
+				return Math.max( 300, Math.min( 500, this.gameData.game.board.length*100 - 100 ) );
+			}
+		},
+		methods: {
+			startGame: function() {
+				console.log("starting game");
+				wsClient.action("initGame");
+			}
 		}
 	});
 
@@ -84,7 +88,13 @@ window.addEventListener("load", function() {
 
 	var GameInfo = new Vue({
 		el: "#game-info",
-		data: GameData
+		data: GameData,
+		methods: {
+			startGame: function() {
+				console.log("starting game");
+				wsClient.action("initGame");
+			}
+		}
 	});
 
 });

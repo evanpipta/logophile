@@ -8,6 +8,6 @@ div( class="game-info" id="game-info" )
 			li
 				a( href="#" ) Info
 			li
-				a( href="#" v-if="!game.initd" ) Start
+				a( href="#" v-if="!game.initd" v-on="click: startGame()" ) Start
 
 	span( class="mobile-view" )
