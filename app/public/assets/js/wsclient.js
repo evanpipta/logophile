@@ -22,8 +22,11 @@ module.exports = new function() {
 	}
 
 	this.connection.onclose = function() {
-		console.log("Websocket connection closed.");
-		// if ( window.location.href.indexOf("/no-ws/") < 0 )
+		// console.log("Websocket connection closed.");
+		setTimeout( function() {
+			alert("Websocket connection closed.");
+		}, 200 );
+		// if ( window.location.href.indexOf("/game/") > 0 )
 		// {
 		// 	// Redirect if ws disconnected while in a game screen
 		// 	window.location.href = "/no-ws/";
