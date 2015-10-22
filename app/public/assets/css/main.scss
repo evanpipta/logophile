@@ -546,6 +546,7 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 				position: relative;
 			}
 			.lengths {
+				padding-top: 20px;
 				padding-right: 10px;
 				border-right: 1px solid $grey3;
 				text-align: right;
@@ -560,6 +561,7 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 				}
 			}
 			.counts {
+				padding-top: 20px;
 				padding-left: 4px;
 				text-align: left;
 				li {

@@ -21,11 +21,18 @@ module.exports = new function() {
 	 * Create a new user in the game list with session id and connection attached
 	 */
 	this.createUser = function( sessId, connection ) {
+		
 		// Instantiate a new user using the session id
 		var user = UserList.create({ id: sessId });
 		user.server = this;
 		user.bindConnection( connection );
 		console.log( "Creating new user " + sessId );
+
+		// If the session is logged in, attach login data to the new user
+
+		// If we're on a game page, move the user to the game
+		
+
 	}
 
 	/**
@@ -160,7 +167,7 @@ module.exports = new function() {
 				// We only populate initial game data in the http request, not the individual user data
 				// Individual user data gets destroyed any time the user loads a new page, and rebuilt when the new websocket connection is opened
 				var GameData = {};
-				var GameUserData = {};
+				var UserData = {};
 				if ( PageMap[ url ].type == "game" )
 				{
 					var gid = parseInt( Object.keys( params )[0] );
@@ -187,8 +194,8 @@ module.exports = new function() {
   				res.send( Jade.renderFile( __dirname + "/templates/" + PageMap[ url ].type + ".jade", {
   					version: PackageInfo.version,
   					pagetype: PageMap[ url ].type,
-  					gamedata: JSON.stringify( GameData ),
-  					gameuserdata: JSON.stringify( GameUserData ),
+  					gameData: JSON.stringify( GameData ),
+  					userData: JSON.stringify( UserData ),
   					pretty: "  "
   				} ) );
 

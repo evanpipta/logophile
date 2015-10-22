@@ -131,7 +131,7 @@ module.exports = function( size )
 			}
 		}
 		// Set a cap on the word length requirement to avoid infinite looping, this will depend on on board size
-		var worthLengthMaxReq = Math.min( 6 + boardSize, 15 );
+		var worthLengthMaxReq = Math.min( 6 + this.boardSize, 15 );
 		if ( longest < Math.min( worthLengthMaxReq, this.wordLengthRequirement ) )
 		{
 			// Longest word is too short, randomizing again
@@ -270,6 +270,7 @@ module.exports = function( size )
 		this.boardArray = this.bestBoard;
 		this.solution = this.bestSolution;
 		this.solutionLength = this.bestSolutionLength;
+		this.sortSolution();
 
 		console.log( "Best board found: " + this.solutionLength + " words " + " out of " + this.boardsChecked + " checked." );
 		console.log( JSON.stringify( this.solution ) );

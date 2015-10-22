@@ -1,9 +1,9 @@
 module.exports = {
 	name: "",
-	boardSize: 6,
+	boardSize: 5,
 	frequencies: "Uniques",
 	timeLimit: 30,
-	pauseTime: 10,
+	pauseTime: 20,
 	private: false,
 	ranked: false,
 	scoreStyle: "Normal",

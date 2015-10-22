@@ -129,6 +129,7 @@ module.exports = new function() {
 					console.log("Destroying game " + game.id );
 					clearInterval( game.data.timerId );
 					clearInterval( game.updateTimerId );
+					clearInterval( game.pauseTimerId );
 					game.data.board = null;
 					game = null;
 					delete this.games[key];

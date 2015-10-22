@@ -153,7 +153,10 @@ module.exports = function( options ) {
 		{
 			for ( var i = 0; i <this.users[k].length; i++ )
 			{
-				this.users[k][i].connection.send( msg );
+				if ( this.users[k][i].connection.readyState == 1 )
+				{
+					this.users[k][i].connection.send( msg );
+				}
 			}
 		}
 	}
@@ -319,6 +322,8 @@ module.exports = function( options ) {
 	this.addUser = function( user, playing ) {
 		if ( typeof user == "object" )
 		{
+			console.log("Adding user " + user.id + " to game " + this.id);
+
 			// Remove user from other games if they're in any
 			if ( user.data.gameRef )
 			{
@@ -362,18 +367,22 @@ module.exports = function( options ) {
 			}
 
 			// Send message to the user's client
-			user.connection.send( JSON.stringify({
-				action: "onGameEnter"
-			}));
+			if ( user.connection.readyState == 1 )
+			{
+				user.connection.send( JSON.stringify({
+					action: "onGameEnter"
+				}));
+				user.connection.send( JSON.stringify({
+					action: "onGameUpdate",
+					args: {
+						game: this.getPublicGameData(),
+						users: this.getPublicUserData()
+					}
+				}));
+			}
 
-			// Send full game update to the user
-			user.connection.send( JSON.stringify({
-				action: "onGameUpdate",
-				args: {
-					game: this.getPublicGameData(),
-					users: this.getPublicUserData()
-				}
-			}));
+			// Send short game update to all users
+			this.broadcastGameStateShort();
 
 			return true;
 		}
@@ -417,13 +426,15 @@ module.exports = function( options ) {
 				}
 
 				// If the connection is open, send the user client a message
-				if ( user.connection.readyState != 3 )
+				if ( user.connection.readyState == 1 )
 				{
 					user.connection.send( JSON.stringify({
 						action: "onGameLeave"
 					}));
 				}
 
+				// Send short game update to all users
+				this.broadcastGameStateShort();
 			}
 		}	
 	}
