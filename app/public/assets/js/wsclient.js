@@ -54,7 +54,6 @@ module.exports = new function() {
 			// console.log("Receiving game update");
 			// Receiving data about the game state
 			// We don't always receive the full game state, because it would be a waste of resources to constantly transfer that data
-			// So we only replace things if they don't exist yet
 			for ( k in args )
 			{
 				if ( !GameData[k] )
