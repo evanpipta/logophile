@@ -15,9 +15,14 @@ module.exports = new function() {
 		// If this page is a game, join the game
 		if ( window.location.toString().indexOf("/game/") > -1 )
 		{
+			// Get the game iD, for now it will always be a single number in the url parameters
 			var gameId = window.location.toString("").split("?")[1];
-			self.action( "joinGame", { id: gameId, playing: true } );
-			console.log("Joining game " + gameId );
+			if ( gameId )
+			{
+				gameId = gameId.split("#")[0]; // Remove the hash
+				self.action( "joinGame", { id: gameId, playing: true } );
+				console.log("Joining game " + gameId );
+			}
 		}
 	}
 

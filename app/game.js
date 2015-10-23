@@ -51,7 +51,8 @@ module.exports = function( options ) {
 		started: false,
 		startTime: null,
 		elapsed: 0,
-		lastSolution: {}
+		lastSolution: {},
+		lastBoardArray: []
 	};
 
 	// Timer and data for pause betwen rounds
@@ -61,6 +62,7 @@ module.exports = function( options ) {
 	this.data.pauseRemaining = this.data.pauseTime;
 	this.data.pauseStartTime = 0;
 
+	// Current board
 	this.data.board = new Board( this.data.boardSize );
 
 	// Timer for broadcasting game updates to connected users
@@ -233,6 +235,8 @@ module.exports = function( options ) {
 		this.data.round.started = false;
 		this.data.round.startTime = null;
 		this.data.round.lastSolution = this.data.board.solution;
+		this.data.round.lastSolutionCounts = this.data.board.solutionCounts;
+		this.data.round.lastBoardArray = this.data.board.boardArray;
 		// Put users who were queued to join into the active players list
 		for ( k in this.users.queued )
 		{
@@ -334,25 +338,26 @@ module.exports = function( options ) {
 			user.resetScore();
 			if ( typeof playing == "boolean" && playing && ( this.data.allowGuests || user.data.registered ) )
 			{
+				// For now we're just going to disabled "queued" players and let players join mid-round
 				// Playing
-				if ( this.data.round.started )
-				{
-					// Add to queued players
-					if ( this.users.queued.indexOf( user ) < 0 )
-					{
-						user.isPlaying = false;
-						this.users.queued.push( user );
-					}
-				}
-				else
-				{
+				// if ( this.data.round.started )
+				// {
+				// 	// Add to queued players
+				// 	if ( this.users.queued.indexOf( user ) < 0 )
+				// 	{
+				// 		user.isPlaying = false;
+				// 		this.users.queued.push( user );
+				// 	}
+				// }
+				// else
+				// {
 					// Add to active players
 					if ( this.users.playing.indexOf( user ) < 0 )
 					{
 						user.isPlaying = true;
 						this.users.playing.push( user );
 					}
-				}
+				// }
 			}
 			else
 			{
@@ -436,10 +441,17 @@ module.exports = function( options ) {
 	 * @return {Object} Game data object
 	 */
 	this.getPublicGameData = function() {
+
+
+		var boardArr = this.data.board.boardArray;
+
+		// If the game hasn't started, we also send the last board array as a solution
+		if ( !this.data.round.started ) {
+			boardArr = this.data.round.lastBoardArray;
+		}
 		
 		// If the board has nothing in it, send an empty board instead.
-		// This should only happen before the gamehas been initialized
-		var boardArr = this.data.board.boardArray;
+		// This should only happen before the game has been initialized the first time
 		if ( !boardArr.length )
 		{
 			for ( var x = 0; x < this.data.boardSize; x++ )
@@ -476,11 +488,14 @@ module.exports = function( options ) {
 			// We always send the number of words of each length in the solution, just not the actual strings of what they are
 			wordCounts: this.data.board.solutionCounts
 		}
+
 		// If the game has ended, we also want to send the solution
 		if ( !this.data.round.started )
 		{
 			pubGameData.solution = this.data.round.lastSolution;
+			pubGameData.wordCounts = this.data.round.lastSolutionCounts;
 		}
+
 		return pubGameData;
 	}
 

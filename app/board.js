@@ -86,6 +86,21 @@ module.exports = function( size )
 	}
 
 	/**
+	 * Create the board array with empty slots
+	 */
+	this.fillEmpty = function() {
+		this.boardArray = [];
+		for ( var i = 0; i < this.boardSize; i++ )
+		{
+			this.boardArray[ i ] = [];
+			for ( var j = 0; j < this.boardSize; j++ )
+			{
+				this.boardArray[ i ][ j ] = " ";
+			}
+		}
+	}
+
+	/**
 	 * Randomize the board
 	 */
 	this.randomize = function( size, callback )
@@ -388,6 +403,9 @@ module.exports = function( size )
 
 	// Automatically randomize at startup?
 	// this.randomize();
+	
+	// Automatically fill empty at startup?
+	this.fillEmpty();
 
 	return true;
 

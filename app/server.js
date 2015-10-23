@@ -136,7 +136,9 @@ module.exports = new function() {
 				var params = {};
 				if ( qstring )
 				{
-					var qstring = qstring.split("&")
+					console.log( qstring );
+					qstring = qstring.split("#")[0];
+					qstring = qstring.split("&");
 					for ( var i = 0; i < qstring.length; i++ )
 					{
 						var item = qstring[i].split("=");
