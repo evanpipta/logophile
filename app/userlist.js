@@ -8,6 +8,9 @@ module.exports = new function() {
 
 	this.users = {};
 
+	// Timeout for destroying users with no open connections
+	this.killTime = 30;
+
 	/**
 	 * Return a list of all user names
 	 * @return {Array} usernames
@@ -57,7 +60,7 @@ module.exports = new function() {
 	}
 
 	/**
-	 * Remove a user by id
+	 * Remove a user by id... we probably will never use this
 	 */
 	this.removeById = function( id ) {
 		if ( !!this.users[id] )
@@ -68,7 +71,7 @@ module.exports = new function() {
 	}
 
 	/**
-	 * Remove a user by value
+	 * Remove a user by value... we probably will never use this
 	 */
 	this.remove = function( user ) {
 		for ( var k in this.users )
@@ -108,7 +111,48 @@ module.exports = new function() {
 	}
 
 
-	this.getByName = function( n ) {
+	this.getByName = function( n ) {}
+
+
+	/**
+	 * Checks all userss in the list to see if they're empty and whether or not they need to be deleted
+	 */
+	this.killTimer = function() {
+		for ( key in this.users )
+		{
+			var user = this.users[ key ];
+			// user.connection.connections length will automatically be 0 
+			if ( !user.connection.count() )
+			{
+				// This user has no active connections, start the kill timer
+				if ( !user.killTimeStart )
+				{
+					user.killTimeStart = (new Date()).getTime() / 1000;
+				}
+				else if ( ((new Date()).getTime() / 1000 ) - user.killTimeStart >= this.killTime )
+				{
+					// Check if kill time has passed, and if so destroy the game and clear any updates it has running
+					console.log("Destroying user " + user.id );
+					// Leave any connected game (there shouldn't be any)
+					user.actions.leaveGame();
+					clearInterval( user.autoLeaveTimerId );
+					user.connection = null;
+					user = null;
+					delete this.users[ key ];
+				}
+			}
+			else
+			{
+				// Connections are active, reset kill timer
+				user.killTimeStart = null;
+			}
+		}
 	}
+
+	// Start kill timer automatically
+	var uList = this;
+	setInterval( function() {
+		uList.killTimer();
+	}, 1000 );
 
 }

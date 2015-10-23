@@ -153,10 +153,8 @@ module.exports = function( options ) {
 		{
 			for ( var i = 0; i <this.users[k].length; i++ )
 			{
-				if ( this.users[k][i].connection.readyState == 1 )
-				{
-					this.users[k][i].connection.send( msg );
-				}
+				// console.log("Sending message to user " + this.users[k][i].id );
+				this.users[k][i].connection.send( msg );
 			}
 		}
 	}
@@ -325,14 +323,14 @@ module.exports = function( options ) {
 			console.log("Adding user " + user.id + " to game " + this.id);
 
 			// Remove user from other games if they're in any
-			if ( user.data.gameRef )
+			if ( user.gameRef )
 			{
-				user.data.gameRef.removeUser( user );
+				user.gameRef.removeUser( user );
 			}
 
 			// Set game id to this game
 			user.data.joinedId = this.data.id;
-			user.data.gameRef = this;
+			user.gameRef = this;
 			user.resetScore();
 			if ( typeof playing == "boolean" && playing && ( this.data.allowGuests || user.data.registered ) )
 			{
@@ -367,19 +365,16 @@ module.exports = function( options ) {
 			}
 
 			// Send message to the user's client
-			if ( user.connection.readyState == 1 )
-			{
-				user.connection.send( JSON.stringify({
-					action: "onGameEnter"
-				}));
-				user.connection.send( JSON.stringify({
-					action: "onGameUpdate",
-					args: {
-						game: this.getPublicGameData(),
-						users: this.getPublicUserData()
-					}
-				}));
-			}
+			user.connection.send( JSON.stringify({
+				action: "onGameEnter"
+			}));
+			user.connection.send( JSON.stringify({
+				action: "onGameUpdate",
+				args: {
+					game: this.getPublicGameData(),
+					users: this.getPublicUserData()
+				}
+			}));
 
 			// Send short game update to all users
 			this.broadcastGameStateShort();
@@ -420,18 +415,15 @@ module.exports = function( options ) {
 				if ( !!user )
 				{
 					user.data.joinedId = 0;
-					user.data.gameRef = null;
+					user.gameRef = null;
 					user.data.isPlaying = false;
 					user.resetScore();
 				}
 
 				// If the connection is open, send the user client a message
-				if ( user.connection.readyState == 1 )
-				{
-					user.connection.send( JSON.stringify({
-						action: "onGameLeave"
-					}));
-				}
+				user.connection.send( JSON.stringify({
+					action: "onGameLeave"
+				}));
 
 				// Send short game update to all users
 				this.broadcastGameStateShort();

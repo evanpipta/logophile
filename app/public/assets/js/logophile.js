@@ -12,10 +12,13 @@ Vue.config.delimiters = ["[[", "]]"];
 require("./vuefilters");
 
 // Set up websocket client
- var wsClient = require("./wsclient.js");
+var wsClient = require("./wsclient.js");
+
+window.addEventListener("beforeunload", function(){
+    wsClient.connection.close();
+});
 
 window.addEventListener("load", function() {
-
 	var Mainpage = new Vue({
  		el: "#mainpage",
  		data: {
@@ -96,5 +99,4 @@ window.addEventListener("load", function() {
 			}
 		}
 	});
-
 });

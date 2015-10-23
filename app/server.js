@@ -29,8 +29,6 @@ module.exports = new function() {
 		console.log( "Creating new user " + sessId );
 
 		// If the session is logged in, attach login data to the new user
-
-		// If we're on a game page, move the user to the game
 		
 
 	}
@@ -65,29 +63,15 @@ module.exports = new function() {
 		console.log( "Request from session ID: " + cookie.sessId );
 		console.log( "Currently existing users: " + Object.keys( UserList.users ) );
 
-		// Delete the old user if the same session connects again
-		if ( !!UserList.users[ cookie.sessId ] )
+		// If no user exists yet from this session, create one
+		if ( !UserList.users[ cookie.sessId ] )
 		{
-			console.log( "Session is already connected, destroying old user" );
-			// Find user by id attached to the session
-			var user = UserList.getById( cookie.sessId );
-			// Close the old connection and remove from userlist
-			// We need to make sure we remove the user from the user list first, otherwise we WILL have a problem!!!
-			// For some reason this fails:
-			// Async.waterfall([
-			// 	UserList.remove( user ),
-			// 	user.connection.close,
-			// 	self.createUser( cookie.sessId, connection )
-			// ])
-			// But this works:
-			user.connection.close();
-			setTimeout( function(){ 
-				self.createUser( cookie.sessId, connection )
-			}, 250 );
+			self.createUser( cookie.sessId, connection );
 		}
 		else
 		{
-			self.createUser( cookie.sessId, connection );
+			// Otherwise bind this connection to the existing user
+			UserList.users[ cookie.sessId ].bindConnection( connection );
 		}
 
 	}

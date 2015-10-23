@@ -273,8 +273,8 @@ module.exports = function( size )
 		this.sortSolution();
 
 		console.log( "Best board found: " + this.solutionLength + " words " + " out of " + this.boardsChecked + " checked." );
-		console.log( JSON.stringify( this.solution ) );
-		console.log( this.boardArray );
+		// console.log( JSON.stringify( this.solution ) );
+		// console.log( this.boardArray );
 
 		if ( typeof callback == "function" )
 		{
