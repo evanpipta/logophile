@@ -214,10 +214,6 @@ module.exports = function( options ) {
 
 	// Handle websocket message
 	this.handleMessage = function( msg, conn ) {
-
-		// this refers to the connection here, so we might want to change it
-		console.log( "Message received from player " + this.id );
-
 		// Example data: { "action": "test", "args": {"dope": "af"} }
 		// If this.actions[data.action] exists as a function, we call it
 		var msgData = JSON.parse( msg );
@@ -293,7 +289,7 @@ module.exports = function( options ) {
 		else
 		{
 			// This user is active in a game
-			this.killTimeStart = null;
+			this.autoLeaveStart = null;
 		}
 	}
 

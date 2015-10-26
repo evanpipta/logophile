@@ -26,11 +26,11 @@ body
 							div
 								ul( class="lengths" )
 									li length
-									li( v-for="value in gameData.game.wordCounts" ) [[$key]]
+									li( v-for="value in userRemainingCount" ) [[$key]]
 
 								ul( class="counts" )
 									li count
-									li( v-for="value in gameData.game.wordCounts" ) [[value]]
+									li( v-for="value in userRemainingCount" ) [[value]]
 
 			div( class="col center" v-bind:style="{ minWidth: boardpx+'px', maxWidth: boardpx+'px' }" )
 				div( class="game-center" )

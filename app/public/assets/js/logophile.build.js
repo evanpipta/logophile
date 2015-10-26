@@ -37,7 +37,7 @@ module.exports = {
 },{}],2:[function(require,module,exports){
 module.exports = {
 	name: "",
-	boardSize: 4,
+	boardSize: 5,
 	frequencies: "Uniques",
 	timeLimit: 60,
 	pauseTime: 30,
@@ -154,6 +154,8 @@ window.addEventListener("load", function() {
 			foundNum: function() {
 				return Object.keys( this.userData.words ).length;
 			},
+
+			// The user's found words, sorted by length
 			userWordsSorted: function() {
 
 				var sorted = {};
@@ -176,7 +178,32 @@ window.addEventListener("load", function() {
 
 				return sorted;
 				
+			},
+
+			// The count of the remaining words of each length in the board that the user has not found yet
+			userRemainingCount: function() {
+
+				var userSorted = this.userWordsSorted;
+				var userCounts = {};
+				for ( len in userSorted )
+				{
+					userCounts[ len ] = Object.keys( userSorted[ len ] ).length;
+				}
+
+				var remainingCounts = {};
+				for ( len in this.gameData.game.wordCounts ) 
+				{
+					remainingCounts[ len ] = this.gameData.game.wordCounts[ len ];
+					if ( !!userCounts[ len ] )
+					{
+						remainingCounts[ len ] -= userCounts[ len ];
+					}
+				}
+
+				return remainingCounts;
+
 			}
+
 		},
 		methods: {
 			startGame: function() {

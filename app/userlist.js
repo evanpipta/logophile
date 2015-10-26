@@ -121,7 +121,6 @@ module.exports = new function() {
 		for ( key in this.users )
 		{
 			var user = this.users[ key ];
-			// user.connection.connections length will automatically be 0 
 			if ( !user.connection.count() )
 			{
 				// This user has no active connections, start the kill timer
@@ -131,7 +130,7 @@ module.exports = new function() {
 				}
 				else if ( ((new Date()).getTime() / 1000 ) - user.killTimeStart >= this.killTime )
 				{
-					// Check if kill time has passed, and if so destroy the game and clear any updates it has running
+					// If the timer is already started, check if kill time has passed, and if so destroy the user if so
 					console.log("Destroying user " + user.id );
 					// Leave any connected game (there shouldn't be any)
 					user.actions.leaveGame();
