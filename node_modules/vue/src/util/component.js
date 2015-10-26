@@ -6,33 +6,64 @@ var _ = require('./index')
  *
  * @param {Element} el
  * @param {Object} options
- * @return {String|undefined}
+ * @return {Object|undefined}
  */
 
-exports.commonTagRE = /^(div|p|span|img|a|br|ul|ol|li|h1|h2|h3|h4|h5|code|pre)$/
+exports.commonTagRE = /^(div|p|span|img|a|b|i|br|ul|ol|li|h1|h2|h3|h4|h5|h6|code|pre|table|th|td|tr|form|label|input|select|option|nav|article|section|header|footer)$/
 exports.checkComponent = function (el, options) {
   var tag = el.tagName.toLowerCase()
-  if (tag === 'component') {
-    // dynamic syntax
-    var exp = el.getAttribute('is')
-    el.removeAttribute('is')
-    return exp
-  } else if (
-    !exports.commonTagRE.test(tag) &&
-    _.resolveAsset(options, 'components', tag)
-  ) {
-    return tag
-  /* eslint-disable no-cond-assign */
-  } else if (tag = _.attr(el, 'component')) {
-  /* eslint-enable no-cond-assign */
-    return tag
+  var hasAttrs = el.hasAttributes()
+  if (!exports.commonTagRE.test(tag) && tag !== 'component') {
+    if (_.resolveAsset(options, 'components', tag)) {
+      return { id: tag }
+    } else {
+      var is = hasAttrs && getIsBinding(el)
+      if (is) {
+        return is
+      } else if (process.env.NODE_ENV !== 'production') {
+        if (
+          tag.indexOf('-') > -1 ||
+          (
+            /HTMLUnknownElement/.test(el.toString()) &&
+            // Chrome returns unknown for several HTML5 elements.
+            // https://code.google.com/p/chromium/issues/detail?id=540526
+            !/^(data|time|rtc|rb)$/.test(tag)
+          )
+        ) {
+          _.warn(
+            'Unknown custom element: <' + tag + '> - did you ' +
+            'register the component correctly?'
+          )
+        }
+      }
+    }
+  } else if (hasAttrs) {
+    return getIsBinding(el)
+  }
+}
+
+/**
+ * Get "is" binding from an element.
+ *
+ * @param {Element} el
+ * @return {Object|undefined}
+ */
+
+function getIsBinding (el) {
+  // dynamic syntax
+  var exp = _.attr(el, 'is')
+  if (exp != null) {
+    return { id: exp }
+  } else {
+    exp = _.getBindAttr(el, 'is')
+    if (exp != null) {
+      return { id: exp, dynamic: true }
+    }
   }
 }
 
 /**
  * Set a prop's initial value on a vm and its data object.
- * The vm may have inherit:true so we need to make sure
- * we don't accidentally overwrite parent value.
  *
  * @param {Vue} vm
  * @param {Object} prop
@@ -42,12 +73,7 @@ exports.checkComponent = function (el, options) {
 exports.initProp = function (vm, prop, value) {
   if (exports.assertProp(prop, value)) {
     var key = prop.path
-    if (key in vm) {
-      _.define(vm, key, value, true)
-    } else {
-      vm[key] = value
-    }
-    vm._data[key] = value
+    vm[key] = vm._data[key] = value
   }
 }
 

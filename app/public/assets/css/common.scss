@@ -42,3 +42,19 @@ a.disabled:hover {
 .hidden {
 	display: none;
 }
+
+.flashorange {
+	color: $orangeLit !important;
+	transition: color 0s !important;
+}
+.flashteal {
+	color: $tealLit !important;
+	transition: color 0s !important;
+}
+.flashwhite {
+	color: $white !important;
+	transition: color 0s !important;
+}
+.alignLeft {
+	text-align: left;
+}

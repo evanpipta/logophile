@@ -1,13 +1,13 @@
 var _ = require('../util')
-var config = require('../config')
 var templateParser = require('../parsers/template')
+var specialCharRE = /[^\w\-:\.]/
 
 /**
  * Process an element or a DocumentFragment based on a
  * instance option object. This allows us to transclude
  * a template node/fragment before the instance is created,
  * so the processed fragment can then be cloned and reused
- * in v-repeat.
+ * in v-for.
  *
  * @param {Element} el
  * @param {Object} options
@@ -30,7 +30,7 @@ exports.transclude = function (el, options) {
   }
   if (options) {
     if (options._asComponent && !options.template) {
-      options.template = '<content></content>'
+      options.template = '<slot></slot>'
     }
     if (options.template) {
       options._content = _.extractContent(el)
@@ -82,11 +82,15 @@ function transcludeTemplate (el, options) {
         // single nested component
         tag === 'component' ||
         _.resolveAsset(options, 'components', tag) ||
-        replacer.hasAttribute(config.prefix + 'component') ||
+        replacer.hasAttribute('is') ||
+        replacer.hasAttribute(':is') ||
+        replacer.hasAttribute('v-bind:is') ||
         // element directive
         _.resolveAsset(options, 'elementDirectives', tag) ||
-        // repeat block
-        replacer.hasAttribute(config.prefix + 'repeat')
+        // for block
+        replacer.hasAttribute('v-for') ||
+        // if block
+        replacer.hasAttribute('v-if')
       ) {
         return frag
       } else {
@@ -134,7 +138,7 @@ function mergeAttrs (from, to) {
   while (i--) {
     name = attrs[i].name
     value = attrs[i].value
-    if (!to.hasAttribute(name)) {
+    if (!to.hasAttribute(name) && !specialCharRE.test(name)) {
       to.setAttribute(name, value)
     } else if (name === 'class') {
       value = to.getAttribute(name) + ' ' + value

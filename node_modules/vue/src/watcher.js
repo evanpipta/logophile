@@ -21,6 +21,7 @@ var uid = 0
  *                 - {Boolean} sync
  *                 - {Boolean} lazy
  *                 - {Function} [preProcess]
+ *                 - {Function} [postProcess]
  * @constructor
  */
 
@@ -80,10 +81,10 @@ Watcher.prototype.addDep = function (dep) {
 
 Watcher.prototype.get = function () {
   this.beforeGet()
-  var vm = this.vm
+  var scope = this.scope || this.vm
   var value
   try {
-    value = this.getter.call(vm, vm)
+    value = this.getter.call(scope, scope)
   } catch (e) {
     if (
       process.env.NODE_ENV !== 'production' &&
@@ -108,7 +109,10 @@ Watcher.prototype.get = function () {
     value = this.preProcess(value)
   }
   if (this.filters) {
-    value = vm._applyFilters(value, null, this.filters, false)
+    value = scope._applyFilters(value, null, this.filters, false)
+  }
+  if (this.postProcess) {
+    value = this.postProcess(value)
   }
   this.afterGet()
   return value
@@ -121,13 +125,13 @@ Watcher.prototype.get = function () {
  */
 
 Watcher.prototype.set = function (value) {
-  var vm = this.vm
+  var scope = this.scope || this.vm
   if (this.filters) {
-    value = vm._applyFilters(
+    value = scope._applyFilters(
       value, this.value, this.filters, true)
   }
   try {
-    this.setter.call(vm, vm, value)
+    this.setter.call(scope, scope, value)
   } catch (e) {
     if (
       process.env.NODE_ENV !== 'production' &&
@@ -137,6 +141,34 @@ Watcher.prototype.set = function (value) {
         'Error when evaluating setter "' +
         this.expression + '"', e
       )
+    }
+  }
+  // two-way sync for v-for alias
+  var forContext = scope.$forContext
+  if (process.env.NODE_ENV !== 'production') {
+    if (
+      forContext &&
+      forContext.filters &&
+      (new RegExp(forContext.alias + '\\b')).test(this.expression)
+    ) {
+      _.warn(
+        'It seems you are using two-way binding on ' +
+        'a v-for alias (' + this.expression + '), and the ' +
+        'v-for has filters. This will not work properly. ' +
+        'Either remove the filters or use an array of ' +
+        'objects and bind to object properties instead.'
+      )
+    }
+  }
+  if (
+    forContext &&
+    forContext.alias === this.expression &&
+    !forContext.filters
+  ) {
+    if (scope.$key) { // original is an object
+      forContext.rawValue[scope.$key] = value
+    } else {
+      forContext.rawValue.$set(scope.$index, value)
     }
   }
 }

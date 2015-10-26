@@ -15,6 +15,7 @@ module.exports = {
 		"allowGuests": true,
 		"scoreStyle": "Normal",
 		"private": false,
+		"initd": false,
 		"roundStarted": false,
 		"roundTime": 0,
 		"paused": true,

@@ -1,4 +1,5 @@
 
+require("./vuesync.js");
 var GameData = require("./gamedata.js");
 var User = require("./userdata.js");
 
@@ -56,33 +57,24 @@ module.exports = new function() {
 	// Actions the server can request the client to make upon receiving a message
 	this.callbacks = {
 		onGameUpdate: function( args ) {
-			// console.log("Receiving game update");
-			// Receiving data about the game state
-			// We don't always receive the full game state, because it would be a waste of resources to constantly transfer that data
-			for ( k in args )
-			{
-				if ( !GameData[k] )
-				{
-					GameData.$add( k, args[k] );
-				}
-				else
-				{	
-					for ( each in args[k] )
-					{
-						// use $set method to ensure vue updates the displayed data
-						GameData[k].$set( each, args[k][each] );
-					}
-				}
-			}
+			// see vuesync.js for $sync method
+			// Sync GameData.game and GameData.users separately so that missing values don't get deleted
+			// console.log( "sync input: " + JSON.stringify( GameData ) );
+			Object.$sync( GameData.game, args.game, function() {
+				// console.log( "sync result: " + JSON.stringify( GameData ) );
+			} );
+			Object.$sync( GameData.users, args.users, function() {
+				// console.log( "sync result: " + JSON.stringify( GameData ) );
+			} );
 		},
 		onUserUpdate: function( args ) {
-			// Replace local user data with remote user data
-			for ( k in args )
-			{
-				// use $set method to ensure vue updates the displayed data
-				User.$set( k, args[k] );
-			}
-			console.log( User );
+			// see vuesync.js for $sync method
+			Object.$sync( User, args );
+			// console.log( User );
+		},
+		onRoundStart: function( args ) {
+			// Reset user's found words
+			User.words = {};
 		},
 		onGameCreated: function( args ) {
 			// Redirect the user to the newly created game
@@ -91,6 +83,9 @@ module.exports = new function() {
 		onGameDestroyed: function() {
 			// This should never happen because games shouldn't get destroyed while someone is connected, but whatever.
 			window.location.href = "/game/?";
+		},
+		onWordChecked: function( args ) {
+			console.log( args );
 		}
 	}
 

@@ -15,4 +15,4 @@ browserify $1 -o $buildoutput
 minify $buildoutput > $minoutput
 
 #Remove browserify output (obviously this can be commented out if desired)
-rm $buildoutput
+# rm $buildoutput

@@ -4,8 +4,8 @@ div( class="sidebar" id="sidebar" )
 			h3 Leaderboard
 			ul
 				//- We need to figure out how to make sure this is sorted by the user scores, not just their position in the array
-				li( v-repeat="gameData.users.playing" v-class="me : [[name]] == userData.name" ) [[$index+1]]. [[name]]
-					span [[score]]
+				li( v-for="user in gameData.users.playing" v-bind:class="{ 'me': user.name == userData.name }" ) [[$index+1]]. [[user.name]]
+					span [[user.score]]
 				//- li 2. Mu Te
 					span 215
 				//- li( class="me" ) 3. Cosine Pi

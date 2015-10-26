@@ -28,13 +28,13 @@ $breakMobile: 680px;				// Break point for full mobile version
 
 $sidebarWidth: 270px;			// Overall Sidebar width
 $sidebarWidthMobile: 42px;		// Sidebar width on mobile
-$gameInfoHeight: 176px;			// Height of the top left game info area
+$gameInfoHeight: 200px;			// Height of the top left game info area
 $gameInfoHeightMobile: 42px;	// Height of the top left game info area on mobile, before it's opened
 
 $sidebarPadding: 40px;			// Padding for elements in the sidebar
 $sidebarPaddingMobile: 10px;		// Padding for elements in the sidebar on mobile
 
-$chatStartHeight: 190px;			// Chat starting height
+$chatStartHeight: 0px;			// Chat starting height
 $inputHeight: 52px;				// Height for text inputs in the game panel as well as the chat area
 
 $gameEdgePadding: 0;			// Padding around the edge of the game panel
@@ -211,10 +211,22 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 	}
 }
 
+.logo-small.white {
+	position: static;
+	margin-bottom: 20px;
+	span {
+		color: $white;
+	}
+	span.inverse {
+		background: $white;
+		color: $teal;
+	}
+}
+
 .game .logo-small, .game .share  {
-	left: $cornerOffset + $sidebarWidth;
+	left: 60px + $sidebarWidth;
 	@media ( max-width: $breakTablet ) {
-		left: $cornerOffset + $sidebarWidthMobile;
+		left: 60px + $sidebarWidthMobile;
 	}
 }
 
@@ -225,9 +237,9 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 	right: 0;
 	padding: $cornerOffset;
 	text-align: right;
-	background: $grey70;
-	box-shadow: 0 0 20px 5px $grey70;
-	padding-right: $cornerOffset + 30px;
+	// background: $grey;
+	// box-shadow: 0 0 20px 5px $grey70;
+	padding-right: 60px;
 	padding-left: $cornerOffset + 10px;
 	overflow: hidden;
 	transition: background 0.3s;
@@ -298,7 +310,7 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 	overflow: hidden;
 	transition: width 0.2s, height 0.2s;
 	height: $gameInfoHeight;
-	padding: 45px $sidebarPadding 30px $sidebarPadding;
+	padding: 35px $sidebarPadding 30px $sidebarPadding;
 	@media ( max-width: $breakTablet ) {
 		height: $gameInfoHeightMobile;
 		padding: $sidebarPaddingMobile;
@@ -310,7 +322,7 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 		font-size: 13px;
 	}
 	h2 {
-		font: 200 21px/22px $fontStack;
+		font: 500 21px/22px $fontStack;
 		letter-spacing: -1px;
 		// overflow: hidden;
 		max-height: 58px;
@@ -398,10 +410,11 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 		@media ( max-width: $breakTablet ) {
 			left: -24px;
 			text-align: center;
+			height: 30px;
 		}
 	}
 	ul li.me {
-		background: $orange;
+		background: $grey3;
 		font-weight: 600;
 	}
 	ul li.me span { font-weight: 600; }
@@ -409,11 +422,11 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 		position: absolute; right: 40px;
 		font-weight: 300;
 	}
-	ul li:hover {
-		font-size: 16px;
-		cursor: pointer;
-		background: $orangeLit;
-	}
+	// ul li:hover {
+	// 	font-size: 16px;
+	// 	cursor: pointer;
+	// 	background: $orangeLit;
+	// }
 }
 
 // Game setup section
@@ -429,6 +442,7 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 	background: $beige2;
 }
 .chat {
+	display: none;
 	position: absolute;
 	bottom: 0;
 	height: $chatStartHeight;
@@ -483,6 +497,7 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 		padding-left: $sidebarWidthMobile;
 	}
 	.inner {
+		background: linear-gradient(160deg, #444 0%, #2c2c2c 10%, #252525 20%, #202020 30%, #252525 100%) repeat scroll 0% 0%;
 		padding: $gameEdgePadding;
 		// white-space: nowrap;
 		display: flex;
@@ -501,7 +516,9 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 			flex: 2 1;
 		}
 		.col.left {
+			transition: max-width 0.3s;
 			max-width: 30%;
+			text-align: center;
 		}
 		.col.center {
 			flex: 3 1;
@@ -536,6 +553,9 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 		.list {
 			// margin-bottom: 5%;
 			// min-height: $boardSize;
+			margin: 0 auto;
+			overflow: hidden;
+			transition: width 0.3s, opacity 0.3s;
 			ul {
 				display: inline-block; vertical-align: top;
 				min-height: 225px;
@@ -597,6 +617,13 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 			height: 25px;
 			overflow: hidden;
 		}
+		.found-num { 
+			color: #2EAAD7;
+			font-size: 27px;
+			font-weight: 500;
+			transition: color 0.3s;
+		}
+		// .found-percentage { color: $teal; }
 		.found-section { margin-bottom: 15px; }
 		.found-section:last-child { margin: 0; }
 		.found-section h4 {
@@ -617,15 +644,29 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 		.found-section ul li {
 			font-size: 16px;
 			font-weight: 300;
+			margin-right: 8px;
+			font-weight: 400;
+			text-transform: capitalize;
+		}
+		.found-section ul li:last-child:after {
+			content: ""; display: none;
+		}
+		.found-section ul li:after {
+			content: ",";
+			position: relative;
+		}
+		.found-section ul li:last-child {
+			margin-right: 0;
 		}
 	}
 
 	.remaining-percentage, .found-percentage {
-		font-size: 14px;
-		margin-left: 3px;
+		font-size: 18px;
+		margin-left: 5px;
 	}
 
 	.game-center {
+		padding: 70px 0 50px;
 		height: 100%;
 		display: flex;
 		flex-direction: column;
@@ -634,14 +675,18 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 		.hud {
 			max-height: 33%;
 			.round-ended, .round-starts, .round-starts-timer {
-				color: $teal;
+				color: $tealLit;
+			}
+			.round-starts {
+				font-size: 18px;
 			}
 			.timer, .round-starts-timer {
 				margin-bottom: 0;
+				font-weight: 400;
 			}
 			h2 {
 				margin-top: 5px;
-				font-size: 36px;
+				font-size: 30px;
 				line-height: 37px;
 			}
 			h3 {
@@ -651,10 +696,22 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 				font: 200 16px/22px $fontStack;
 				color: $frost;
 			}
-			.timer, .timer-label, .round-starts, .round-starts-timer, .score, .place {
+			.timer, .timer-label, .round-starts, .round-starts-timer, .score {
 				// These are all disabled to start with until the game state is started
 				// This is now done with vue's v-if directive and not css class
 				// display: none;
+			}
+			.place-wrapper {
+				margin: 5px 0 10px;
+			}
+			.place {
+				width: 0px;
+				display: inline-block;
+				white-space: nowrap;
+				position: relative;
+				left: 10px;
+				font-size: 20px;
+				color: $grey3;
 			}
 			.waiting-to-start {
 				font: 300 18px/20px $fontStack;
@@ -664,6 +721,8 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 			}
 		}
 		.board {
+			opacity: 0.5;
+			transition: opacity 0.3s;
 			width: $boardSize;
 			height: $boardSize;
 			min-height: $boardSize;
@@ -697,6 +756,9 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 			.cell.on {
 				background: $teal;
 			}
+		}
+		.board.active {
+			opacity: 1.0;
 		}
 		.word {
 			max-height: 33%;

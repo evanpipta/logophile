@@ -11,14 +11,14 @@ body
 	include ./parts/sidebar.jade
 	
 	div( class="game" )
-		include ./parts/logo-small.jade
+		//- include ./parts/logo-small.jade
 		include ./parts/share.jade
 		include ./parts/playercard.jade
 
 		div( class="inner" id="game-inner" )
-			div( class="col left" v-style="maxWidth: ( (gameData.game.board.length > 4 ) ? 25 : 30 ) + '%'" )
+			div( class="col left" v-bind:style="{ maxWidth: leftColWidth }" )
 				div( class="remaining" )
-					div( class="list nowrap" )
+					div( class="list nowrap" v-if="gameData.game.roundStarted" )
 							h2 Remaining: 
 								//- I think the following takes up too much space, but I'll leave it commented in case we decide to add it again:
 								//- span( class="remaining-num" ) 95
@@ -26,75 +26,67 @@ body
 							div
 								ul( class="lengths" )
 									li length
-									li( v-repeat="gameData.game.wordCounts" ) [[$key]]
+									li( v-for="value in gameData.game.wordCounts" ) [[$key]]
 
 								ul( class="counts" )
 									li count
-									li( v-repeat="gameData.game.wordCounts" ) [[$value]]
+									li( v-for="value in gameData.game.wordCounts" ) [[value]]
 
-			div( class="col center" v-style="minWidth: boardpx+'px', maxWidth: boardpx+'px'," )
+			div( class="col center" v-bind:style="{ minWidth: boardpx+'px', maxWidth: boardpx+'px' }" )
 				div( class="game-center" )
-					div( class="hud" id="hud" )
-
-						h2(  v-if="gameData.game.initd && gameData.game.roundStarted" ).
-							Round Started
-
-						h2( class="round-ended" v-if="gameData.game.initd && !gameData.game.roundStarted && gameData.game.rounds > 0"  ).
-							Round Ended
+					div( class="hud" id="hud" v-bind:class="{ 'alignLeft': !gameData.game.roundStarted && gameData.game.rounds > 0 }" )
 
 						div( class="time-wrapper" v-if="gameData.game.initd && gameData.game.roundStarted" )
-							p( class="timer-label" ) Time remaining:
-							h2( class="timer" ) [[ gameData.game.timeLimit - gameData.game.roundTime | time 'ceil' ]]
+							h2( class="timer" )
+								| <div>Round [[gameData.game.rounds]] started:</div> [[ gameData.game.timeLimit - gameData.game.roundTime | time 'ceil' ]]
 
-						div( class="time-wrapper" v-if="gameData.game.initd && !gameData.game.roundStarted" )
-							p( class="round-starts" ) Next round starts in:
-							h2( class="round-starts-timer" ) [[ gameData.game.pauseTimeLimit - gameData.game.pauseTime | time 'ceil' ]]
+						div( v-if="gameData.game.initd && !gameData.game.roundStarted && gameData.game.rounds > 0" )
+							p Round [[gameData.game.rounds]] ended
 
 						div( class="place-wrapper" v-if="gameData.game.initd && gameData.game.rounds > 0" )
 							h3( class="score" ) Score: [[userData.score]]
-							h4( class="place" ) Place [[place]] / [[gameData.users.playing.length]]
+								span(class="place") [[place]]
+							//- h4( class="place" ) Place [[place]] / [[gameData.users.playing.length]]
+
+						div( v-if="gameData.game.initd && !gameData.game.roundStarted" )
+							p( class="round-starts" ) Next round starts in: [[ gameData.game.pauseTimeLimit - gameData.game.pauseTime | time 'ceil' ]]
+							//- h2( class="round-starts-timer" ) [[ gameData.game.pauseTimeLimit - gameData.game.pauseTime | time 'ceil' ]]
 
 						h2( class="waiting-to-start" v-if="!gameData.game.initd" ) Waiting to start first round
-						a( href="#" class="button" v-if="!gameData.game.initd" v-on="click: startGame()") Start Game
+						a( href="#" class="button" v-if="!gameData.game.initd" v-on:click="startGame()") Start Game
 
-					div( class="board" v-style="height: boardpx+'px', width: boardpx+'px', minHeight: boardpx+'px', maxHeight: boardpx+'px'" )
-						div( class="row" v-style="height: 100/gameData.game.board.length+'%' " v-repeat="gameData.game.board" )
-							div( class="cell" v-style="width: 100/gameData.game.board.length+'%' "  v-repeat="gameData.game.board[$index]" )
-								div( class="letter" v-style="font-size: boardpx*0.5/gameData.game.board.length + 'px' " ).
+					div( class="board" v-bind:class="{ 'active': gameData.game.roundStarted || gameData.game.rounds < 0 }" v-bind:style="{ height: boardpx+'px', width: boardpx+'px', minHeight: boardpx+'px', maxHeight: boardpx+'px' }" )
+						div( class="row" v-bind:style="{ height: 100/gameData.game.board.length+'%' }" v-for="x in gameData.game.board" )
+							div( class="cell" v-bind:style="{ width: 100/gameData.game.board.length+'%' }" v-for="y in gameData.game.board[$index]" track-by="$index" )
+								div( class="letter" v-bind:style="{ fontSize: boardpx*0.5/gameData.game.board.length + 'px' }" ).
 									[[ gameData.game.board[$parent.$index][$index] ]]
 
 					div( class="word" )
-						input( type="text" placeholder="type here" )
+						input( type="text" value="type here" 
+							v-model="wordToCheck"
+							v-on:keydown.enter="submit($event)" 
+							v-on:keydown.space.prevent="submit($event)" 
+							v-on:keydown="wordInputDown($event)" 
+							v-on:keyup="wordInputUp($event)"
+							v-on:focus="wordInputFocus($event)"
+							v-on:blur="wordInputBlur($event)" )
 						h3 [[inputlength]] Letters 
 							span( class="word-score" ) +[[inputscore]]
 								span( class="word-points" ) points
 
-			div( class="col right" )
+			div( class="col right" v-if="gameData.game.initd && gameData.game.rounds > 0" )
 				div( class="found" )
 					h2 Found: 
-						span( class="found-num" ) [[playerwords]] 
-							span( class="found-percentage" ) (10%)
-					div( class="found-section" )
-						h4( class="" ) N Letters 
-							span( class="found-num" ) 5 
+						span( class="found-num" ) [[ foundNum ]] 
+							span( class="found-percentage" ) ([[foundPercentage]]%)
+
+					//- Repeat all found section for each word length in userWordsSorted
+					div( class="found-section" v-for="len in userWordsSorted" )
+						h4( class="" ) [[$key]] Letters 
+							//- Since Object.keys().length doesn't work in the brackets, we need to find another way to do this
+							span( class="found-num" ) [[Object.keys( len ).length]]
 								span( class="found-percentage" ) (X points)
 						ul( class="inline" )
-							li Phrase
-							li Phrase
-							li Phrase
-							li Phrase
-							li Phrase
-							li Phrase
-					div( class="found-section" )
-						h4( class="" ) N Letters 
-							span( class="found-num" ) 5 
-								span( class="found-percentage" ) (X points)
-						ul( class="inline" )
-							li Phrase
-							li Phrase
-							li Phrase
-							li Phrase
-							li Phrase
-							li Phrase
+							li( v-for="word in len" ) [[$key.toLowerCase()]]
 
 != "</html>"

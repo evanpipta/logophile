@@ -1,14 +1,6 @@
 module.exports = {
 
   /**
-   * The prefix to look for when parsing directives.
-   *
-   * @type {String}
-   */
-
-  prefix: 'v-',
-
-  /**
    * Whether to print debug messages.
    * Also enables stack trace for warnings.
    *
@@ -18,36 +10,12 @@ module.exports = {
   debug: false,
 
   /**
-   * Strict mode.
-   * Disables asset lookup in the view parent chain.
-   */
-
-  strict: false,
-
-  /**
    * Whether to suppress warnings.
    *
    * @type {Boolean}
    */
 
   silent: false,
-
-  /**
-   * Whether allow observer to alter data objects'
-   * __proto__.
-   *
-   * @type {Boolean}
-   */
-
-  proto: true,
-
-  /**
-   * Whether to parse mustache tags in templates.
-   *
-   * @type {Boolean}
-   */
-
-  interpolate: true,
 
   /**
    * Whether to use async rendering.
@@ -105,20 +73,32 @@ module.exports = {
 }
 
 /**
- * Interpolation delimiters.
- * We need to mark the changed flag so that the text parser
- * knows it needs to recompile the regex.
+ * Interpolation delimiters. Changing these would trigger
+ * the text parser to re-compile the regular expressions.
  *
  * @type {Array<String>}
  */
 
 var delimiters = ['{{', '}}']
+var unsafeDelimiters = ['{{{', '}}}']
+var textParser = require('./parsers/text')
+
 Object.defineProperty(module.exports, 'delimiters', {
   get: function () {
     return delimiters
   },
   set: function (val) {
     delimiters = val
-    this._delimitersChanged = true
+    textParser.compileRegex()
+  }
+})
+
+Object.defineProperty(module.exports, 'unsafeDelimiters', {
+  get: function () {
+    return unsafeDelimiters
+  },
+  set: function (val) {
+    unsafeDelimiters = val
+    textParser.compileRegex()
   }
 })

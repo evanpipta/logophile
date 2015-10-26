@@ -101,6 +101,7 @@ module.exports = function( options ) {
 		checkWord: function( args ) {
 			var g = self.gameRef;
 			var found = false;
+			var alreadyFound = false;
 			if ( typeof args.word == "string" && !!g )
 			{
 				// console.log("Checking word " + args.word );
@@ -113,14 +114,21 @@ module.exports = function( options ) {
 				found = g.check( w );
 				if ( found )
 				{
-					self.scoreWord( w );
+					if ( !!self.data.words[ w ] )
+					{
+						alreadyFound = true;
+					}
+					else
+					{
+						self.scoreWord( w );
+					}
 				}
 			}
 
 			// Send a message back
 			self.connection.send( JSON.stringify({
 				action: "onWordChecked",
-				args: { found: found }
+				args: { found: found, alreadyFound: alreadyFound }
 			}) );
 
 		},
