@@ -13,12 +13,13 @@ require("./vuefilters");
 
 // Set up websocket client
 var wsClient = require("./wsclient.js");
-
 window.addEventListener("beforeunload", function(){
     wsClient.connection.close();
 });
 
+// Main game code
 window.addEventListener("load", function() {
+
 	var Mainpage = new Vue({
  		el: "#mainpage",
  		data: {
@@ -60,7 +61,7 @@ window.addEventListener("load", function() {
 			}
 		}
 	});
-
+	
 	var GameInner = new Vue({
 		el: "#game-inner",
 		data: {
@@ -101,13 +102,13 @@ window.addEventListener("load", function() {
 			foundNum: function() {
 				return Object.keys( this.userData.words ).length;
 			},
-
+			solutionLength: function() {
+				return Object.keys( this.gameData.game.solution ).length;
+			},
 			// The user's found words, sorted by length
 			userWordsSorted: function() {
-
 				var sorted = {};
 				var counts = {};
-
 				// Put words in the the object at the index matching their length
 				// E.g. wordsSorted[5] will contain all 5 letter words
 				for ( var w in this.userData.words )
@@ -122,21 +123,20 @@ window.addEventListener("load", function() {
 					sorted[ len ][ w ] = this.userData.words[ w ];
 					counts[ len ] += 1;
 				}
-
 				return sorted;
-				
 			},
-
+			// Sorted array of the keys for the sorted user words
+			userWordsSortedKeys: function() {
+				return Object.keys( this.userWordsSorted ).sort( function( a, b ) { return b - a; } );
+			},
 			// The count of the remaining words of each length in the board that the user has not found yet
 			userRemainingCount: function() {
-
 				var userSorted = this.userWordsSorted;
 				var userCounts = {};
 				for ( len in userSorted )
 				{
 					userCounts[ len ] = Object.keys( userSorted[ len ] ).length;
 				}
-
 				var remainingCounts = {};
 				for ( len in this.gameData.game.wordCounts ) 
 				{
@@ -146,9 +146,38 @@ window.addEventListener("load", function() {
 						remainingCounts[ len ] -= userCounts[ len ];
 					}
 				}
-
 				return remainingCounts;
+			},
+			// Sorted keys for user remaining count
+			userRemainingCountKeys: function() {
+				return Object.keys( this.userRemainingCount ).sort( function( a, b ) { return b - a; } );
+			},
+			// The solution words, sorted by length
+			solutionSorted: function() {
 
+				var sorted = {};
+				var counts = {};
+
+				// Put words in the the object at the index matching their length
+				// E.g. wordsSorted[5] will contain all 5 letter words
+				for ( var w in this.gameData.game.solution )
+				{
+					var len = w.length;
+					if ( !sorted[ len ] )
+					{
+						// Create a new list in the sorted words using this key's length
+						sorted[ len ] = {};
+						counts[ len ] = 0;
+					}
+					sorted[ len ][ w ] = this.gameData.game.solution[ w ];
+					counts[ len ] += 1;
+				}
+				return sorted;
+			},
+			// Return an ordered array of the solution lengths - this way we can select from the object in a specific order
+			solutionSortedKeys: function() {
+				// Technically objects aren't ordered, but we are going to attempt to do it anyway! Screw you ecma.
+				return Object.keys( this.solutionSorted ).sort( function( a, b ) { return b - a; } );
 			}
 
 		},

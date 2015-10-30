@@ -13,6 +13,7 @@ $darkTransp2: rgba(0, 0, 0, 0.1);	// Transparent black lighter
 
 $white: #FFF;						// Plain while color, mostly for text
 $white50: rgba(255,255,255,0.5);// Transparent white color
+$white75: rgba(255,255,255,0.75);// Transparent white color
 $frost: #C6DEE9;					// Some alternate for white
 $blue: #2FB4F0;					// Unused currently
 $green: #c2e436;
@@ -636,16 +637,23 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 		}
 		.found-section h4, .found-section h4 span { 
 			font: 400 14px/20px $fontStack;
+			color: $white;
+		}
+		.found-section h4 span {
 			color: $grey3;
 		}
 		.found-section h4 span {
 			float: right;
 		}
+		.found-section ul {
+			margin-left: -4px;
+		}
 		.found-section ul li {
 			font-size: 16px;
 			font-weight: 300;
-			margin-right: 8px;
-			font-weight: 400;
+			margin-right: 0px;
+			padding: 0 5px;
+			font-weight: 300;
 			text-transform: capitalize;
 		}
 		.found-section ul li:last-child:after {
@@ -657,6 +665,45 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 		}
 		.found-section ul li:last-child {
 			margin-right: 0;
+		}
+	}
+
+	// solution verison of found words
+	.found.solution {
+		display: block;
+		max-height: 100%;
+		overflow-y: scroll;
+		box-sizing: border-box;
+		.found-section ul li {
+			border-radius: 2px;
+			// padding: 0 2px;
+			font-weight: 300;
+			font-size: 14px;
+			color: $white50;
+			background: transparent;
+			transition: background 0.1s, color 0.1s;
+		}
+		.found-section ul li.found-word {
+			color: $white;
+			font-weight: 500;
+		}
+		.found-section ul li.found-unique {
+			color: $orangeLit;
+			font-weight: 500;
+		}
+		.found-section ul li.found-highlight, .found-section ul li:hover {
+			color: $grey;
+			background: $green;
+			cursor: pointer;
+		}
+		.found-section:last-child {
+			margin-bottom: 60px;
+		}
+		.solution-found-count {
+			float: none;
+			margin-left: 10px;
+			font-size: 20px;
+			color: $white50;
 		}
 	}
 

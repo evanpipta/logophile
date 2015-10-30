@@ -39,12 +39,6 @@ module.exports = function( options ) {
 		this.data.allowGusts = false;
 	}
 
-	// Set minimum letters based on board size
-	if ( !this.data.minLetters )
-	{
-		this.data.minLetters = Math.max( Math.min( this.data.boardSize - 1, 6 ), 3 );
-	}
-
 	// Timer for rounds
 	this.data.timerId = null;
 	this.data.round = {
@@ -286,7 +280,7 @@ module.exports = function( options ) {
 	 * @return {Boolean|String} true if the word exists, false if it doesn't
 	 */
 	this.check = function( word ) {
-		var found = ( this.data.round.started && word.length >= this.data.minLetters ) ? this.data.board.check( word ) : false;
+		var found = ( this.data.round.started && word.length >= this.data.minLettersToScore ) ? this.data.board.check( word ) : false;
 		return found;
 	}
 
@@ -509,7 +503,7 @@ module.exports = function( options ) {
 			id: this.id,
 			name: this.data.name,
 			timeLimit: this.data.timeLimit,
-			minLetters: this.data.minLetters,
+			minLettersToScore: this.data.minLettersToScore,
 			ranked: this.data.ranked,
 			allowGuests: this.data.allowGuests,
 			private: this.data.private,

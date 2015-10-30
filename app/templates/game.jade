@@ -26,11 +26,11 @@ body
 							div
 								ul( class="lengths" )
 									li length
-									li( v-for="value in userRemainingCount" ) [[$key]]
+									li( v-for="len in userRemainingCountKeys" ) [[ len ]]
 
 								ul( class="counts" )
 									li count
-									li( v-for="value in userRemainingCount" ) [[value]]
+									li( v-for="len in userRemainingCountKeys" ) [[ userRemainingCount[ len ] ]]
 
 			div( class="col center" v-bind:style="{ minWidth: boardpx+'px', maxWidth: boardpx+'px' }" )
 				div( class="game-center" )
@@ -75,18 +75,32 @@ body
 								span( class="word-points" ) points
 
 			div( class="col right" v-if="gameData.game.initd && gameData.game.rounds > 0" )
-				div( class="found" )
-					h2 Found: 
+
+				div( class="found" v-if="gameData.game.roundStarted" )
+					h2 Found Words
 						span( class="found-num" ) [[ foundNum ]] 
 							span( class="found-percentage" ) ([[foundPercentage]]%)
 
 					//- Repeat all found section for each word length in userWordsSorted
-					div( class="found-section" v-for="len in userWordsSorted" )
-						h4( class="" ) [[$key]] Letters 
+					div( class="found-section" v-for="len in userWordsSortedKeys" )
+						h4( class="" ) [[len]] Letters 
 							//- Since Object.keys().length doesn't work in the brackets, we need to find another way to do this
-							span( class="found-num" ) [[Object.keys( len ).length]]
+							//- span( class="found-num" ) [[userWordsSorted[ len ].length]]
 								span( class="found-percentage" ) (X points)
 						ul( class="inline" )
-							li( v-for="word in len" ) [[$key.toLowerCase()]]
+							li( v-for="word in userWordsSorted[ len ]" ) [[$key.toLowerCase()]]
+
+				div( class="found solution" v-if="!gameData.game.roundStarted" )
+					h2 Solution
+						span( class="solution-found-count" ) ( Found [[ foundNum ]] of [[ solutionLength ]] )
+				
+					//- Repeat all found section for each word length in solution
+					div( class="found-section" v-for="len in solutionSortedKeys" )
+						h4( class="" ) [[len]] Letters
+							//- Since Object.keys().length doesn't work in the brackets, we need to find another way to do this
+							//- span( class="found-num" ) Found [[Object.keys( len ).length]]
+								//- span( class="found-percentage" ) (X points)
+						ul( class="inline" )
+							li( v-for="word in solutionSorted[ len ]" v-bind:class="{ 'found-word': !!userData.words[ $key ], 'found-unique': false }" ) [[$key.toLowerCase()]]
 
 != "</html>"
