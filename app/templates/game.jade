@@ -57,9 +57,11 @@ body
 
 					div( class="board" v-bind:class="{ 'active': gameData.game.roundStarted || gameData.game.rounds < 0 }" v-bind:style="{ height: boardpx+'px', width: boardpx+'px', minHeight: boardpx+'px', maxHeight: boardpx+'px' }" )
 						div( class="row" v-bind:style="{ height: 100/gameData.game.board.length+'%' }" v-for="x in gameData.game.board" )
-							div( class="cell" v-bind:style="{ width: 100/gameData.game.board.length+'%' }" v-for="y in gameData.game.board[$index]" track-by="$index" )
+							div( v-bind:class="{ 'cell': true, 'on': this.boardHighlighted[$parent.$index][$index].highlight == 'on', 'partial': this.boardHighlighted[$parent.$index][$index].highlight == 'partial' }"  
+								v-bind:style="{ width: 100/gameData.game.board.length+'%' }" 
+								v-for="y in gameData.game.board[$index]" track-by="$index" )
 								div( class="letter" v-bind:style="{ fontSize: boardpx*0.5/gameData.game.board.length + 'px' }" ).
-									[[ gameData.game.board[$parent.$index][$index] ]]
+									[[ gameData.game.board[$parent.$index][$index].letter ]]
 
 					div( class="word" )
 						input( type="text" value="type here" 
@@ -101,6 +103,6 @@ body
 							//- span( class="found-num" ) Found [[Object.keys( len ).length]]
 								//- span( class="found-percentage" ) (X points)
 						ul( class="inline" )
-							li( v-for="word in solutionSorted[ len ]" v-bind:class="{ 'found-word': !!userData.words[ $key ], 'found-unique': false }" ) [[$key.toLowerCase()]]
+							li( v-for="word in solutionSorted[ len ]" v-on:mouseover="this.wordToHighlight = $key" v-on:mouseout="this.wordToHighlight = '' " v-bind:class="{ 'found-word': !!userData.words[ $key ], 'found-unique': false }" ) [[$key.toLowerCase()]]
 
 != "</html>"

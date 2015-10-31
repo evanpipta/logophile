@@ -20,7 +20,8 @@ $green: #c2e436;
 $grey3: #666;						// Color for some low-importance fonts
 
 $teal: #2C85A5;					// Background color for inactive or static teal elements
-$tealLit: #2EAAD7;				// Backgorund for hovered / active teal elements
+$teal30: rgba(44, 133, 165, 0.3);	// Transparent version of teal color
+$tealLit: #2EAAD7;					// Backgorund for hovered / active teal elements
 $orange: #E68729;				// Background color for inactive or static orange elements
 $orangeLit: #EBAF22;				// Background color for hovered / active orange buttons or elements
 
@@ -323,7 +324,7 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 		font-size: 13px;
 	}
 	h2 {
-		font: 500 21px/22px $fontStack;
+		font: 500 19px/22px $fontStack;
 		letter-spacing: -1px;
 		// overflow: hidden;
 		max-height: 58px;
@@ -681,7 +682,7 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 			font-size: 14px;
 			color: $white50;
 			background: transparent;
-			transition: background 0.1s, color 0.1s;
+			transition: background 0.2s, color 0.2s;
 		}
 		.found-section ul li.found-word {
 			color: $white;
@@ -692,6 +693,7 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 			font-weight: 500;
 		}
 		.found-section ul li.found-highlight, .found-section ul li:hover {
+			transition: background 0.05s, color 0.05s;
 			color: $grey;
 			background: $green;
 			cursor: pointer;
@@ -768,7 +770,7 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 			}
 		}
 		.board {
-			opacity: 0.5;
+			// opacity: 0.5;
 			transition: opacity 0.3s;
 			width: $boardSize;
 			height: $boardSize;
@@ -801,7 +803,14 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 				}
 			}
 			.cell.on {
+				transition: none;
+				border: 1px solid $teal;
 				background: $teal;
+			}
+			.cell.partial {
+				transition: none;
+				border: 1px solid $teal30;
+				background: $teal30;
 			}
 		}
 		.board.active {

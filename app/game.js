@@ -436,24 +436,26 @@ module.exports = function( options ) {
 	 */
 	this.getPublicGameData = function() {
 
-
-		var boardArr = this.data.board.boardArray;
-
-		// If the game hasn't started, we also send the last board array as a solution
+		// Board array to send to clients is either the current or last board
+		var tempBoardArr = this.data.board.boardArray;
 		if ( !this.data.round.started ) {
-			boardArr = this.data.round.lastBoardArray;
+			tempBoardArr = this.data.round.lastBoardArray;
 		}
-		
-		// If the board has nothing in it, send an empty board instead.
-		// This should only happen before the game has been initialized the first time
-		if ( !boardArr.length )
+
+		// Convert board values to objects and also make sure the board actually has elements in it
+		var boardArr = [];
+		for ( var x = 0; x < this.data.boardSize; x++ )
 		{
-			for ( var x = 0; x < this.data.boardSize; x++ )
+			boardArr[x] = [];
+			for ( var y = 0; y < this.data.boardSize; y++ )
 			{
-				boardArr[x] = [];
-				for ( var y = 0; y < this.data.boardSize; y++ )
+				if ( tempBoardArr[x] && tempBoardArr[x][y] )
 				{
-					boardArr[x][y] = " ";
+					boardArr[x][y] = { letter: tempBoardArr[x][y], highlight: "" };
+				}
+				else
+				{
+					boardArr[x][y] = { letter: " ", highlight: "none" };
 				}
 			}
 		}
