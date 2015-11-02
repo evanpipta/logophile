@@ -37,7 +37,7 @@ module.exports = {
 },{}],2:[function(require,module,exports){
 module.exports = {
 	name: "",
-	boardSize: 5,
+	boardSize: 4,
 	frequencies: "Uniques",
 	timeLimit: 120,
 	pauseTime: 20,
@@ -70,7 +70,7 @@ window.addEventListener("beforeunload", function(){
     wsClient.connection.close();
 });
 
-// Main game code
+// Start actual client code on load
 window.addEventListener("load", function() {
 
 	var Mainpage = new Vue({
@@ -115,7 +115,10 @@ window.addEventListener("load", function() {
 		}
 	});
 	
-	GameInner = new Vue({
+	/**
+	 * The main client-side "game" controller
+	 */
+	var GameInner = new Vue({
 		el: "#game-inner",
 		data: {
 			gameData: GameData,
@@ -128,10 +131,20 @@ window.addEventListener("load", function() {
 			wordToHighlight: ""
 		},
 		computed: {
+
+			/**
+			 * The size of the board in pixels, depending on the number of cells
+			 * @return {Number} 
+			 */
 			boardpx: function() {
-				// Computed board pixel size
+
 				return Math.max( 300, Math.min( 500, this.gameData.game.board.length*100 - 100 ) );
 			},
+
+			/**
+			 * Computed width in percentage of the left column, depending on the board size and whether a round has started or not
+			 * @return {String} CSS width value
+			 */
 			leftColWidth: function() {
 				if ( this.gameData.game.roundStarted || this.gameData.game.rounds < 1 )
 				{
@@ -142,6 +155,11 @@ window.addEventListener("load", function() {
 					return "60px";
 				}
 			},
+
+			/**
+			 * Percentage of words in the solution found by the current user
+			 * @return {Number} 0-100
+			 */
 			foundPercentage: function() {
 				var found = Object.keys( this.userData.words ).length;
 				var total = 0;
@@ -153,13 +171,30 @@ window.addEventListener("load", function() {
 				var pct = Math.round( ( found / total ) * 100 );
 				return ( pct ) ? pct : 0;
 			},
+
+			/**
+			 * Number of words found in the solution by the current user
+			 * @return {Number}
+			 */
 			foundNum: function() {
+
 				return Object.keys( this.userData.words ).length;
 			},
+
+			/**
+			 * The solution length
+			 * @return {[type]} [description]
+			 */
 			solutionLength: function() {
+
 				return Object.keys( this.gameData.game.solution ).length;
 			},
-			// The user's found words, sorted by length
+
+			/**
+			 * The current user's found words, sorted into lengths. 
+			 * For example, userWordsSorted[5] would be an object containing all words the user found of length 5
+			 * @return {Object}
+			 */
 			userWordsSorted: function() {
 				var sorted = {};
 				var counts = {};
@@ -179,11 +214,20 @@ window.addEventListener("load", function() {
 				}
 				return sorted;
 			},
-			// Sorted array of the keys for the sorted user words
+
+			/**
+			 * The keys of userWordsSorted, sorted in descending order
+			 * @return {Array}
+			 */
 			userWordsSortedKeys: function() {
+
 				return Object.keys( this.userWordsSorted ).sort( function( a, b ) { return b - a; } );
 			},
-			// The count of the remaining words of each length in the board that the user has not found yet
+
+			/**
+			 * The count of the remaining words of each length in the board that the current user has not found yet
+			 * @return {Object} Contains keys for each length, and values with the number of words left
+			 */
 			userRemainingCount: function() {
 				var userSorted = this.userWordsSorted;
 				var userCounts = {};
@@ -202,11 +246,21 @@ window.addEventListener("load", function() {
 				}
 				return remainingCounts;
 			},
-			// Sorted keys for user remaining count
+
+			/**
+			 * Sorted keys for userRemainingCount, descending
+			 * @return {Array}
+			 */
 			userRemainingCountKeys: function() {
+
 				return Object.keys( this.userRemainingCount ).sort( function( a, b ) { return b - a; } );
 			},
-			// The solution words, sorted by length
+
+			/**
+			 * The solution words for the current/previous board, sorted into objects by word length
+			 * For example, solutionSorted[5] would contain an object whose keys are all the 5 letter words in the board
+			 * @return {Object}
+			 */
 			solutionSorted: function() {
 
 				var sorted = {};
@@ -228,12 +282,20 @@ window.addEventListener("load", function() {
 				}
 				return sorted;
 			},
-			// Return an ordered array of the solution lengths - this way we can select from the object in a specific order
+
+			/**
+			 * Sorted keys for solutionSorted, descending
+			 * @return {Array}
+			 */
 			solutionSortedKeys: function() {
-				// Technically objects aren't ordered, but we are going to attempt to do it anyway! Screw you ecma.
+
 				return Object.keys( this.solutionSorted ).sort( function( a, b ) { return b - a; } );
 			},
-			// Returns the board with cell highlight values specified
+
+			/**
+			 * The board, but including highlighted letters if applicable
+			 * @return {Array} 2d board array
+			 */
 			boardHighlighted: function() {
 
 				// wordToHighlight should probably be set upon input change
@@ -276,10 +338,19 @@ window.addEventListener("load", function() {
 
 		},
 		methods: {
+
+			/**
+			 * Calls the wsclient's start game action, can be called by any user to initialize the first round
+			 */
 			startGame: function() {
 				console.log("starting game");
 				wsClient.action("initGame");
 			},
+
+			/**
+			 * Handles keydown events from the "word check" input element
+			 * @param  {Object} e - The dom event object
+			 */
 			wordInputDown: function( e ) {
 				var k = e.keyCode;
 				// Check modifier keys
@@ -299,24 +370,55 @@ window.addEventListener("load", function() {
 				}
 				this.wordToHighlight = "";
 			},
+
+			/**
+			 * Handles keyup events from the "word check" input element
+			 * @param  {Object} e - The dom event object
+			 */
 			wordInputUp: function( e ) {
 				// Reset modifier keys
 				this.modifierKeys.shift = ( e.keyCode == 16 ) ? false : this.modifierKeys.shift;
 				this.modifierKeys.ctrl = ( e.keyCode == 17 ) ? false : this.modifierKeys.ctrl;
 			},
+
+			/**
+			 * Handles focus events from the "word check" input element
+			 * @param  {Object} e - The dom event object
+			 */
 			wordInputFocus: function( e ) {
 				this.wordToCheck = "";
 				this.wordToHighlight = "";
 			},
+
+			/**
+			 * Handles blur events from the "word check" input element
+			 * @param  {Object} e - The dom event object
+			 */
 			wordInputBlur: function( e ) {
 				this.wordToCheck = "Type Here";
 			},
+
+			/**
+			 * Calls the wsclient's action to send a word to be checked/scored
+			 */
 			submit: function() {
 				console.log("Checking Word: " + this.wordToCheck.toUpperCase() );
 				wsClient.action("checkWord", { word: this.wordToCheck.toUpperCase() } )
 				this.wordToCheck = "";
 			},
-			// Returns a 2d array of {letter, pos:{ x, y }} for any instances of string w that should be highlighted in the board
+
+			/**
+			 * Returns a 2D Array whose children are sequences that should be highlighted in the board, depending on w
+			 * An example of the return value might look like this:
+			 * [ [ {letter: "C", pos: {x: 0, y: 1}}, {letter: "D", pos: {x: 1, y:1}} ] ]
+			 *
+			 * We return a 2d array, because each item in the outer array is a single sequence, which itself has multiple positions to be highlight
+			 * The 2d array may have more than one child if the sequence appears more than once in the same board
+			 * Highlighting more than one sequence will be a client side optional feature in the future
+			 * 
+			 * @param  {String} w - String/word to highlight
+			 * @return {Array}   Array of arrays of objects with letter and pos properties
+			 */
 			getBoardHighlights: function( w ) {
 
 				var board = this.gameData.game.board;
@@ -435,8 +537,8 @@ window.addEventListener("load", function() {
 
 				// Return the board
 				return finds;
-
 			}
+
 		}
 	});
 
@@ -444,7 +546,95 @@ window.addEventListener("load", function() {
 		el: "#sidebar",
 		data: {
 			gameData: GameData,
-			userData: User
+			userData: User,
+			boardIsFrozen: false,
+			usersFrozen: {
+				playing: [], 
+				queued: [], 
+				joined: []
+			}
+		},
+		computed: {
+
+			/**
+			 * Array of users playing in the current game, sorted by score
+			 * If boardIsFrozen is true, it will return a static list instead of the one from the current model
+			 */
+			playersSorted: function() {
+				if ( !this.boardIsFrozen )
+				{
+					return this.gameData.users.playing.sort( function( a, b ) { return b.score - a.score; } );
+				}
+				else
+				{
+					return this.usersFrozen.playing.sort( function( a, b ) { return b.score - a.score; } );
+				}
+			}
+
+		},
+		methods: {
+
+			/**
+			 * Sets boardIsFrozen and sets the board to be equal to the current user data model
+			 * @param  {Object} e - DOM event object
+			 */
+			freezeBoard: function( e ) {
+				if ( !this.boardIsFrozen )
+				{
+					this.boardIsFrozen = true;
+
+					// Copy the values of this.gameData.users into this.usersFrozen
+					// Again, we should really have a working clone function for this, gd
+					for ( each in this.gameData.users )
+					{
+						this.usersFrozen[each] = [];
+						var list = this.gameData.users[each];
+						for ( var i = 0; i < list.length; i++ )
+						{
+							this.usersFrozen[ each ][ i ] = {};
+							for ( key in list[ i ] )
+							{
+								this.usersFrozen[ each ][ i ][ key ] = list[ i ][ key ];
+								if ( typeof list[ i ][ key ] == "object" && !( list[ i ][ key ] instanceof Array ) )
+								{
+									list[ i ][ key ] = {};
+									for ( key2 in list[ i ][ key ] )
+									{
+										this.usersFrozen[ each ][ i ][ key ][ key2 ] = list[ i ][ key2 ];
+									}
+								}
+							}
+						}
+					}
+
+					console.log("Freezing board");
+					console.log( JSON.stringify( this.usersFrozen ) );
+
+				}
+			},
+
+			/**
+			 * Sets boardIsFrozen to false, unless the event came from a child of this.$el
+			 * @param  {Object} e - DOM event object
+			 */
+			unfreezeBoard: function( e ) {
+				// We don't want to unfreeze the board if we're hitting a child element
+				var parent = e.toElement || e.relatedTarget;
+				var isChild = false;
+				while ( parent )
+				{
+					if ( parent == this.$el )
+					{
+						// If it's a child, return false
+						isChild = true;
+						return false;
+					}
+					parent = parent.parentNode;
+				}
+				console.log("Unfreezing board");
+				this.boardIsFrozen = false;
+			}
+
 		}
 	});
 
@@ -581,54 +771,59 @@ module.exports = new function() {
 	this.connection = new WebSocket( "ws://" + splitUrl[2].split(":")[0] + ":8080" );
 
 	this.connection.onopen = function() {
+
 		console.log("Websocket connection opened.");
-		// If this page is a game, join the game
+
+		// If this page is a game, try to join it automatically
 		if ( window.location.toString().indexOf("/game/") > -1 )
 		{
-			// Get the game iD, for now it will always be a single number in the url parameters
+			// For now, there will always be a single url parameter contaning the game id as its key, and no value
 			var gameId = window.location.toString("").split("?")[1];
 			if ( gameId )
 			{
-				gameId = gameId.split("#")[0]; // Remove the hash
+				gameId = gameId.split("#")[0];
 				self.action( "joinGame", { id: gameId, playing: true } );
 				console.log("Joining game " + gameId );
 			}
 		}
+
 	}
 
 	this.connection.onclose = function() {
-		// console.log("Websocket connection closed.");
 		setTimeout( function() {
 			alert("Websocket connection closed.");
 		}, 200 );
-		// if ( window.location.href.indexOf("/game/") > 0 )
-		// {
-		// 	// Redirect if ws disconnected while in a game screen
-		// 	window.location.href = "/no-ws/";
-		// }
 	}
 
 	this.connection.onmessage = function( msg ) {
-		// console.log( msg );
+		// Handle messages from the server 
 		var data = JSON.parse( msg.data );
-		if ( !!self.callbacks[ data.action ] )
+		if ( !!self.events[ data.action ] )
 		{
-			self.callbacks[ data.action ]( data.args );
+			self.events[ data.action ]( data.args );
 		}
 	}
 
-	// Wrapper for sending "action" messages to the server
+	/**
+	 * Wrapper for sending "action" messages sent to the server, simplifies the code needed in the main app script
+	 * @param  {String} name - Name of the backend user action to call. See actions object in /app/user.js for all possible actions
+	 * @param  {Object]} args - Arguments for the action
+	 */
 	this.action = function( name, args ) {
 		var msg = { action: name, args: args };
 		this.connection.send( JSON.stringify( msg ) );
 	}
 
 	// Actions the server can request the client to make upon receiving a message
-	this.callbacks = {
+	this.events = {
+
+		/**
+		 * Syncrhonizes the GameData model with what was sent in the message
+		 * See vuesync.js for more details
+		 * @param {Object} args - Should have an identical structure to the GameData model object
+		 */
 		onGameUpdate: function( args ) {
-			// see vuesync.js for $sync method
-			// Sync GameData.game and GameData.users separately so that missing values don't get deleted
-			// console.log( "sync input: " + JSON.stringify( GameData ) );
+			// Sync GameData.game and GameData.users separately
 			Object.$sync( GameData.game, args.game, function() {
 				// console.log( "sync result: " + JSON.stringify( GameData ) );
 			} );
@@ -636,26 +831,50 @@ module.exports = new function() {
 				// console.log( "sync result: " + JSON.stringify( GameData ) );
 			} );
 		},
+
+		/**
+		 * Synchronizes the User model with what was sent in the message
+		 * See vuesync.js for more details
+		 * @param {Object} args - Should have identical structure to the User model object
+		 */
 		onUserUpdate: function( args ) {
-			// see vuesync.js for $sync method
+
 			Object.$sync( User, args );
-			// console.log( User );
 		},
+
+
+		/**
+		 * Reset the user's guessed words, and anything else we need to do at round start
+		 * @param {Object} args - Currently not used
+		 */
 		onRoundStart: function( args ) {
-			// Reset user's found words
 			User.words = {};
 		},
+
+		/**
+		 * Redirect the user to the newly created game url, and anything else we need to do upon game creation
+		 * @param {Object} args - Should contain an "id" property specifying the game id
+		 */
 		onGameCreated: function( args ) {
-			// Redirect the user to the newly created game
 			window.location.href = "/game/?" + args.id;
 		},
+
+
+		/**
+		 * Redirect to an empty game page
+		 * This should never happen because games shouldn't get destroyed while someone is connected to them, but whatever
+		 */
 		onGameDestroyed: function() {
-			// This should never happen because games shouldn't get destroyed while someone is connected, but whatever.
-			window.location.href = "/game/?";
+			window.location.href = "/game/";
 		},
+
+		/**
+		 * Event that happens after the user checks a word. This currently isn't used for anything.
+		 */
 		onWordChecked: function( args ) {
 			console.log( args );
 		}
+
 	}
 
 }

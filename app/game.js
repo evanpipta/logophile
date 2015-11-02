@@ -69,78 +69,6 @@ module.exports = function( options ) {
 	}
 
 	/**
-	 * Initialize the game when the host is done setting it up. This only happens once per instance of the game.
-	 */
-	this.init = function() {
-		console.log("Initializing game");
-		if ( !this.data.initd )
-		{
-			this.data.initd = true;
-
-			this.data.board.minLettersToScore = this.data.minLettersToScore;
-			this.data.board.minWords = this.data.boardMinWords;
-			this.data.board.wordLengthRequirement = this.data.boardRequireLength;
-			this.data.board.minLettersToScore = this.data.minLettersToScore;
-
-			this.startPauseTimer( this.initTime );
-
-			// Send full game state to clients
-			this.broadcastGameStateFull();
-
-			// Send initial message to all users
-			this.broadcast( JSON.stringify({
-				action: "onGameStart"
-			}));
-
-			// Start an interval for broadcasting the short game data to users
-			var self = this;
-			setInterval( function() {
-				self.broadcastGameStateShort();
-			}, 100 );
-		}
-	}
-
-	/**
-	 * Start the pause timer. A new round will be started when the pause time is up.
-	 * @param {Number} time - (Optional) - if specified, the passed time will be used instead of the one in this.data
-	 */
-	this.startPauseTimer = function( time ) {
-
-		// Star generating the next board
-		this.data.board.boardSize = this.data.boardSize;
-		this.data.board.letters = Frequencies[this.data.frequencies];
-		this.data.board.gameRef = this;
-		if ( this.data.boardHighFrequency )
-		{
-			// If we're doing high frequency, start high-frequency randomization
-			this.data.board.startHighFrequencyRandomize( this.data.boardSize, this.data.pauseTime - 1 );
-		}
-		else 
-		{
-			// Otherwise just randomize once
-			this.data.board.randomize();
-		}
-
-		var game = this;
-		var pauseTime = typeof time == "number" ? time : game.data.pauseTime;
-		game.data.isPaused = true;
-		game.data.pauseElapsed = 0;
-		game.data.pauseStartTime = Date.now() / 1000;
-		game.data.pauseTimerId = setInterval( function() {
-			if ( game.data.isPaused )
-			{
-				game.data.pauseElapsed = Date.now() / 1000 - game.data.pauseStartTime;
-				game.data.pauseRemaining = game.data.pauseStartTime - game.data.pauseElapsed;
-				if ( game.data.pauseElapsed >= pauseTime )
-				{
-					// Pause time is up, start a new round
-					game.go();
-				}
-			}
-		}, 500 );
-	}
-
-	/**
 	 * Sends a message to all connected users
 	 * @param  {String} msg - The message to send. convert to string before calling.
 	 */
@@ -185,249 +113,6 @@ module.exports = function( options ) {
 				users: this.getPublicUserData()
 			}
 		}));
-	}
-
-	/**
-	 * Starts a round
-	 */
-	this.startRound = function ( game ) {	
-
-		console.log("Starting round.");
-
-		clearInterval( game.data.pauseTimerId );
-		game.data.isPaused = false;
-		game.data.rounds++;
-
-		game.data.round.wordsFound = {};
-		game.data.round.started = true;
-		game.data.round.startTime = Date.now() / 1000;
-		game.data.timerId = setInterval( function() {
-			game.data.round.elapsed = Date.now() / 1000 - game.data.round.startTime;
-			game.data.round.remaining = game.data.timeLimit - game.data.round.elapsed;
-			if ( game.data.round.elapsed >= game.data.timeLimit )
-			{
-				// Time is up, stop the round
-				game.stop();
-			}
-		}, 100 );
-
-		// Send full game state to clients
-		game.broadcastGameStateFull();
-
-		// Send round start message to clients
-		game.broadcast( JSON.stringify({
-			action: "onRoundStart"
-		}));
-	}
-
-	/**
-	 * Ends the round
-	 */
-	this.endRound = function() {
-		console.log("Ending round.");
-		clearInterval( this.data.timerId );
-		this.data.round.started = false;
-		this.data.round.startTime = null;
-		this.data.round.lastSolution = this.data.board.solution;
-		this.data.round.lastSolutionCounts = this.data.board.solutionCounts;
-		this.data.round.lastBoardArray = this.data.board.boardArray;
-		// Put users who were queued to join into the active players list
-		for ( k in this.users.queued )
-		{
-			this.addUser( this.users.queued[k], true );
-		}
-
-		// Send the full game state to clients
-		this.broadcastGameStateFull();
-
-		// Send round end message to clients
-		this.broadcast( JSON.stringify({
-			action: "onRoundEnd"
-		}));
-
-		// Restart the pause timer
-		this.startPauseTimer();
-	}
-
-	/**
-	 * Alias for endRound
-	 */
-	this.stop = function() {
-		this.endRound();
-	}
-
-	/**
-	 * Gets the round time as a string
-	 */
-	this.getTime = function() {
-		var m = Math.floor( Math.round(this.data.round.elapsed) / 60 ).toString();
-		var s = (Math.round(this.data.round.elapsed) % 60).toString();
-		return m + ":" + ( (s < 10) ? "0"+s : s );
-	}
-
-	/**
-	 * Gets the round time remaining as a string
-	 */
-	this.getTimeRemaining = function() {
-		var m = Math.floor( Math.round(this.data.round.remaining) / 60 ).toString();
-		var s = (Math.round(this.data.round.remaining) % 60).toString();
-		return m + ":" + ( (s < 10) ? "0"+s : s );
-	}
-
-	/**
-	 * Checks a word in the current board
-	 * @param {String} word - the word to check
-	 * @return {Boolean|String} true if the word exists, false if it doesn't
-	 */
-	this.check = function( word ) {
-		var found = ( this.data.round.started && word.length >= this.data.minLettersToScore ) ? this.data.board.check( word ) : false;
-		return found;
-	}
-
-	/**
-	 * Resets the timer, randomizes the board, and starts a new round
-	 */
-	this.prepareRound = function() {
-
-		// We reset all the users' words and scores here
-		for ( p in this.users.playing )
-		{
-			var player = this.users.playing[p];
-			player.resetScore();
-		}
-
-		// Then reset timer
-		this.timer = this.timeLimit;
-
-		// If we're doing high frequency generation, stop randomizing the board now
-		this.data.board.stopHighFrequencyRandomize( this.startRound );
-	}
-
-	/**
-	 * Alias for preareRound
-	 */
-	this.go = function() {
-		this.prepareRound();
-	}
-
-	/**
-	 * Adds a user to this game
-	 * @param {Object} user - The user to add
-	 * @param {Boolean} playing - (Optional) If set to true, the user will be added as a player. Otherwise, they will be a spectator.
-	 */
-	this.addUser = function( user, playing ) {
-		if ( typeof user == "object" )
-		{
-			console.log("Adding user " + user.id + " to game " + this.id);
-
-			// Remove user from other games if they're in any
-			if ( user.gameRef )
-			{
-				user.gameRef.removeUser( user );
-			}
-
-			// Set game id to this game
-			user.data.joinedId = this.data.id;
-			user.gameRef = this;
-			user.resetScore();
-			if ( typeof playing == "boolean" && playing && ( this.data.allowGuests || user.data.registered ) )
-			{
-				// For now we're just going to disabled "queued" players and let players join mid-round
-				// Playing
-				// if ( this.data.round.started )
-				// {
-				// 	// Add to queued players
-				// 	if ( this.users.queued.indexOf( user ) < 0 )
-				// 	{
-				// 		user.isPlaying = false;
-				// 		this.users.queued.push( user );
-				// 	}
-				// }
-				// else
-				// {
-					// Add to active players
-					if ( this.users.playing.indexOf( user ) < 0 )
-					{
-						user.isPlaying = true;
-						this.users.playing.push( user );
-					}
-				// }
-			}
-			else
-			{
-				// Spectating
-				if ( this.users.joined.indexOf( user ) < 0 )
-				{
-					user.isPlaying = false;
-					this.users.joined.push( user );
-				}
-			}
-
-			// Send message to the user's client
-			user.connection.send( JSON.stringify({
-				action: "onGameEnter"
-			}));
-			user.connection.send( JSON.stringify({
-				action: "onGameUpdate",
-				args: {
-					game: this.getPublicGameData(),
-					users: this.getPublicUserData()
-				}
-			}));
-
-			// Send short game update to all users
-			this.broadcastGameStateShort();
-
-			return true;
-		}
-		else
-		{
-			console.log("Game.addUser: argument user wasn't a user");
-			return false;
-		}
-	}
-
-	/**
-	 * Removes a user from the game
-	 * @param  {Object} user - The user to remove
-	 */
-	this.removeUser = function( user ) {
-		if ( typeof user == "object" )
-		{
-			var wasJoined = false;
-			// Remove the user from any array it's in
-			for ( k in this.users )
-			{
-				for ( var i = 0; i < this.users[k].length; i++ )
-				{
-					if ( this.users[k][i] == user )
-					{
-						// Found the player
-						wasJoined = true;
-						this.users[k].splice( i, 1 );
-					}
-				}
-			}
-			if ( wasJoined )
-			{
-				// Update user's data to remove association from this game
-				if ( !!user )
-				{
-					user.data.joinedId = 0;
-					user.gameRef = null;
-					user.data.isPlaying = false;
-					user.resetScore();
-				}
-
-				// If the connection is open, send the user client a message
-				user.connection.send( JSON.stringify({
-					action: "onGameLeave"
-				}));
-
-				// Send short game update to all users
-				this.broadcastGameStateShort();
-			}
-		}	
 	}
 
 	/**
@@ -588,6 +273,321 @@ module.exports = function( options ) {
 			});
 		}
 		return pubPlayerDataShort;
+	}
+
+	/**
+	 * Initialize the game when the host is done setting it up. This only happens once per instance of the game.
+	 */
+	this.init = function() {
+		console.log("Initializing game");
+		if ( !this.data.initd )
+		{
+			this.data.initd = true;
+
+			this.data.board.minLettersToScore = this.data.minLettersToScore;
+			this.data.board.minWords = this.data.boardMinWords;
+			this.data.board.wordLengthRequirement = this.data.boardRequireLength;
+			this.data.board.minLettersToScore = this.data.minLettersToScore;
+
+			this.startPauseTimer( this.initTime );
+
+			// Send full game state to clients
+			this.broadcastGameStateFull();
+
+			// Send initial message to all users
+			this.broadcast( JSON.stringify({
+				action: "onGameStart"
+			}));
+
+			// Start an interval for broadcasting the short game data to users
+			var self = this;
+			setInterval( function() {
+				self.broadcastGameStateShort();
+			}, 100 );
+		}
+	}
+
+	/**
+	 * Start the pause timer. A new round will be started when the pause time is up.
+	 * @param {Number} time - (Optional) - if specified, the passed time will be used instead of the one in this.data
+	 */
+	this.startPauseTimer = function( time ) {
+
+		// Star generating the next board
+		this.data.board.boardSize = this.data.boardSize;
+		this.data.board.letters = Frequencies[this.data.frequencies];
+		this.data.board.gameRef = this;
+		if ( this.data.boardHighFrequency )
+		{
+			// If we're doing high frequency, start high-frequency randomization
+			this.data.board.startHighFrequencyRandomize( this.data.boardSize, this.data.pauseTime - 1 );
+		}
+		else 
+		{
+			// Otherwise just randomize once
+			this.data.board.randomize();
+		}
+
+		var game = this;
+		var pauseTime = typeof time == "number" ? time : game.data.pauseTime;
+		game.data.isPaused = true;
+		game.data.pauseElapsed = 0;
+		game.data.pauseStartTime = Date.now() / 1000;
+		game.data.pauseTimerId = setInterval( function() {
+			if ( game.data.isPaused )
+			{
+				game.data.pauseElapsed = Date.now() / 1000 - game.data.pauseStartTime;
+				game.data.pauseRemaining = game.data.pauseStartTime - game.data.pauseElapsed;
+				if ( game.data.pauseElapsed >= pauseTime )
+				{
+					// Pause time is up, start a new round
+					game.go();
+				}
+			}
+		}, 500 );
+	}
+
+	/**
+	 * Resets the timer, randomizes the board, and starts a new round
+	 */
+	this.prepareRound = function() {
+
+		// We reset all the users' words and scores here
+		for ( p in this.users.playing )
+		{
+			var player = this.users.playing[p];
+			player.resetScore();
+		}
+
+		// Then reset timer
+		this.timer = this.timeLimit;
+
+		// If we're doing high frequency generation, stop randomizing the board now
+		this.data.board.stopHighFrequencyRandomize( this.startRound );
+	}
+
+	/**
+	 * Alias for preareRound
+	 */
+	this.go = function() {
+		this.prepareRound();
+	}
+
+	/**
+	 * Starts a round
+	 */
+	this.startRound = function ( game ) {	
+
+		console.log("Starting round.");
+
+		clearInterval( game.data.pauseTimerId );
+		game.data.isPaused = false;
+		game.data.rounds++;
+
+		game.data.round.wordsFound = {};
+		game.data.round.started = true;
+		game.data.round.startTime = Date.now() / 1000;
+		game.data.timerId = setInterval( function() {
+			game.data.round.elapsed = Date.now() / 1000 - game.data.round.startTime;
+			game.data.round.remaining = game.data.timeLimit - game.data.round.elapsed;
+			if ( game.data.round.elapsed >= game.data.timeLimit )
+			{
+				// Time is up, stop the round
+				game.stop();
+			}
+		}, 100 );
+
+		// Send full game state to clients
+		game.broadcastGameStateFull();
+
+		// Send round start message to clients
+		game.broadcast( JSON.stringify({
+			action: "onRoundStart"
+		}));
+	}
+
+	/**
+	 * Ends the round
+	 */
+	this.endRound = function() {
+		console.log("Ending round.");
+		clearInterval( this.data.timerId );
+		this.data.round.started = false;
+		this.data.round.startTime = null;
+		this.data.round.lastSolution = this.data.board.solution;
+		this.data.round.lastSolutionCounts = this.data.board.solutionCounts;
+		this.data.round.lastBoardArray = this.data.board.boardArray;
+		// Put users who were queued to join into the active players list
+		for ( k in this.users.queued )
+		{
+			this.addUser( this.users.queued[k], true );
+		}
+
+		// Send the full game state to clients
+		this.broadcastGameStateFull();
+
+		// Send round end message to clients
+		this.broadcast( JSON.stringify({
+			action: "onRoundEnd"
+		}));
+
+		// Restart the pause timer
+		this.startPauseTimer();
+	}
+
+	/**
+	 * Alias for endRound
+	 */
+	this.stop = function() {
+		this.endRound();
+	}
+
+	/**
+	 * Gets the round time as a string
+	 */
+	// this.getTime = function() {
+	// 	var m = Math.floor( Math.round(this.data.round.elapsed) / 60 ).toString();
+	// 	var s = (Math.round(this.data.round.elapsed) % 60).toString();
+	// 	return m + ":" + ( (s < 10) ? "0"+s : s );
+	// }
+
+	/**
+	 * Gets the round time remaining as a string
+	 */
+	// this.getTimeRemaining = function() {
+	// 	var m = Math.floor( Math.round(this.data.round.remaining) / 60 ).toString();
+	// 	var s = (Math.round(this.data.round.remaining) % 60).toString();
+	// 	return m + ":" + ( (s < 10) ? "0"+s : s );
+	// }
+
+	/**
+	 * Checks a word in the current board
+	 * @param {String} word - the word to check
+	 * @return {Boolean|String} true if the word exists, false if it doesn't
+	 */
+	this.check = function( word ) {
+		var found = ( this.data.round.started && word.length >= this.data.minLettersToScore ) ? this.data.board.check( word ) : false;
+		return found;
+	}
+
+	/**
+	 * Adds a user to this game
+	 * @param {Object} user - The user to add
+	 * @param {Boolean} playing - (Optional) If set to true, the user will be added as a player. Otherwise, they will be a spectator.
+	 */
+	this.addUser = function( user, playing ) {
+		if ( typeof user == "object" )
+		{
+			console.log("Adding user " + user.id + " to game " + this.id);
+
+			// Remove user from other games if they're in any
+			if ( user.gameRef )
+			{
+				user.gameRef.removeUser( user );
+			}
+
+			// Set game id to this game
+			user.data.joinedId = this.data.id;
+			user.gameRef = this;
+			user.resetScore();
+			if ( typeof playing == "boolean" && playing && ( this.data.allowGuests || user.data.registered ) )
+			{
+				// For now we're just going to disabled "queued" players and let players join mid-round
+				// Playing
+				// if ( this.data.round.started )
+				// {
+				// 	// Add to queued players
+				// 	if ( this.users.queued.indexOf( user ) < 0 )
+				// 	{
+				// 		user.isPlaying = false;
+				// 		this.users.queued.push( user );
+				// 	}
+				// }
+				// else
+				// {
+					// Add to active players
+					if ( this.users.playing.indexOf( user ) < 0 )
+					{
+						user.isPlaying = true;
+						this.users.playing.push( user );
+					}
+				// }
+			}
+			else
+			{
+				// Spectating
+				if ( this.users.joined.indexOf( user ) < 0 )
+				{
+					user.isPlaying = false;
+					this.users.joined.push( user );
+				}
+			}
+
+			// Send message to the user's client
+			user.connection.send( JSON.stringify({
+				action: "onGameEnter"
+			}));
+			user.connection.send( JSON.stringify({
+				action: "onGameUpdate",
+				args: {
+					game: this.getPublicGameData(),
+					users: this.getPublicUserData()
+				}
+			}));
+
+			// Send short game update to all users
+			this.broadcastGameStateShort();
+
+			return true;
+		}
+		else
+		{
+			console.log("Game.addUser: argument user wasn't a user");
+			return false;
+		}
+	}
+
+	/**
+	 * Removes a user from the game
+	 * @param  {Object} user - The user to remove
+	 */
+	this.removeUser = function( user ) {
+		if ( typeof user == "object" )
+		{
+			var wasJoined = false;
+			// Remove the user from any array it's in
+			for ( k in this.users )
+			{
+				for ( var i = 0; i < this.users[k].length; i++ )
+				{
+					if ( this.users[k][i] == user )
+					{
+						// Found the player
+						wasJoined = true;
+						this.users[k].splice( i, 1 );
+					}
+				}
+			}
+			if ( wasJoined )
+			{
+				// Update user's data to remove association from this game
+				if ( !!user )
+				{
+					user.data.joinedId = 0;
+					user.gameRef = null;
+					user.data.isPlaying = false;
+					user.resetScore();
+				}
+
+				// If the connection is open, send the user client a message
+				user.connection.send( JSON.stringify({
+					action: "onGameLeave"
+				}));
+
+				// Send short game update to all users
+				this.broadcastGameStateShort();
+			}
+		}	
 	}
 
 }

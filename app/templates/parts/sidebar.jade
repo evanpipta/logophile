@@ -1,15 +1,17 @@
 div( class="sidebar" id="sidebar" )
 	div( class="upper" )
-		div( class="leaderboard" )
+
+		div( class="leaderboard" v-on:mouseover="freezeBoard($event)" v-on:mouseout="unfreezeBoard($event)" )
 			h3 Leaderboard
 			ul
 				//- We need to figure out how to make sure this is sorted by the user scores, not just their position in the array
-				li( v-for="user in gameData.users.playing" v-bind:class="{ 'me': user.name == userData.name }" ) [[$index+1]]. [[user.name]]
+				li( v-for="user in playersSorted" v-bind:class="{ 'me': user.name == userData.name }" ) [[$index+1]]. [[user.name]]
 					span [[user.score]]
 				//- li 2. Mu Te
 					span 215
 				//- li( class="me" ) 3. Cosine Pi
 					span 59
+
 		div( class="game-setup" )
 	div( class="chat" )
 		div( class="resizer" )

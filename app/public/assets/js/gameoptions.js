@@ -1,6 +1,6 @@
 module.exports = {
 	name: "",
-	boardSize: 5,
+	boardSize: 4,
 	frequencies: "Uniques",
 	timeLimit: 120,
 	pauseTime: 20,
