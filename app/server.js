@@ -17,6 +17,8 @@ var _herokuPort = process.env.PORT || 5000;
 
 module.exports = new function() {
 
+	console.log("starting server");
+
 	var self = this;
 
 	/**
