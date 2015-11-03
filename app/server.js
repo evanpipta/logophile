@@ -13,7 +13,7 @@ var CookieParser = require("cookie-parser");
 var PageMap = require("./pagemap");
 var PackageInfo = require('../package.json');
 
-var _herokuPort = process.env.PORT || 5000;
+var httpPort = ( process.env.PORT ) ? process.env.PORT : 5000;
 
 module.exports = new function() {
 
@@ -81,7 +81,7 @@ module.exports = new function() {
 	}
 
 	// Create socket server and bind connection event
-	var socketServer = new WebSocketServer( { "port": _herokuPort } );
+	var socketServer = new WebSocketServer( { "port": 8080 } );
 	socketServer.on( "connection", function( conn ) {
 		self.handleConnection( conn );
 	});
@@ -193,11 +193,9 @@ module.exports = new function() {
 		}	
 	}
 
-	console.log( _herokuPort );
-
 	// Create express server and listen for requests
 	var app = Express();
-	var expressServer = app.listen( _herokuPort, function () {
+	var expressServer = app.listen( httpPort, function () {
 		var host = expressServer.address().address;
 		var port = expressServer.address().port;
 		console.log('Server listening at http://' + host + port);
