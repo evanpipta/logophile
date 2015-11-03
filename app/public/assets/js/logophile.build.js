@@ -37,7 +37,7 @@ module.exports = {
 },{}],2:[function(require,module,exports){
 module.exports = {
 	name: "",
-	boardSize: 4,
+	boardSize: 5,
 	frequencies: "Uniques",
 	timeLimit: 120,
 	pauseTime: 20,
