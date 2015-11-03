@@ -81,10 +81,10 @@ module.exports = new function() {
 	}
 
 	// Create socket server and bind connection event
-	var socketServer = new WebSocketServer( { "port": 8080 } );
-	socketServer.on( "connection", function( conn ) {
-		self.handleConnection( conn );
-	});
+	// var socketServer = new WebSocketServer( { "port": 8080 } );
+	// socketServer.on( "connection", function( conn ) {
+		// self.handleConnection( conn );
+	// });
 
 	/**
 	 * Map requests for actual pages, to handle some redirects and asks the html builder for the correct page type
