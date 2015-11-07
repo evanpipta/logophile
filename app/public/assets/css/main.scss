@@ -80,7 +80,7 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 	font-weight: 300;
 	letter-spacing: -0.2px;
 	margin: 10px auto;
-	border: 1px solid $grey3;
+	border: 1px solid $white50;
 	border-radius: 20px;
 	padding: 10px 40px 8px;
 	transition: background 0.3s, border 0.3s;
@@ -94,7 +94,7 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 #mainpage {
 	height: 100%; width: 100%;
 	.menu {
-		background: $grey;
+		// background: $grey;
 		width: 460px;
 		margin: 0 auto;
 		position: relative;
@@ -117,19 +117,28 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 		.inner {
 			transition: transform 0.3s;
 			transform: translateY(-50%);
+			p {
+				transition: opacity 0.2s, top 0.3s;
+				font-size: 15px;
+				margin-bottom: 15px;
+				font-weight: 300;
+				letter-spacing: 0.1px;
+				line-height: 24px;
+				top: 0;
+			}
 		}
 		.options {
 			padding: 15px 0;
 			white-space: nowrap;
 		}
 		.options li {
-			border-right: 1px solid $grey2;
+			border-right: 1px solid $white50;
 		}
 		.options li a { padding: 10px 20px; opacity: 0.6; }
 		.options li a.active { color: $white; opacity: 1; }
 		.options li a:hover { color: $white; opacity: 1; }
-		.options li a.disabled { color: $grey3; opacity: 0.4; }
-		.options li a.disabled:hover { color: $grey3; opacity: 0.4; }
+		.options li a.disabled { color: $white50; opacity: 0.4; }
+		.options li a.disabled:hover { color: $white50; opacity: 0.4; }
 		.options li:first-child a { padding-left: 0; }
 		.options li:last-child a { padding-right: 0; }
 		.options li:last-child { border: 0; }
@@ -139,11 +148,16 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 		h2 {
 			opacity: 0;
 		}
+		p {
+			opacity: 0;
+			position: absolute;
+		}
 		.inner {
 			transform: translateY(0);
 		}
 	}
 	.create-game-wrapper {
+		// background: $teal;
 		height: 0;
 		position: absolute;
 		width: 100%;
@@ -156,6 +170,7 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 			height: 100%;
 			overflow-x: hidden;
 			overflow-y: scroll;
+			// background: $teal;
 		}
 		.button {	
 			position: absolute;

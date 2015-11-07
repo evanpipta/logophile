@@ -18,7 +18,7 @@ module.exports = function( options ) {
 		frequences: "Uniques",
 		name: Dictionary.getRandom( Math.round( ( Math.random() ) * 12 ) + 3 ) +" "+ Dictionary.getRandom( Math.round( ( Math.random() ) * 12 ) + 3 ),
 		timeLimit: 30,
-		pauseTime: 10,
+		pauseTime: 40,
 		private: false,
 		ranked: false,
 		allowGuests: true,
@@ -31,7 +31,7 @@ module.exports = function( options ) {
 		boardRequireLength: 9		// Only applies if high frequency is false
 	});
 
-	this.initTime = this.data.pauseTime;
+	this.initTime = 10;
 
 	// Never allow guests is the game is ranked - for later
 	if ( this.data.ranked == true )
@@ -175,6 +175,10 @@ module.exports = function( options ) {
 		{
 			pubGameData.solution = this.data.round.lastSolution;
 			pubGameData.wordCounts = this.data.round.lastSolutionCounts;
+			if ( this.data.rounds < 1 )
+			{
+				pubGameData.pauseTimeLimit = this.initTime;
+			}
 		}
 
 		return pubGameData;

@@ -1,13 +1,13 @@
 module.exports = {
 	name: "",
-	boardSize: 5,
+	boardSize: 4,
 	frequencies: "Uniques",
 	timeLimit: 120,
-	pauseTime: 20,
+	pauseTime: 40,
 	private: false,
 	ranked: false,
 	scoreStyle: "Normal",
-	minLettersToScore: 5,
+	minLettersToScore: 4,
 	boardHighFrequency: true,
 	boardMinWords: 300,
 	boardRequireLength: 9
