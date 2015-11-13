@@ -97,7 +97,7 @@ module.exports = new function() {
 	 * @param  {String} word
 	 * @return {Boolean}
 	 */
-	this.containsWord = function( word ) {
+	this.contains = function( word ) {
 		return !!dict.words[word];
 	}
 

@@ -25,10 +25,10 @@ module.exports = function( options ) {
 		scoreStyle: "Normal", 			// "normal" or "prolific"
 		initd: false,
 		rounds: 0,						// rounds played so far
-		minLettersToScore: 4,	
+		minLettersToScore: 4,
 		boardHighFrequency: true,
 		boardMinWords: 280,			// Only applies if high frequency is false
-		boardRequireLength: 9		// Only applies if high frequency is false
+		boardRequireLength: 9			// Only applies if high frequency is false
 	});
 
 	this.initTime = 10;
@@ -321,16 +321,9 @@ module.exports = function( options ) {
 		this.data.board.boardSize = this.data.boardSize;
 		this.data.board.letters = Frequencies[this.data.frequencies];
 		this.data.board.gameRef = this;
-		if ( this.data.boardHighFrequency )
-		{
-			// If we're doing high frequency, start high-frequency randomization
-			this.data.board.startHighFrequencyRandomize( this.data.boardSize, this.data.pauseTime - 1 );
-		}
-		else 
-		{
-			// Otherwise just randomize once
-			this.data.board.randomize();
-		}
+
+		console.log("Randomizing board");
+		this.data.board.startRandomization( this.data.boardSize, this.data.pauseTime - 1, this.data.boardHighFrequency );
 
 		var game = this;
 		var pauseTime = typeof time == "number" ? time : game.data.pauseTime;
@@ -366,8 +359,8 @@ module.exports = function( options ) {
 		// Then reset timer
 		this.timer = this.timeLimit;
 
-		// If we're doing high frequency generation, stop randomizing the board now
-		this.data.board.stopHighFrequencyRandomize( this.startRound );
+		// Stop randomizing the board
+		this.data.board.stopRandomization( this.startRound );
 	}
 
 	/**

@@ -43,6 +43,10 @@ module.exports = function( size )
 	// Minimum number of letters to include a word in the solution
 	this.minLettersToScore = 4;
 
+	// Whether or not the generation criter was met for the last board randomization.
+	// Use this to notify users if their board randomization requirements were too harsh to work.
+	this.generationCriteriaMet = false;
+
 	/**
 	 * Return a kv object where letter frequencies are points from 0 to 1 corresponding to their percentage of the summed frequency weights
 	 * So e.g. if the board's frequencies are {"A": 100, "B": 300, "C": 100}, it would return {"A": 0, "B": 0.2, "C": 0.8}
@@ -117,6 +121,31 @@ module.exports = function( size )
 			}
 		}
 
+		// Always add a U if there's a Q
+		for ( var x = 0; x < this.boardSize; x++ )
+		{
+			for ( var y = 0; y < this.boardSize; y++ )
+			{
+				if ( this.boardArray[x][y] == "Q" )
+				{
+					// Generate a random pos that's on the board and adjacent to Q
+					var pos = {
+						x: x + Math.round( Math.random()*2 - 1 ),
+						y: y + Math.round( Math.random()*2 - 1 )
+					}
+					while ( ( pos.x == x && pos.y == y ) || !this.boardArray[pos.x] || !this.boardArray[pos.x][pos.y] )
+					{
+						pos = {
+							x: x + Math.round( Math.random()*2 - 1 ),
+							y: y + Math.round( Math.random()*2 - 1 )
+						}
+					}
+					// Add the U
+					this.boardArray[pos.x][pos.y] = "U";
+				}
+			}
+		}
+
 		this.solve();
 		this.solutionLength = Object.keys( this.solution ).length;
 		this.boardsChecked++;
@@ -129,7 +158,7 @@ module.exports = function( size )
 		min = Math.min( min, ( Math.pow( 1.5*this.boardSize, 1.1 ) - 2.8 ) * 100 );
 		if ( this.solutionLength < min )
 		{
-			// console.log("not enough words, randomizing again");
+			console.log("not enough words, randomizing again");
 			// Too few words, randomize again
 			this.randomize( size, callback );
 			return;
@@ -155,7 +184,7 @@ module.exports = function( size )
 		}
 
 		// Final board generated, do callback
-		// console.log( this.boardArray );
+		console.log( this.boardArray );
 		if ( typeof callback == "function" )
 		{
 			callback( this.gameRef );
@@ -191,14 +220,22 @@ module.exports = function( size )
 		}
 	}
 
+	this.startNormalRandomize = function( callback )
+	{
+		this.isRandomizing = true;
+
+		this.bestBoard = [];
+	}
 
 	/**
 	 * Generates the best board possible in the given amount of time
 	 * If the "high frequency" option is selected for a game, this will be run for the duration of the pauses between rounds
 	 * And the game will use the highest frequency board found in that time
 	 */
-	this.startHighFrequencyRandomize = function( size, timeLimit, callback )
+	this.startRandomization = function( size, timeLimit, highFreq, callback )
 	{
+
+		this.generationCriteriaMet = false;
 
 		this.isRandomizing = true;
 
@@ -211,7 +248,6 @@ module.exports = function( size )
 		// Word length requirement
 		this.bestMinWordLength = 0;
 
-		// var board = require("/home/snow/Documents/Logothete/src/app/board.js")
 		var startTime = Date.now() / 1000;
 
 		var self = this;
@@ -245,12 +281,13 @@ module.exports = function( size )
 						longest = k.length;
 					}
 				}
+
 				if ( longest < self.wordLengthRequirement )
 				{
 					// Longest word is too short, randomizing again
 					return;
 				}
-				else if ( self.solutionLength > self.bestSolutionLength )
+				if ( highFreq && self.solutionLength > self.bestSolutionLength )
 				{
 					// Longest word is met and the board has the most words, keep it
 					self.bestMinWordLength = longest;
@@ -258,14 +295,28 @@ module.exports = function( size )
 					self.bestBoard = self.boardArray;
 					self.bestSolution = self.solution;
 					self.bestSolutionLength = self.solutionLength;
+					this.generationCriteriaMet = true;
+				}
+				if ( !highFreq && self.solutionLength > self.minWords )
+				{
+					self.bestBoard = self.boardArray;
+					self.bestSolution = self.solution;
+					self.bestSolutionLength = self.solutionLength;
+					// We aren't doing high frequency, and both the length and word minimums are rearched, so we can clear the interval
+					console.log("Found board meeting generation criteria, done randomizing.");
+					clearInterval( self.tid );
+					this.generationCriteriaMet = true;
+					// self.stopRandomization( callback );
 				}
 			}
 			else
 			{
-				// clearInterval( tid );
-				// self.stopHighFrequencyRandomize( callback );
+				console.log("No boards meet the generation criteria within time limit given.");
+				clearInterval( self.tid );
+				this.generationCriteriaMet = false;
+				// self.stopRandomization( callback );
 			}
-		}, 5 );
+		}, 10 );
 	}
 
 	/**
@@ -273,7 +324,7 @@ module.exports = function( size )
 	 * @param  {Function} callback [description]
 	 * @return {[type]}            [description]
 	 */
-	this.stopHighFrequencyRandomize = function( callback )
+	this.stopRandomization = function( callback )
 	{
 		if ( !this.isRandomizing )
 		{
@@ -334,7 +385,7 @@ module.exports = function( size )
 
 		this.sortSolution();
 
-		// console.log( Object.keys( this.solution ).length + " words found" );
+		console.log( Object.keys( this.solution ).length + " words found" );
 		// console.timeEnd( "solve time" );
 
 	}
