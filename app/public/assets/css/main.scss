@@ -2,16 +2,22 @@
 // Import CSS3 fonts
 @import "fonts"; $fontStack: "Sinkin Sans", Arial, sans-serif;
 
-$dark: #191919;					// Darkest grey for backgrounds. Used in chat and textareas
+$dark: #121212;					// Darkest grey for backgrounds. Used in chat and textareas
 $grey: #222;						// Middle grey for backgrounds. This is used in the main game area
 $grey70: rgba(34,34,34,0.7);		// Partially transparent middle grey
 $grey2: #444;						// Lightest grey for backgrounds and some low-importance fonts. Used in the sidebar
 $beige: #F6F3E3;					// Beige color, used for game settings panel, and possibly popups/tooltips in the future
 $beige2: #D9D8D0;				// Alternate beige
-$darkTransp: rgba(0, 0, 0, 0.3);	// Transparent black
-$darkTransp2: rgba(0, 0, 0, 0.1);	// Transparent black lighter
+$darkTransp1: rgba(0, 0, 0, 0.1);	// Transparent black lighter
+$darkTransp3: rgba(0, 0, 0, 0.3);	// Transparent black
+$darkTransp5: rgba(0, 0, 0, 0.5);	// Transparent black
+$darkTransp7: rgba(0, 0, 0, 0.7);	// Transparent black
+$darkTransp8: rgba(0, 0, 0, 0.8);	// Transparent black lighter
 
 $white: #FFF;						// Plain while color, mostly for text
+$white10: rgba(255,255,255,0.1);
+$white20: rgba(255,255,255,0.2);
+$white30: rgba(255,255,255,0.3);
 $white50: rgba(255,255,255,0.5);// Transparent white color
 $white75: rgba(255,255,255,0.75);// Transparent white color
 $frost: #C6DEE9;					// Some alternate for white
@@ -80,34 +86,38 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 	font-weight: 300;
 	letter-spacing: -0.2px;
 	margin: 10px auto;
-	border: 1px solid $white50;
+	// border: 1px solid $white50;
+	background: $white10;
 	border-radius: 20px;
 	padding: 10px 40px 8px;
 	transition: background 0.3s, border 0.3s;
 }
 .button:hover {
 	opacity: 1;
-	background: $orange;
-	border: 1px solid $orange;
+	// background: $orange;
+	// border: 1px solid $orange;
+	background: $white30;
+	// border: 1px solid $white75;
 }
 
 #mainpage {
 	height: 100%; width: 100%;
 	.menu {
 		// background: $grey;
-		width: 460px;
+		width: 850px;
 		margin: 0 auto;
 		position: relative;
 		top: 50%;
 		transition: top 0.3s;
 		h1.notfound {
 			font: 100 40.4px/45px $fontStack;
-			color: $grey2;
+			color: $white50;
 			margin-top: -30px;
 			letter-spacing: 1.35px;
 		}
 		h2 {
-			font: 300 24px/30px $fontStack;
+			font: 300 30px/36px $fontStack;
+			font-weight: 200;
 			letter-spacing: -0.5px;
 			margin-bottom: 20px;
 			transition: opacity 0.2s, top 0.3s;
@@ -119,29 +129,34 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 			transform: translateY(-50%);
 			p {
 				transition: opacity 0.2s, top 0.3s;
-				font-size: 15px;
+				font-size: 17px;
 				margin-bottom: 15px;
-				font-weight: 300;
-				letter-spacing: 0.1px;
-				line-height: 24px;
+				font-weight: 200;
+				letter-spacing: -0.1px;
+				line-height: 25px;
 				top: 0;
+				span.logophile {
+					font-weight: 600;
+				}
 			}
 		}
 		.options {
-			padding: 15px 0;
+			padding: 18px 0;
 			white-space: nowrap;
+			text-align: center;
 		}
 		.options li {
-			border-right: 1px solid $white50;
+			// border-right: 1px solid $white50;
+			margin-right: 6px;
 		}
-		.options li a { padding: 10px 20px; opacity: 0.6; }
+		.options li a { padding: 12px 20px 10px; opacity: 0.6; background: $white30; border-radius: 3px; }
 		.options li a.active { color: $white; opacity: 1; }
 		.options li a:hover { color: $white; opacity: 1; }
 		.options li a.disabled { color: $white50; opacity: 0.4; }
 		.options li a.disabled:hover { color: $white50; opacity: 0.4; }
-		.options li:first-child a { padding-left: 0; }
-		.options li:last-child a { padding-right: 0; }
-		.options li:last-child { border: 0; }
+		// .options li:first-child a { padding-left: 0; }
+		// .options li:last-child a { padding-right: 0; }
+		.options li:last-child { border: 0; margin-right: 0; }
 	}
 	.menu.open {
 		top: $cornerOffset - 72px;
@@ -191,7 +206,7 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 	bottom: $cornerOffset * 0.7; left: $cornerOffset;
 	opacity: 0.3;
 	* {
-		color: $grey3;
+		color: $white50;
 		font-size: 13px;
 	}
 }
@@ -251,24 +266,27 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 	z-index: 5;
 	position: absolute;
 	top: 0;
-	right: 0;
+	right: 0px;
 	padding: $cornerOffset;
+	// border-radius: 0 0 0 20px;
 	text-align: right;
 	// background: $grey;
 	// box-shadow: 0 0 20px 5px $grey70;
-	padding-right: 60px;
-	padding-left: $cornerOffset + 10px;
+	padding-right: 50px;
+	padding-left: $cornerOffset + 30px;
 	overflow: hidden;
 	transition: background 0.3s;
 	p {
 		color: $white;
-		font-weight: 200;
+		font-weight: 300;
 	}
 	p, a {
-		font-size: 13px;
+		font-size: 16px;
+		line-height: 22px;
 	}
 	h3 {
-		font-size: 20px;
+		margin-top: 3px;
+		font-size: 22px;
 	}
 	a { 
 		display: block;
@@ -281,7 +299,7 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 		padding: 2px 6px;
 		font-size: 12px;
 		text-align: center;
-		background: $darkTransp2;
+		background: $darkTransp3;
 		margin: 5px 0;
 		border: 0;
 	}
@@ -297,7 +315,7 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 }
 .playercard:hover {
 	cursor: default;
-	background: $orange;
+	background: $darkTransp5;
 	p {
 		color: $white;
 	}
@@ -308,8 +326,8 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 .playercard::after {
 	content: "";
 	position: absolute;
-	top: $cornerOffset + 27; right: $cornerOffset;
-	@include arrowDown( 10px, 18px, $white50 );
+	top: $cornerOffset + 30; right: $cornerOffset + 5;
+	@include arrowDown( 8px, 15px, $white20 );
 }
 
 // Sidebar elements
@@ -322,6 +340,7 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 	}
 }
 .game-info {
+	border-bottom: 1px solid $white20;
 	z-index: 100;
 	background: $teal;
 	overflow: hidden;
@@ -332,36 +351,39 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 		height: $gameInfoHeightMobile;
 		padding: $sidebarPaddingMobile;
 	}
-}
-.game-info {
 	// Children
 	p.label {
-		font-size: 13px;
+		font-size: 14px;
 	}
 	h2 {
-		font: 500 19px/22px $fontStack;
+		font: 300 20px/22px $fontStack;
 		letter-spacing: -1px;
 		// overflow: hidden;
 		max-height: 58px;
 	}	
 	.menu {
 		white-space: nowrap;
-		margin: 0 0 0 -12px;
-		position: absolute;
-		bottom: 16px;
+		margin: 10px 0 0;
+		// position: absolute;
+		// bottom: 16px;
 	 	a {
 			display: block;
-			padding: 7px 13px;
-			margin-top: -8px;
+			padding: 4px 13px;
+			// margin-top: -8px;
 			font-size: 14px;
-			letter-spacing: -0.2px;
+			// letter-spacing: -0.2px;
+			font-weight: 200;
 		}
 		li {
-			height: 18px;
-			border-right: 1px solid rgba(255,255,255,0.3);
+			// height: 24px;
+			background: $white20;
+			border-radius: 3px;
+			margin-right: 4px;
+			transition: background 0.25s;
+			// border-right: 1px solid rgba(255,255,255,0.3);
 		}
-		li:last-child {
-			border: 0;
+		li:hover {
+			background: $white50;
 		}
 	}
 	.desktop-view {
@@ -379,7 +401,7 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 	transition: width 0.2s;
 	height: 100%;
 	overflow: hidden;
-	background: $grey2;
+	background: $grey;
 	transition: padding 0.2s;
 	padding-top: $gameInfoHeight;
 	@media ( max-width: $breakTablet ) {
@@ -431,7 +453,7 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 		}
 	}
 	ul li.me {
-		background: $grey3;
+		background: $orange;
 		font-weight: 600;
 	}
 	ul li.me span { font-weight: 600; }
@@ -513,7 +535,10 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 		padding-left: $sidebarWidthMobile;
 	}
 	.inner {
-		background: linear-gradient(160deg, #444 0%, #2c2c2c 10%, #252525 20%, #202020 30%, #252525 100%) repeat scroll 0% 0%;
+		// background: linear-gradient(160deg, #444 0%, #2c2c2c 10%, #252525 20%, #202020 30%, #252525 100%) repeat scroll 0% 0%;
+		background: $grey;
+		// background: linear-gradient( 5deg, #061d2e 0%,#3c78a4 95% );
+		background: linear-gradient(-5deg, #04163D 0%, #37AED7 93%);
 		padding: $gameEdgePadding;
 		// white-space: nowrap;
 		display: flex;
@@ -584,7 +609,7 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 			.lengths {
 				padding-top: 20px;
 				padding-right: 10px;
-				border-right: 1px solid $grey3;
+				border-right: 1px solid $white30;
 				text-align: right;
 				li {
 					padding: 7px 0 0 0;
@@ -634,7 +659,7 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 			overflow: hidden;
 		}
 		.found-num { 
-			color: #2EAAD7;
+			color: $white;
 			font-size: 27px;
 			font-weight: 500;
 			transition: color 0.3s;
@@ -645,7 +670,7 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 		.found-section h4 {
 			height: 20px;
 			overflow: hidden;
-			border-bottom: 1px solid $grey3;
+			border-bottom: 1px solid $white20;
 			margin: 0 0 8px 0;
 			padding-bottom: 2px;
 			line-height: 20px;
@@ -738,7 +763,7 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 		.hud {
 			max-height: 33%;
 			.round-ended, .round-starts, .round-starts-timer {
-				color: $tealLit;
+				color: $white;
 			}
 			.round-starts {
 				font-size: 18px;
@@ -779,18 +804,20 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 			.waiting-to-start {
 				font: 300 18px/20px $fontStack;
 				text-transform: none;
-				color: $tealLit;
+				color: $white;
 				// margin-top: 50px;
 			}
 		}
 		.board {
 			// opacity: 0.5;
+			// background: $darkTransp1;
 			transition: opacity 0.3s;
 			width: $boardSize;
 			height: $boardSize;
 			min-height: $boardSize;
 			margin: 0 auto;
 			// border: 1px solid $grey2;
+			// box-shadow: 0 0 50px $darkTransp3;
 			display: block;
 			position: relative;
 			.row {
@@ -799,7 +826,12 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 				display: block;
 				white-space: nowrap;
 			}
+			.row.alt {
+				margin-top: 0;
+			}
 			.cell {
+				// background: rgba(30, 30, 30, 0.8);
+				background: $grey;
 				margin: 0 -1px -1px 0;
 				height: 100%;
 				width: 25%;
@@ -815,6 +847,11 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 					top: 50%;
 					transform: translateY(-50%);
 				}
+			}
+			.cell.alt {
+				background: $darkTransp3;
+				margin: 0;
+				border: none;
 			}
 			.cell.on {
 				transition: none;
@@ -836,10 +873,13 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 			// top: -8%;
 			input[type="text"] {
 				@include textInput(22px, 6px);
+				border: 0;
 				font-weight: 300;
 				text-align: center;
 				text-transform: uppercase;
 				padding: 6px 0 0 0;
+				background: $darkTransp5;
+				color: $white50;
 			}
 			input[type="text"]:focus {
 				color: $white;
@@ -849,7 +889,7 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 				text-align: left;
 				margin-top: 15px;
 				font-weight: 300;
-				color: $grey3;
+				color: $white50;
 				position: relative;
 				top: -10px;
 				opacity: 0;
@@ -857,7 +897,7 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 				span {
 					font-weight: 300;
 					font-size: 22px;
-					color: $grey3;
+					color: $white50;
 					float: right;
 				}
 				.word-points {

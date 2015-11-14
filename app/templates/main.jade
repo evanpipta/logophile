@@ -7,7 +7,8 @@ include ./parts/assets.jade
 
 body
 	include ./parts/playercard.jade
-	include ./parts/logo-small.jade
+	//- include ./parts/logo-small.jade
+	//- include ./parts/logo-small-white.jade
 	include ./parts/share.jade
 
 	div( id="mainpage" )
@@ -17,8 +18,9 @@ body
 
 		div( class="menu" v-bind:class="{ 'open' : !!openScreen }" )
 			div( class="inner" )
-				h2 Play custom boggle games online with other people, completely free!
-				p Logophile is a multiplayer word game inspired by boggle that you can play on both desktop and mobile browsers. Invite friends or play by yourself. Customize the board settings to create the type of game you want to play, or join an existing game!
+				h2 Play custom online boggle games with other people, completely free!
+				p 
+					| <span class="logophile">Logophile</span> is a multiplayer word game inspired by boggle that can be played in desktop and mobile browsers. Invite friends or play by yourself. Customize the board settings to create the type of game you want to play, or join an existing one!
 				ul( class="options inline" )
 					li
 						a( href="#" class="disabled" title="Currently Unavailable" v-bind:class="{ 'active' : openScreen == 'gameList' }" ) Join Game

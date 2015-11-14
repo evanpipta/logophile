@@ -9,6 +9,8 @@ html {
 }
 body {
 	background: $grey;
+	// background: linear-gradient( 15deg, #061d2e 0%,#3c78a4 100% );
+	background: linear-gradient(-5deg, #04163D 0%, #37AED7 93%);
 	height: 100%;
 }
 ul li {
@@ -30,12 +32,12 @@ a:hover {
 	opacity: 0.7;
 }
 a.disabled {
-	cursor: default;
+	// cursor: default;
 	opacity: 0.5;
 	position: relative;
 }
 a.disabled:hover {
-	cursor: default;
+	// cursor: default;
 	opacity: 0.5;
 }
 

@@ -56,8 +56,8 @@ body
 						a( href="#" class="button" v-if="!gameData.game.initd" v-on:click="startGame()") Start Game
 
 					div( class="board" v-bind:class="{ 'active': gameData.game.roundStarted || gameData.game.rounds < 0 }" v-bind:style="{ height: boardpx+'px', width: boardpx+'px', minHeight: boardpx+'px', maxHeight: boardpx+'px' }" )
-						div( class="row" v-bind:style="{ height: 100/gameData.game.board.length+'%' }" v-for="x in gameData.game.board" )
-							div( v-bind:class="{ 'cell': true, 'on': this.boardHighlighted[$parent.$index][$index].highlight == 'on', 'partial': this.boardHighlighted[$parent.$index][$index].highlight == 'partial' }"  
+						div( class="row alt" v-bind:style="{ height: 100/gameData.game.board.length+'%' }" v-for="x in gameData.game.board" )
+							div( v-bind:class="{ 'cell': true, 'alt': true, 'on': this.boardHighlighted[$parent.$index][$index].highlight == 'on', 'partial': this.boardHighlighted[$parent.$index][$index].highlight == 'partial' }"  
 								v-bind:style="{ width: 100/gameData.game.board.length+'%' }" 
 								v-for="y in gameData.game.board[$index]" track-by="$index" )
 								div( class="letter" v-bind:style="{ fontSize: boardpx*0.5/gameData.game.board.length + 'px' }" ).
