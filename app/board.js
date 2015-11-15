@@ -452,6 +452,28 @@ module.exports = function( size )
 		return ( !!this.solution[ word ] ) ? word : false;
 	}
 
+	/**
+	 * Convert board values to objects with a highlight property
+	 * @return {Array}
+	 */
+	this.getBoard = function() {
+		if ( !this.boardArray.length || !this.boardArray[0].length )
+		{
+			return [[" "," "," "," "],[" "," "," "," "],[" "," "," "," "],[" "," "," "," "]];
+		}
+		// Convert board values to objects and also make sure the board actually has elements in it
+		var boardArr = [];
+		for ( var x = 0; x < this.boardSize; x++ )
+		{
+			boardArr[x] = [];
+			for ( var y = 0; y < this.boardSize; y++ )
+			{
+				boardArr[x][y] = { letter: this.boardArray[x][y], highlight: "" };
+			}
+		}
+		return boardArr;
+	}
+
 	// Automatically randomize at startup?
 	// this.randomize();
 	

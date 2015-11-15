@@ -1,6 +1,6 @@
 module.exports = {
 	name: "",
-	boardSize: 6,
+	boardSize: 5,
 	frequencies: "Uniques",
 	timeLimit: 120,
 	pauseTime: 40,
@@ -10,5 +10,5 @@ module.exports = {
 	minLettersToScore: 5,
 	boardHighFrequency: false,
 	boardMinWords: 100,
-	boardRequireLength: 12
+	boardRequireLength: 11
 }

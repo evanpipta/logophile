@@ -12,6 +12,7 @@ var RenderSass = require("./rendersass.js");
 var CookieParser = require("cookie-parser");
 var PageMap = require("./pagemap");
 var PackageInfo = require('../package.json');
+var Board = require("./board");
 
 var httpPort = ( process.env.PORT ) ? process.env.PORT : 5000;
 
@@ -179,15 +180,40 @@ module.exports = new function() {
 					}
 				}
 
-				// Send data back
-  				// res.send("Page type: " + PageMap[ url ].type + "<br>" + "Query string: " + JSON.stringify( params ) );
-  				res.send( Jade.renderFile( __dirname + "/templates/" + PageMap[ url ].type + ".jade", {
-  					version: PackageInfo.version,
-  					pagetype: PageMap[ url ].type,
-  					gameData: JSON.stringify( GameData ),
-  					userData: JSON.stringify( UserData ),
-  					pretty: "  "
-  				} ) );
+				// For the main page, we should do a callback with the board finished
+				if ( PageMap[ url ].type == "main" )
+				{
+
+					console.log("Generating board for main page");
+					// Make sure to include logophile in the board eventually
+					// For now just test to make sure we can generate the board properly
+					var b = new Board();
+					b.randomize( 4, function() {
+
+						console.log("Sending main page with generated board");
+  						res.send( Jade.renderFile( __dirname + "/templates/" + PageMap[ url ].type + ".jade", {
+	  						version: PackageInfo.version,
+  							pagetype: PageMap[ url ].type,
+  							board: JSON.stringify( b.getBoard() ),
+  							solution: JSON.stringify( b.solution ),
+  							pretty: "  "
+  						} ) );
+
+					} );
+
+				}
+				else
+				{
+					// Send data back
+  					// res.send("Page type: " + PageMap[ url ].type + "<br>" + "Query string: " + JSON.stringify( params ) );
+  					res.send( Jade.renderFile( __dirname + "/templates/" + PageMap[ url ].type + ".jade", {
+	  					version: PackageInfo.version,
+  						pagetype: PageMap[ url ].type,
+  						board: "[[' ',' ',' ',' '],[' ',' ',' ',' '],[' ',' ',' ',' '],[' ',' ',' ',' ']]",
+  						solution: "{}",
+  						pretty: "  "
+  					} ) );
+  				}
 
 			});
 		}	

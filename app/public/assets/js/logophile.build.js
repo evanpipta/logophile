@@ -1,4 +1,146 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+/**
+ * Returns a 2D Array whose children are sequences that should be highlighted in the board, depending on w
+ * An example of the return value might look like this:
+ * [ [ {letter: "C", pos: {x: 0, y: 1}}, {letter: "D", pos: {x: 1, y:1}} ] ]
+ *
+ * We return a 2d array, because each item in the outer array is a single sequence, which itself has multiple positions to be highlight
+ * The 2d array may have more than one child if the sequence appears more than once in the same board
+ * Highlighting more than one sequence will be a client side optional feature in the future
+ * 
+ * @param  {String} w - String/word to highlight
+ * @return {Array}   Array of arrays of objects with letter and pos properties
+*/
+module.exports = function( w, board )
+{
+
+ 	// var board = this.gameData.game.board;
+ 	// Set up word
+ 	var word = w.split( "" );
+ 	// List of sequences of word found in the board
+ 	var finds = [];
+
+ 	// Iterate all cells in board
+ 	for ( var x = 0; x < board.length; x++ )
+ 	{
+ 		for ( var y = 0; y < board.length; y++ )
+ 		{
+ 			// Build the sequence starting from this cell
+ 			// This is going to be a little insane, apologies in advance
+
+ 			// console.log("\nStarting recursive check");
+ 			var positions = [ { x: 1, y: -1 }, { x: 1, y: 0 }, { x: 1, y: 1 }, { x: 0, y: -1 }, { x: 0, y: 1 }, { x: -1, y: -1 }, { x: -1, y: 0 }, { x: -1, y: 1 } ];
+ 			var sequence = ( function checkpos( pos, seq, n ) {
+ 				// console.log("Level" + n + "  -  At pos " + JSON.stringify( oldPos ) );
+
+ 				// The letter we're looking for at this level
+ 				var ltr = word[ n ];
+
+ 				// If n is zero, define the sequence
+ 				if ( n == 0 )
+ 				{
+ 					seq = [];
+ 				}
+
+ 				// Add the point at the current level/position
+ 				// We will only get here if (n == 0) or we already checked that the letter exists at this point
+ 				// If (n == 0) we do need to check though
+ 				if ( n > 0 || board[ x ][ y ].letter === ltr )
+ 				{
+ 					seq[ n ] = {
+ 						letter: ltr,
+ 						pos: pos
+ 					};
+ 				}
+
+ 				// If the sequence matches the string, return it
+ 				var seqStr = "";
+ 				for ( var m = 0; m < seq.length; m++ )
+ 				{
+ 					seqStr += seq[ m ].letter;
+ 				}
+ 				// console.log("Level" + n + "  -  String is " + seqStr );
+ 				if ( seqStr === w )
+ 				{
+ 					// console.log("Sequence found ending at " + JSON.stringify( pos ) );
+ 					return seq;
+ 				}
+
+ 				// If the string is a substring at the start of the word, then we want to check positions around it
+ 				// Checking the match should only be needed if (n == 0)
+ 				if ( !!seqStr && w.match( new RegExp( "^" + seqStr ) ) )
+ 				{
+ 					// console.log( "Level" + n + "  -  " + seqStr + " is a substring of " + w );
+ 					for ( var i = 0; i < 8; i++ )
+ 					{
+ 						// Does the next position contain the next letter from the string?
+ 						var next = {
+ 							x: pos.x + positions[ i ].x,
+ 							y: pos.y + positions[ i ].y
+ 						};
+ 						if ( !!board[ next.x ] && !!board[ next.x ][ next.y ] && board[ next.x ][ next.y ].letter == word[ n + 1 ] )
+ 						{
+ 							// Is it already in the sequence?
+ 							var inSequence = false;
+ 							for ( var j = 0; j < seq.length; j++ )
+ 							{
+ 								if ( seq[ j ].pos.x == next.x && seq[ j ].pos.y == next.y )
+ 								{
+ 									inSequence = true;
+ 									break;
+ 								}
+ 							}
+ 							if ( !inSequence )
+ 							{
+ 								// No, it's unique, so we want to continue the recursion
+ 								seq = checkpos( next, seq, n + 1 );
+
+ 								// If the result of the recursion is the whole string, return it
+ 								var seqStr = "";
+ 								for ( var k = 0; k < seq.length; k++ )
+ 								{
+ 									seqStr += seq[ k ].letter;
+ 								}
+ 								if ( seqStr === w )
+ 								{
+ 									return seq;
+ 								}
+ 								// Otherwise, the sequence will be the same and we can continue checking other positions
+ 							}
+ 						}
+ 					}
+ 				}
+ 				// console.log("Level" + n + "  -  No viable continuations at " + JSON.stringify( pos ) );
+
+ 				// No viable letters were found around this position, and it wasn't the full word
+ 				// Then we remove the last letter and return to continue to the next position
+ 				// Or just return an empty sequence if we're on n == 0
+ 				seq.pop();
+ 				return seq;
+
+ 			}( { x: x, y: y }, [], 0 ) );
+
+ 			// console.log("Recursion done: " + JSON.stringify( sequence ) );
+ 			if ( sequence.length > 0 )
+ 			{
+ 				// Recursion from this cell done
+ 				finds.push( sequence );
+ 				// Skip to end of loop once we find one instance? Comment this out to allow multiple highlights
+ 				// Make this a user option in the future
+ 				x = board.length;
+ 				break;
+ 			}
+
+ 		}
+ 	}
+
+ 	// Render the highlights for each find into the board
+ 	// The first one should be full opacity, the rest should be lower
+
+ 	// Return the board
+ 	return finds;
+ }
+},{}],2:[function(require,module,exports){
 module.exports = {
 	"game": {
 		"id": 0,
@@ -34,10 +176,10 @@ module.exports = {
 		"joined": []
 	}
 }
-},{}],2:[function(require,module,exports){
+},{}],3:[function(require,module,exports){
 module.exports = {
 	name: "",
-	boardSize: 6,
+	boardSize: 5,
 	frequencies: "Uniques",
 	timeLimit: 120,
 	pauseTime: 40,
@@ -47,14 +189,14 @@ module.exports = {
 	minLettersToScore: 5,
 	boardHighFrequency: false,
 	boardMinWords: 100,
-	boardRequireLength: 12
+	boardRequireLength: 11
 }
 
-},{}],3:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 
-// Set up game and user state objects
-GameData = require("./gamedata");
-User = require("./userdata");
+// Game/user state objects will be rendered by jade
+// GameData = require("./gamedata");
+// User = require("./userdata");
 
 // Default game options for creating a new game
 GameOptions = require("./gameoptions");
@@ -70,13 +212,24 @@ window.addEventListener("beforeunload", function(){
     wsClient.connection.close();
 });
 
+var BoardHighlighter = require("./boardhighlighter.js")
+
 // Start actual client code on load
 window.addEventListener("load", function() {
 
-	var Mainpage = new Vue({
+	Mainpage = new Vue({
  		el: "#mainpage",
  		data: {
+ 			wordToHighlight: "",
+ 			wordToHighlightFull: "",		// The full string of the word to highlight
+ 			autoHighlight: {
+ 				keystrokeInterval: 150,	// time between "keystrokes"
+ 				wordDisplay: 3000,		// time to display words after they've been highlighted
+ 				wordInterval: 300,			// time between word displays
+ 				wordStart: 0				// time the current word started being "typed"
+ 			},
  			gameOpts: GameOptions,
+ 			gameData: GameData,
 	 		openScreen: "",
 	 	 	changeScreen: function( s ) {
  				this.openScreen = s;
@@ -85,8 +238,85 @@ window.addEventListener("load", function() {
  				// Create a game
  				wsClient.action( "createGame", GameOptions );
  			}
+	 	},
+	 	computed: {
+	 		/**
+			 * The board, but including highlighted letters if applicable
+			 * Nearly the same method as the one in GameInner
+			 * @return {Array} 2d board array
+			 */
+			boardHighlighted: function() {
+				var board = this.gameData.game.board;
+				// Reset board highlights
+				for ( var x = 0; x < board.length; x++ )
+				{
+					for ( var y = 0; y < board.length; y++ )
+					{
+						board[x][y].highlight = "";
+					}
+				}
+				// Highlight current sequence if possible
+				if ( this.wordToHighlight.length )
+				{
+					var highlights = BoardHighlighter( this.wordToHighlight.toUpperCase(), this.gameData.game.board );
+					for ( var i = 0; i < highlights.length; i++ )
+					{
+						for ( var j = 0; j < highlights[i].length; j++ )
+						{
+							var pos = highlights[i][j].pos;
+							// This is one letter in the first highlight
+							board[ pos.x ][ pos.y ].highlight = "on";
+						}
+					}
+				}
+				return board;
+			}
+	 	},
+	 	methods: {
+	 		startHighlightTimer: function() {
+	 			if ( typeof Date.now == "function" )
+	 			{
+	 				var ksi = this.autoHighlight.keystrokeInterval;
+	 				var wd = this.autoHighlight.wordDisplay;
+	 				var wi = this.autoHighlight.wordInterval;
+	 				var self = this;
+	 				setInterval( function() {
+
+	 					// console.log("test");
+
+		 				var time = Date.now();
+		 				var delta = time - self.autoHighlight.wordStart;
+		 				var totalTime = self.wordToHighlightFull.length*ksi + wd + wi;
+		 				var restart = ( delta > totalTime );
+		 				if ( restart  || self.wordToHighlightFull == [] )
+		 				{
+		 					self.autoHighlight.wordStart = time;
+		 					// Pick a new random word from the solution
+		 					var words = Object.keys( GameData.game.solution );
+		 					self.wordToHighlightFull = words[ Math.floor( Math.random()*words.length ) ];
+		 					self.wordToHighlight = "";
+		 					return;
+		 				}
+		 				self.wordToHighlight = "";
+
+		 				console.log(  );
+
+		 				// Do highlight
+		 				var count = Math.min( Math.round( (delta - wi) / ksi ), self.wordToHighlightFull.length );
+		 				if ( count > 0 )
+		 				{
+		 					self.wordToHighlight = self.wordToHighlightFull.substr( 0, count );
+		 				}
+
+		 				// console.log( "Highlighting " + self.wordToHighlight );
+
+	 				}, ksi );
+	 			}
+	 		}
 	 	}
 	});
+
+	Mainpage.startHighlightTimer();
 
 	var PlayerCard = new Vue({
 		el: "#playercard",
@@ -321,7 +551,7 @@ window.addEventListener("load", function() {
 				// Highlight current sequence if possible
 				if ( w.length )
 				{
-					var highlights = this.getBoardHighlights( w.toUpperCase() );
+					var highlights = BoardHighlighter( w.toUpperCase(), this.gameData.game.board );
 					for ( var i = 0; i < highlights.length; i++ )
 					{
 						for ( var j = 0; j < highlights[i].length; j++ )
@@ -405,138 +635,6 @@ window.addEventListener("load", function() {
 				console.log("Checking Word: " + this.wordToCheck.toUpperCase() );
 				wsClient.action("checkWord", { word: this.wordToCheck.toUpperCase() } )
 				this.wordToCheck = "";
-			},
-
-			/**
-			 * Returns a 2D Array whose children are sequences that should be highlighted in the board, depending on w
-			 * An example of the return value might look like this:
-			 * [ [ {letter: "C", pos: {x: 0, y: 1}}, {letter: "D", pos: {x: 1, y:1}} ] ]
-			 *
-			 * We return a 2d array, because each item in the outer array is a single sequence, which itself has multiple positions to be highlight
-			 * The 2d array may have more than one child if the sequence appears more than once in the same board
-			 * Highlighting more than one sequence will be a client side optional feature in the future
-			 * 
-			 * @param  {String} w - String/word to highlight
-			 * @return {Array}   Array of arrays of objects with letter and pos properties
-			 */
-			getBoardHighlights: function( w ) {
-
-				var board = this.gameData.game.board;
-				// Set up word
-				var word = w.split("");
-				// List of sequences of word found in the board
-				var finds = [];
-
-				// Iterate all cells in board
-				for ( var x = 0; x < board.length; x++ )
-				{
-					for ( var y = 0; y < board.length; y++ )
-					{
-						// Build the sequence starting from this cell
-						// This is going to be a little insane, apologies in advance
-
-						// console.log("\nStarting recursive check");
-						var positions = [ {x:1,y:-1}, {x:1,y:0}, {x:1,y:1}, {x:0,y:-1}, {x:0,y:1}, {x:-1,y:-1}, {x:-1,y:0}, {x:-1,y:1} ];
-						var sequence = (function checkpos( pos, seq, n ) {
-							// console.log("Level" + n + "  -  At pos " + JSON.stringify( oldPos ) );
-							
-							// The letter we're looking for at this level
-							var ltr = word[ n ];
-
-							// If n is zero, define the sequence
-							if ( n == 0 ) { seq = []; }
-
-							// Add the point at the current level/position
-							// We will only get here if (n == 0) or we already checked that the letter exists at this point
-							// If (n == 0) we do need to check though
-							if ( n > 0 || board[x][y].letter === ltr )
-							{
-								seq[ n ] = { letter: ltr, pos: pos };
-							}
-
-							// If the sequence matches the string, return it
-							var seqStr = "";
-							for ( var m = 0; m < seq.length; m++ )
-							{
-								seqStr += seq[ m ].letter;
-							}
-							// console.log("Level" + n + "  -  String is " + seqStr );
-							if ( seqStr === w )
-							{
-								// console.log("Sequence found ending at " + JSON.stringify( pos ) );
-								return seq;
-							}
-
-							// If the string is a substring at the start of the word, then we want to check positions around it
-							// Checking the match should only be needed if (n == 0)
-							if ( !!seqStr && w.match( new RegExp( "^" + seqStr ) ) )
-							{
-								// console.log( "Level" + n + "  -  " + seqStr + " is a substring of " + w );
-								for ( var i = 0; i < 8; i++ )
-								{
-									// Does the next position contain the next letter from the string?
-									var next = { x: pos.x + positions[i].x, y: pos.y + positions[i].y };
-									if ( !!board[next.x] && !!board[next.x][next.y] && board[ next.x ][ next.y ].letter == word[ n+1 ] )
-									{
-										// Is it already in the sequence?
-										var inSequence = false;
-										for ( var j = 0; j < seq.length; j++ )
-										{
-											if ( seq[j].pos.x == next.x && seq[j].pos.y == next.y )
-											{
-												inSequence = true;
-												break;
-											}
-										}
-										if ( !inSequence )
-										{
-											// No, it's unique, so we want to continue the recursion
-											seq = checkpos( next, seq, n+1 );
-
-											// If the result of the recursion is the whole string, return it
-											var seqStr = "";
-											for ( var k = 0; k < seq.length; k++ )
-											{
-												seqStr += seq[k].letter;
-											}
-											if ( seqStr === w )
-											{
-												return seq;
-											}
-											// Otherwise, the sequence will be the same and we can continue checking other positions
-										}
-									}
-								}
-							}
-							// console.log("Level" + n + "  -  No viable continuations at " + JSON.stringify( pos ) );
-
-							// No viable letters were found around this position, and it wasn't the full word
-							// Then we remove the last letter and return to continue to the next position
-							// Or just return an empty sequence if we're on n == 0
-							seq.pop();
-							return seq;
-
-						}( { x: x, y: y }, [], 0 ) );
-
-						// console.log("Recursion done: " + JSON.stringify( sequence ) );
-						if ( sequence.length > 0 ) 
-						{
-							// Recursion from this cell done
-							finds.push( sequence );
-							// Skip to end of loop once we find one instance? Comment this out to allow multiple highlights
-							// Make this a user option in the future
-							x = board.length;
-							break;
-						}
-
-					}
-				}
-
-				// Render the highlights for each find into the board
-				// The first one should be full opacity, the rest should be lower
-
-				// Return the board
-				return finds;
 			}
 
 		}
@@ -651,7 +749,7 @@ window.addEventListener("load", function() {
 		}
 	});
 });
-},{"./gamedata":1,"./gameoptions":2,"./userdata":4,"./vuefilters":5,"./wsclient.js":7,"vue":73}],4:[function(require,module,exports){
+},{"./boardhighlighter.js":1,"./gameoptions":3,"./vuefilters":6,"./wsclient.js":8,"vue":74}],5:[function(require,module,exports){
 module.exports = {
 	"id": "4875909988768399",
 	"logged": false,
@@ -663,7 +761,7 @@ module.exports = {
 	"name": "",
 	"registered": false
 }
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 	
 var Vue = require("vue");
 
@@ -723,7 +821,7 @@ Vue.filter("keylength", function( obj, len ) {
 	}
 	return output;
 });
-},{"vue":73}],6:[function(require,module,exports){
+},{"vue":74}],7:[function(require,module,exports){
 /**
  * Synchronizes the data between two objects in a Vue-friendly way.
  * @param  {[type]}   data     	- The original data to modify
@@ -756,7 +854,7 @@ Object.$sync = function( data, newdata, callback, depth ) {
 
 }
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 
 require("./vuesync.js");
 var GameData = require("./gamedata.js");
@@ -792,7 +890,7 @@ module.exports = new function() {
 	this.connection.onclose = function() {
 		setTimeout( function() {
 			alert("Websocket connection closed.");
-		}, 200 );
+		}, 1000 );
 	}
 
 	this.connection.onmessage = function( msg ) {
@@ -879,7 +977,7 @@ module.exports = new function() {
 
 }
 
-},{"./gamedata.js":1,"./userdata.js":4,"./vuesync.js":6}],8:[function(require,module,exports){
+},{"./gamedata.js":2,"./userdata.js":5,"./vuesync.js":7}],9:[function(require,module,exports){
 var _ = require('../util')
 var Watcher = require('../watcher')
 var Path = require('../parsers/path')
@@ -1055,7 +1153,7 @@ function clean (obj) {
   return JSON.parse(JSON.stringify(obj))
 }
 
-},{"../parsers/directive":58,"../parsers/expression":59,"../parsers/path":60,"../parsers/text":62,"../util":70,"../watcher":74}],9:[function(require,module,exports){
+},{"../parsers/directive":59,"../parsers/expression":60,"../parsers/path":61,"../parsers/text":63,"../util":71,"../watcher":75}],10:[function(require,module,exports){
 var _ = require('../util')
 var transition = require('../transition')
 
@@ -1261,7 +1359,7 @@ function remove (el, vm, cb) {
   if (cb) cb()
 }
 
-},{"../transition":63,"../util":70}],10:[function(require,module,exports){
+},{"../transition":64,"../util":71}],11:[function(require,module,exports){
 var _ = require('../util')
 
 /**
@@ -1432,7 +1530,7 @@ function modifyListenerCount (vm, event, count) {
   }
 }
 
-},{"../util":70}],11:[function(require,module,exports){
+},{"../util":71}],12:[function(require,module,exports){
 var _ = require('../util')
 var config = require('../config')
 
@@ -1586,7 +1684,7 @@ config._assetTypes.forEach(function (type) {
   }
 })
 
-},{"../compiler":17,"../config":19,"../directives/internal":26,"../fragment/factory":48,"../parsers/directive":58,"../parsers/expression":59,"../parsers/path":60,"../parsers/template":61,"../parsers/text":62,"../util":70}],12:[function(require,module,exports){
+},{"../compiler":18,"../config":20,"../directives/internal":27,"../fragment/factory":49,"../parsers/directive":59,"../parsers/expression":60,"../parsers/path":61,"../parsers/template":62,"../parsers/text":63,"../util":71}],13:[function(require,module,exports){
 (function (process){
 var _ = require('../util')
 var compiler = require('../compiler')
@@ -1658,7 +1756,7 @@ exports.$compile = function (el, host, scope, frag) {
 }
 
 }).call(this,require('_process'))
-},{"../compiler":17,"../util":70,"_process":75}],13:[function(require,module,exports){
+},{"../compiler":18,"../util":71,"_process":76}],14:[function(require,module,exports){
 (function (process){
 var _ = require('./util')
 var config = require('./config')
@@ -1760,7 +1858,7 @@ exports.push = function (watcher) {
 }
 
 }).call(this,require('_process'))
-},{"./config":19,"./util":70,"_process":75}],14:[function(require,module,exports){
+},{"./config":20,"./util":71,"_process":76}],15:[function(require,module,exports){
 /**
  * A doubly linked list-based Least Recently Used (LRU)
  * cache. Will keep most recently used items while
@@ -1874,7 +1972,7 @@ p.get = function (key, returnEntry) {
 
 module.exports = Cache
 
-},{}],15:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 (function (process){
 var _ = require('../util')
 var dirParser = require('../parsers/directive')
@@ -2084,7 +2182,7 @@ function getDefault (vm, options) {
 }
 
 }).call(this,require('_process'))
-},{"../config":19,"../directives/internal/prop":27,"../parsers/directive":58,"../parsers/path":60,"../util":70,"_process":75}],16:[function(require,module,exports){
+},{"../config":20,"../directives/internal/prop":28,"../parsers/directive":59,"../parsers/path":61,"../util":71,"_process":76}],17:[function(require,module,exports){
 (function (process){
 var _ = require('../util')
 var publicDirectives = require('../directives/public')
@@ -2797,13 +2895,13 @@ function makeNodeLinkFn (directives) {
 }
 
 }).call(this,require('_process'))
-},{"../directives/internal":26,"../directives/public":36,"../parsers/directive":58,"../parsers/template":61,"../parsers/text":62,"../util":70,"./compile-props":15,"_process":75}],17:[function(require,module,exports){
+},{"../directives/internal":27,"../directives/public":37,"../parsers/directive":59,"../parsers/template":62,"../parsers/text":63,"../util":71,"./compile-props":16,"_process":76}],18:[function(require,module,exports){
 var _ = require('../util')
 
 _.extend(exports, require('./compile'))
 _.extend(exports, require('./transclude'))
 
-},{"../util":70,"./compile":16,"./transclude":18}],18:[function(require,module,exports){
+},{"../util":71,"./compile":17,"./transclude":19}],19:[function(require,module,exports){
 (function (process){
 var _ = require('../util')
 var templateParser = require('../parsers/template')
@@ -2955,7 +3053,7 @@ function mergeAttrs (from, to) {
 }
 
 }).call(this,require('_process'))
-},{"../parsers/template":61,"../util":70,"_process":75}],19:[function(require,module,exports){
+},{"../parsers/template":62,"../util":71,"_process":76}],20:[function(require,module,exports){
 module.exports = {
 
   /**
@@ -3061,7 +3159,7 @@ Object.defineProperty(module.exports, 'unsafeDelimiters', {
   }
 })
 
-},{"./parsers/text":62}],20:[function(require,module,exports){
+},{"./parsers/text":63}],21:[function(require,module,exports){
 (function (process){
 var _ = require('./util')
 var Watcher = require('./watcher')
@@ -3377,11 +3475,11 @@ Directive.prototype._teardown = function () {
 module.exports = Directive
 
 }).call(this,require('_process'))
-},{"./parsers/expression":59,"./util":70,"./watcher":74,"_process":75}],21:[function(require,module,exports){
+},{"./parsers/expression":60,"./util":71,"./watcher":75,"_process":76}],22:[function(require,module,exports){
 exports.slot = require('./slot')
 exports.partial = require('./partial')
 
-},{"./partial":22,"./slot":23}],22:[function(require,module,exports){
+},{"./partial":23,"./slot":24}],23:[function(require,module,exports){
 (function (process){
 var _ = require('../../util')
 var vIf = require('../public/if')
@@ -3428,7 +3526,7 @@ module.exports = {
 }
 
 }).call(this,require('_process'))
-},{"../../fragment/factory":48,"../../util":70,"../public/if":35,"_process":75}],23:[function(require,module,exports){
+},{"../../fragment/factory":49,"../../util":71,"../public/if":36,"_process":76}],24:[function(require,module,exports){
 var _ = require('../../util')
 var templateParser = require('../../parsers/template')
 
@@ -3554,7 +3652,7 @@ function extractFragment (nodes, parent, main) {
   }
 }
 
-},{"../../parsers/template":61,"../../util":70}],24:[function(require,module,exports){
+},{"../../parsers/template":62,"../../util":71}],25:[function(require,module,exports){
 var _ = require('../../util')
 var addClass = _.addClass
 var removeClass = _.removeClass
@@ -3625,7 +3723,7 @@ function contains (value, key) {
     : value.hasOwnProperty(key)
 }
 
-},{"../../util":70}],25:[function(require,module,exports){
+},{"../../util":71}],26:[function(require,module,exports){
 (function (process){
 var _ = require('../../util')
 var templateParser = require('../../parsers/template')
@@ -3960,14 +4058,14 @@ module.exports = {
 }
 
 }).call(this,require('_process'))
-},{"../../parsers/template":61,"../../util":70,"_process":75}],26:[function(require,module,exports){
+},{"../../parsers/template":62,"../../util":71,"_process":76}],27:[function(require,module,exports){
 exports.style = require('./style')
 exports['class'] = require('./class')
 exports.component = require('./component')
 exports.prop = require('./prop')
 exports.transition = require('./transition')
 
-},{"./class":24,"./component":25,"./prop":27,"./style":28,"./transition":29}],27:[function(require,module,exports){
+},{"./class":25,"./component":26,"./prop":28,"./style":29,"./transition":30}],28:[function(require,module,exports){
 // NOTE: the prop internal directive is compiled and linked
 // during _initScope(), before the created hook is called.
 // The purpose is to make the initial prop values available
@@ -4033,7 +4131,7 @@ module.exports = {
   }
 }
 
-},{"../../config":19,"../../util":70,"../../watcher":74}],28:[function(require,module,exports){
+},{"../../config":20,"../../util":71,"../../watcher":75}],29:[function(require,module,exports){
 var _ = require('../../util')
 var prefixes = ['-webkit-', '-moz-', '-ms-']
 var camelPrefixes = ['Webkit', 'Moz', 'ms']
@@ -4143,7 +4241,7 @@ function prefix (prop) {
   }
 }
 
-},{"../../util":70}],29:[function(require,module,exports){
+},{"../../util":71}],30:[function(require,module,exports){
 var _ = require('../../util')
 var Transition = require('../../transition/transition')
 
@@ -4165,7 +4263,7 @@ module.exports = {
   }
 }
 
-},{"../../transition/transition":65,"../../util":70}],30:[function(require,module,exports){
+},{"../../transition/transition":66,"../../util":71}],31:[function(require,module,exports){
 (function (process){
 var _ = require('../../util')
 
@@ -4275,7 +4373,7 @@ module.exports = {
 }
 
 }).call(this,require('_process'))
-},{"../../util":70,"_process":75}],31:[function(require,module,exports){
+},{"../../util":71,"_process":76}],32:[function(require,module,exports){
 module.exports = {
   bind: function () {
     var el = this.el
@@ -4285,7 +4383,7 @@ module.exports = {
   }
 }
 
-},{}],32:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 var _ = require('../../util')
 
 module.exports = {
@@ -4314,7 +4412,7 @@ module.exports = {
   }
 }
 
-},{"../../util":70}],33:[function(require,module,exports){
+},{"../../util":71}],34:[function(require,module,exports){
 (function (process){
 var _ = require('../../util')
 var FragmentFactory = require('../../fragment/factory')
@@ -4916,7 +5014,7 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 }).call(this,require('_process'))
-},{"../../fragment/factory":48,"../../util":70,"_process":75}],34:[function(require,module,exports){
+},{"../../fragment/factory":49,"../../util":71,"_process":76}],35:[function(require,module,exports){
 var _ = require('../../util')
 var templateParser = require('../../parsers/template')
 
@@ -4958,7 +5056,7 @@ module.exports = {
   }
 }
 
-},{"../../parsers/template":61,"../../util":70}],35:[function(require,module,exports){
+},{"../../parsers/template":62,"../../util":71}],36:[function(require,module,exports){
 (function (process){
 var _ = require('../../util')
 var FragmentFactory = require('../../fragment/factory')
@@ -5028,7 +5126,7 @@ module.exports = {
 }
 
 }).call(this,require('_process'))
-},{"../../fragment/factory":48,"../../util":70,"_process":75}],36:[function(require,module,exports){
+},{"../../fragment/factory":49,"../../util":71,"_process":76}],37:[function(require,module,exports){
 // text & html
 exports.text = require('./text')
 exports.html = require('./html')
@@ -5054,7 +5152,7 @@ exports.ref = require('./ref')
 // cloak
 exports.cloak = require('./cloak')
 
-},{"./bind":30,"./cloak":31,"./el":32,"./for":33,"./html":34,"./if":35,"./model":38,"./on":42,"./ref":43,"./show":44,"./text":45}],37:[function(require,module,exports){
+},{"./bind":31,"./cloak":32,"./el":33,"./for":34,"./html":35,"./if":36,"./model":39,"./on":43,"./ref":44,"./show":45,"./text":46}],38:[function(require,module,exports){
 var _ = require('../../../util')
 
 module.exports = {
@@ -5118,7 +5216,7 @@ module.exports = {
   }
 }
 
-},{"../../../util":70}],38:[function(require,module,exports){
+},{"../../../util":71}],39:[function(require,module,exports){
 (function (process){
 var _ = require('../../../util')
 
@@ -5204,7 +5302,7 @@ module.exports = {
 }
 
 }).call(this,require('_process'))
-},{"../../../util":70,"./checkbox":37,"./radio":39,"./select":40,"./text":41,"_process":75}],39:[function(require,module,exports){
+},{"../../../util":71,"./checkbox":38,"./radio":40,"./select":41,"./text":42,"_process":76}],40:[function(require,module,exports){
 var _ = require('../../../util')
 
 module.exports = {
@@ -5240,7 +5338,7 @@ module.exports = {
   }
 }
 
-},{"../../../util":70}],40:[function(require,module,exports){
+},{"../../../util":71}],41:[function(require,module,exports){
 var _ = require('../../../util')
 
 module.exports = {
@@ -5360,7 +5458,7 @@ function indexOf (arr, val) {
   return -1
 }
 
-},{"../../../util":70}],41:[function(require,module,exports){
+},{"../../../util":71}],42:[function(require,module,exports){
 var _ = require('../../../util')
 
 module.exports = {
@@ -5489,7 +5587,7 @@ module.exports = {
   }
 }
 
-},{"../../../util":70}],42:[function(require,module,exports){
+},{"../../../util":71}],43:[function(require,module,exports){
 (function (process){
 var _ = require('../../util')
 
@@ -5616,7 +5714,7 @@ module.exports = {
 }
 
 }).call(this,require('_process'))
-},{"../../util":70,"_process":75}],43:[function(require,module,exports){
+},{"../../util":71,"_process":76}],44:[function(require,module,exports){
 (function (process){
 if (process.env.NODE_ENV !== 'production') {
   module.exports = {
@@ -5630,7 +5728,7 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 }).call(this,require('_process'))
-},{"../../util":70,"_process":75}],44:[function(require,module,exports){
+},{"../../util":71,"_process":76}],45:[function(require,module,exports){
 var _ = require('../../util')
 var transition = require('../../transition')
 
@@ -5658,7 +5756,7 @@ module.exports = {
   }
 }
 
-},{"../../transition":63,"../../util":70}],45:[function(require,module,exports){
+},{"../../transition":64,"../../util":71}],46:[function(require,module,exports){
 var _ = require('../../util')
 
 module.exports = {
@@ -5674,7 +5772,7 @@ module.exports = {
   }
 }
 
-},{"../../util":70}],46:[function(require,module,exports){
+},{"../../util":71}],47:[function(require,module,exports){
 var _ = require('../util')
 var Path = require('../parsers/path')
 var toArray = require('../directives/public/for')._postProcess
@@ -5781,7 +5879,7 @@ function contains (val, search) {
   }
 }
 
-},{"../directives/public/for":33,"../parsers/path":60,"../util":70}],47:[function(require,module,exports){
+},{"../directives/public/for":34,"../parsers/path":61,"../util":71}],48:[function(require,module,exports){
 var _ = require('../util')
 
 /**
@@ -5901,7 +5999,7 @@ exports.debounce = function (handler, delay) {
 
 _.extend(exports, require('./array-filters'))
 
-},{"../util":70,"./array-filters":46}],48:[function(require,module,exports){
+},{"../util":71,"./array-filters":47}],49:[function(require,module,exports){
 var _ = require('../util')
 var compiler = require('../compiler')
 var templateParser = require('../parsers/template')
@@ -5959,7 +6057,7 @@ FragmentFactory.prototype.create = function (host, scope, parentFrag) {
 
 module.exports = FragmentFactory
 
-},{"../cache":14,"../compiler":17,"../parsers/template":61,"../util":70,"./fragment":49}],49:[function(require,module,exports){
+},{"../cache":15,"../compiler":18,"../parsers/template":62,"../util":71,"./fragment":50}],50:[function(require,module,exports){
 var _ = require('../util')
 var transition = require('../transition')
 
@@ -6136,7 +6234,7 @@ function detach (child) {
 
 module.exports = Fragment
 
-},{"../transition":63,"../util":70}],50:[function(require,module,exports){
+},{"../transition":64,"../util":71}],51:[function(require,module,exports){
 (function (process){
 var _ = require('../util')
 var inDoc = _.inDoc
@@ -6303,7 +6401,7 @@ exports._callHook = function (hook) {
 }
 
 }).call(this,require('_process'))
-},{"../util":70,"_process":75}],51:[function(require,module,exports){
+},{"../util":71,"_process":76}],52:[function(require,module,exports){
 var mergeOptions = require('../util').mergeOptions
 
 /**
@@ -6415,7 +6513,7 @@ exports._init = function (options) {
   }
 }
 
-},{"../util":70}],52:[function(require,module,exports){
+},{"../util":71}],53:[function(require,module,exports){
 var _ = require('../util')
 var Directive = require('../directive')
 var compiler = require('../compiler')
@@ -6632,7 +6730,7 @@ exports._cleanup = function () {
   this.$off()
 }
 
-},{"../compiler":17,"../directive":20,"../util":70}],53:[function(require,module,exports){
+},{"../compiler":18,"../directive":21,"../util":71}],54:[function(require,module,exports){
 (function (process){
 var _ = require('../util')
 
@@ -6729,7 +6827,7 @@ exports._resolveComponent = function (id, cb) {
 }
 
 }).call(this,require('_process'))
-},{"../util":70,"_process":75}],54:[function(require,module,exports){
+},{"../util":71,"_process":76}],55:[function(require,module,exports){
 (function (process){
 var _ = require('../util')
 var compiler = require('../compiler')
@@ -6974,7 +7072,7 @@ exports._initMeta = function () {
 }
 
 }).call(this,require('_process'))
-},{"../compiler":17,"../observer":57,"../observer/dep":56,"../util":70,"../watcher":74,"_process":75}],55:[function(require,module,exports){
+},{"../compiler":18,"../observer":58,"../observer/dep":57,"../util":71,"../watcher":75,"_process":76}],56:[function(require,module,exports){
 var _ = require('../util')
 var arrayProto = Array.prototype
 var arrayMethods = Object.create(arrayProto)
@@ -7072,7 +7170,7 @@ _.define(
 
 module.exports = arrayMethods
 
-},{"../util":70}],56:[function(require,module,exports){
+},{"../util":71}],57:[function(require,module,exports){
 var _ = require('../util')
 var uid = 0
 
@@ -7135,7 +7233,7 @@ Dep.prototype.notify = function () {
 
 module.exports = Dep
 
-},{"../util":70}],57:[function(require,module,exports){
+},{"../util":71}],58:[function(require,module,exports){
 var _ = require('../util')
 var Dep = require('./dep')
 var arrayMethods = require('./array')
@@ -7372,7 +7470,7 @@ _.defineReactive = defineReactive
 
 module.exports = Observer
 
-},{"../util":70,"./array":55,"./dep":56}],58:[function(require,module,exports){
+},{"../util":71,"./array":56,"./dep":57}],59:[function(require,module,exports){
 var _ = require('../util')
 var Cache = require('../cache')
 var cache = new Cache(1000)
@@ -7508,7 +7606,7 @@ exports.parse = function (s) {
   return dir
 }
 
-},{"../cache":14,"../util":70}],59:[function(require,module,exports){
+},{"../cache":15,"../util":71}],60:[function(require,module,exports){
 (function (process){
 var _ = require('../util')
 var Path = require('./path')
@@ -7776,7 +7874,7 @@ exports.isSimplePath = function (exp) {
 }
 
 }).call(this,require('_process'))
-},{"../cache":14,"../util":70,"./path":60,"_process":75}],60:[function(require,module,exports){
+},{"../cache":15,"../util":71,"./path":61,"_process":76}],61:[function(require,module,exports){
 (function (process){
 var _ = require('../util')
 var Cache = require('../cache')
@@ -8138,7 +8236,7 @@ exports.set = function (obj, path, val) {
 }
 
 }).call(this,require('_process'))
-},{"../cache":14,"../util":70,"_process":75}],61:[function(require,module,exports){
+},{"../cache":15,"../util":71,"_process":76}],62:[function(require,module,exports){
 var _ = require('../util')
 var Cache = require('../cache')
 var templateCache = new Cache(1000)
@@ -8428,7 +8526,7 @@ exports.parse = function (template, clone, noSelector) {
     : frag
 }
 
-},{"../cache":14,"../util":70}],62:[function(require,module,exports){
+},{"../cache":15,"../util":71}],63:[function(require,module,exports){
 var Cache = require('../cache')
 var config = require('../config')
 var dirParser = require('./directive')
@@ -8590,7 +8688,7 @@ function inlineFilters (exp, single) {
   }
 }
 
-},{"../cache":14,"../config":19,"./directive":58}],63:[function(require,module,exports){
+},{"../cache":15,"../config":20,"./directive":59}],64:[function(require,module,exports){
 var _ = require('../util')
 
 /**
@@ -8671,7 +8769,7 @@ var apply = exports.apply = function (el, direction, op, vm, cb) {
   transition[action](op, cb)
 }
 
-},{"../util":70}],64:[function(require,module,exports){
+},{"../util":71}],65:[function(require,module,exports){
 var _ = require('../util')
 var queue = []
 var queued = false
@@ -8708,7 +8806,7 @@ function flush () {
   return f
 }
 
-},{"../util":70}],65:[function(require,module,exports){
+},{"../util":71}],66:[function(require,module,exports){
 var _ = require('../util')
 var queue = require('./queue')
 var addClass = _.addClass
@@ -9077,7 +9175,7 @@ function isHidden (el) {
 
 module.exports = Transition
 
-},{"../util":70,"./queue":64}],66:[function(require,module,exports){
+},{"../util":71,"./queue":65}],67:[function(require,module,exports){
 (function (process){
 var _ = require('./index')
 
@@ -9231,7 +9329,7 @@ function formatValue (val) {
 }
 
 }).call(this,require('_process'))
-},{"./index":70,"_process":75}],67:[function(require,module,exports){
+},{"./index":71,"_process":76}],68:[function(require,module,exports){
 (function (process){
 /**
  * Enable debug utilities.
@@ -9282,7 +9380,7 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 }).call(this,require('_process'))
-},{"../config":19,"_process":75}],68:[function(require,module,exports){
+},{"../config":20,"_process":76}],69:[function(require,module,exports){
 (function (process){
 var _ = require('./index')
 var config = require('../config')
@@ -9648,7 +9746,7 @@ exports.removeNodeRange = function (start, end, vm, frag, cb) {
 }
 
 }).call(this,require('_process'))
-},{"../config":19,"../transition":63,"./index":70,"_process":75}],69:[function(require,module,exports){
+},{"../config":20,"../transition":64,"./index":71,"_process":76}],70:[function(require,module,exports){
 // can we use __proto__?
 exports.hasProto = '__proto__' in {}
 
@@ -9735,7 +9833,7 @@ exports.nextTick = (function () {
   }
 })()
 
-},{}],70:[function(require,module,exports){
+},{}],71:[function(require,module,exports){
 var lang = require('./lang')
 var extend = lang.extend
 
@@ -9746,7 +9844,7 @@ extend(exports, require('./options'))
 extend(exports, require('./component'))
 extend(exports, require('./debug'))
 
-},{"./component":66,"./debug":67,"./dom":68,"./env":69,"./lang":71,"./options":72}],71:[function(require,module,exports){
+},{"./component":67,"./debug":68,"./dom":69,"./env":70,"./lang":72,"./options":73}],72:[function(require,module,exports){
 /**
  * Set a property on an object. Adds the new property and
  * triggers change notification if the property doesn't
@@ -10136,7 +10234,7 @@ exports.looseEqual = function (a, b) {
   /* eslint-enable eqeqeq */
 }
 
-},{}],72:[function(require,module,exports){
+},{}],73:[function(require,module,exports){
 (function (process){
 var _ = require('./index')
 var config = require('../config')
@@ -10493,7 +10591,7 @@ exports.resolveAsset = function resolve (options, type, id) {
 }
 
 }).call(this,require('_process'))
-},{"../config":19,"./index":70,"_process":75}],73:[function(require,module,exports){
+},{"../config":20,"./index":71,"_process":76}],74:[function(require,module,exports){
 var _ = require('./util')
 var extend = _.extend
 
@@ -10584,7 +10682,7 @@ extend(p, require('./api/lifecycle'))
 Vue.version = '1.0.0-rc.2'
 module.exports = _.Vue = Vue
 
-},{"./api/data":8,"./api/dom":9,"./api/events":10,"./api/global":11,"./api/lifecycle":12,"./directives/element":21,"./directives/public":36,"./filters":47,"./instance/events":50,"./instance/init":51,"./instance/lifecycle":52,"./instance/misc":53,"./instance/state":54,"./util":70}],74:[function(require,module,exports){
+},{"./api/data":9,"./api/dom":10,"./api/events":11,"./api/global":12,"./api/lifecycle":13,"./directives/element":22,"./directives/public":37,"./filters":48,"./instance/events":51,"./instance/init":52,"./instance/lifecycle":53,"./instance/misc":54,"./instance/state":55,"./util":71}],75:[function(require,module,exports){
 (function (process){
 var _ = require('./util')
 var config = require('./config')
@@ -10932,7 +11030,7 @@ function traverse (obj) {
 module.exports = Watcher
 
 }).call(this,require('_process'))
-},{"./batcher":13,"./config":19,"./observer/dep":56,"./parsers/expression":59,"./util":70,"_process":75}],75:[function(require,module,exports){
+},{"./batcher":14,"./config":20,"./observer/dep":57,"./parsers/expression":60,"./util":71,"_process":76}],76:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -11025,4 +11123,4 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}]},{},[3]);
+},{}]},{},[4]);

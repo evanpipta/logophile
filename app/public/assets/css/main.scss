@@ -32,7 +32,8 @@ $orange: #E68729;				// Background color for inactive or static orange elements
 $orangeLit: #EBAF22;				// Background color for hovered / active orange buttons or elements
 
 $breakTablet: 1150px;			// Break point for tablet version
-$breakMobile: 680px;				// Break point for full mobile version
+$breakTabletSmall: 930px;	// Break point for smaller tablet version
+$breakMobile: 680px;			// Break point for full mobile version
 
 $sidebarWidth: 270px;			// Overall Sidebar width
 $sidebarWidthMobile: 42px;		// Sidebar width on mobile
@@ -100,11 +101,79 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 	// border: 1px solid $white75;
 }
 
+.board {
+	// opacity: 0.5;
+	// background: $darkTransp1;
+	transition: opacity 0.3s;
+	width: $boardSize;
+	height: $boardSize;
+	min-height: $boardSize;
+	margin: 0 auto;
+	// border: 1px solid $grey2;
+	// box-shadow: 0 0 50px $darkTransp3;
+	display: block;
+	position: relative;
+	.row {
+		margin-top:-1px;
+		height: 25%;
+		display: block;
+		white-space: nowrap;
+	}
+	.row.alt {
+		margin-top: 0;
+	}
+	.cell {
+		// background: rgba(30, 30, 30, 0.8);
+		background: $grey;
+		margin: 0 -1px -1px 0;
+		height: 100%;
+		width: 25%;
+		border: 1px solid $grey2;
+		display: inline-block; vertical-align: top;
+		text-align: center;
+		transition: background 0.2s, border 0.2s;
+		font: 400 40px/40px $fontStack;
+		position: relative;
+		.letter {
+			width: 100%;
+			position: absolute;
+			top: 50%;
+			transform: translateY(-50%);
+		}
+	}
+	.cell.alt {
+		background: $darkTransp3;
+		margin: 0;
+		border: none;
+	}
+	.cell.on {
+		transition: none;
+		border: 1px solid $teal;
+		background: $teal;
+	}
+	.cell.partial {
+		transition: none;
+		border: 1px solid $teal30;
+		background: $teal30;
+	}
+}
+.board.active {
+	opacity: 1.0;
+}
+
+
 #mainpage {
+	overflow: hidden;
 	height: 100%; width: 100%;
 	.menu {
 		// background: $grey;
 		width: 850px;
+		@media ( max-width: $breakTabletSmall ) {
+			width: 500px;
+		}
+		@media ( max-width: $breakMobile ) {
+			width: 90%;
+		}
 		margin: 0 auto;
 		position: relative;
 		top: 50%;
@@ -117,6 +186,10 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 		}
 		h2 {
 			font: 300 30px/36px $fontStack;
+			@media ( max-width: $breakMobile ) {
+				font-size: 24px;
+				margin-bottom: 10px;
+			}
 			font-weight: 200;
 			letter-spacing: -0.5px;
 			margin-bottom: 20px;
@@ -131,6 +204,9 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 				transition: opacity 0.2s, top 0.3s;
 				font-size: 17px;
 				margin-bottom: 15px;
+				@media ( max-width: $breakMobile ) {
+					margin-bottom: 5px;
+				}
 				font-weight: 200;
 				letter-spacing: -0.1px;
 				line-height: 25px;
@@ -139,8 +215,22 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 					font-weight: 600;
 				}
 			}
+			.board {
+				float: left;
+				height: 250px;
+				width: 250px;
+				min-height: 250px;
+				margin: -30px 40px 0 0;
+				@media ( max-width: $breakMobile ) {
+					display: none;
+				}
+			}
 		}
 		.options {
+			margin-top: 80px;
+			@media ( max-width: $breakMobile ) {
+				margin-top: -10px;
+			}
 			padding: 18px 0;
 			white-space: nowrap;
 			text-align: center;
@@ -148,8 +238,19 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 		.options li {
 			// border-right: 1px solid $white50;
 			margin-right: 6px;
+			@media ( max-width: $breakMobile ) {
+				display: block;
+				width: 100%;
+			}
 		}
-		.options li a { padding: 12px 20px 10px; opacity: 0.6; background: $white30; border-radius: 3px; }
+		.options li a { 
+			padding: 12px 20px 10px; opacity: 0.6; background: $white30; border-radius: 3px;
+			@media ( max-width: $breakMobile ) {
+				width: 100%;
+				display: block;
+				margin: 10px auto;
+			} 
+		}
 		.options li a.active { color: $white; opacity: 1; }
 		.options li a:hover { color: $white; opacity: 1; }
 		.options li a.disabled { color: $white50; opacity: 0.4; }
@@ -160,15 +261,22 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 	}
 	.menu.open {
 		top: $cornerOffset - 72px;
+		@media ( max-width: $breakMobile ) {
+			top: $cornerOffset - 22px;
+		}
 		h2 {
-			opacity: 0;
+			// opacity: 0;
+			display: none;
 		}
 		p {
-			opacity: 0;
-			position: absolute;
+			display: none;
+			// position: absolute;
 		}
 		.inner {
 			transform: translateY(0);
+		}
+		.board {
+			display: none;
 		}
 	}
 	.create-game-wrapper {
@@ -276,6 +384,9 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 	padding-left: $cornerOffset + 30px;
 	overflow: hidden;
 	transition: background 0.3s;
+	@media ( max-width: $breakMobile ) {
+		display: none;
+	}
 	p {
 		color: $white;
 		font-weight: 300;
@@ -807,65 +918,6 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 				color: $white;
 				// margin-top: 50px;
 			}
-		}
-		.board {
-			// opacity: 0.5;
-			// background: $darkTransp1;
-			transition: opacity 0.3s;
-			width: $boardSize;
-			height: $boardSize;
-			min-height: $boardSize;
-			margin: 0 auto;
-			// border: 1px solid $grey2;
-			// box-shadow: 0 0 50px $darkTransp3;
-			display: block;
-			position: relative;
-			.row {
-				margin-top:-1px;
-				height: 25%;
-				display: block;
-				white-space: nowrap;
-			}
-			.row.alt {
-				margin-top: 0;
-			}
-			.cell {
-				// background: rgba(30, 30, 30, 0.8);
-				background: $grey;
-				margin: 0 -1px -1px 0;
-				height: 100%;
-				width: 25%;
-				border: 1px solid $grey2;
-				display: inline-block; vertical-align: top;
-				text-align: center;
-				transition: background 0.2s, border 0.2s;
-				font: 400 40px/40px $fontStack;
-				position: relative;
-				.letter {
-					width: 100%;
-					position: absolute;
-					top: 50%;
-					transform: translateY(-50%);
-				}
-			}
-			.cell.alt {
-				background: $darkTransp3;
-				margin: 0;
-				border: none;
-			}
-			.cell.on {
-				transition: none;
-				border: 1px solid $teal;
-				background: $teal;
-			}
-			.cell.partial {
-				transition: none;
-				border: 1px solid $teal30;
-				background: $teal30;
-			}
-		}
-		.board.active {
-			opacity: 1.0;
 		}
 		.word {
 			max-height: 33%;

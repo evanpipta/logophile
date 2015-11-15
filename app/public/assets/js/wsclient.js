@@ -33,7 +33,7 @@ module.exports = new function() {
 	this.connection.onclose = function() {
 		setTimeout( function() {
 			alert("Websocket connection closed.");
-		}, 200 );
+		}, 1000 );
 	}
 
 	this.connection.onmessage = function( msg ) {

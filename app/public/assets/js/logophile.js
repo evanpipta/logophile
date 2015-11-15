@@ -1,7 +1,7 @@
 
-// Set up game and user state objects
-GameData = require("./gamedata");
-User = require("./userdata");
+// Game/user state objects will be rendered by jade
+// GameData = require("./gamedata");
+// User = require("./userdata");
 
 // Default game options for creating a new game
 GameOptions = require("./gameoptions");
@@ -17,13 +17,24 @@ window.addEventListener("beforeunload", function(){
     wsClient.connection.close();
 });
 
+var BoardHighlighter = require("./boardhighlighter.js")
+
 // Start actual client code on load
 window.addEventListener("load", function() {
 
-	var Mainpage = new Vue({
+	Mainpage = new Vue({
  		el: "#mainpage",
  		data: {
+ 			wordToHighlight: "",
+ 			wordToHighlightFull: "",		// The full string of the word to highlight
+ 			autoHighlight: {
+ 				keystrokeInterval: 150,	// time between "keystrokes"
+ 				wordDisplay: 3000,		// time to display words after they've been highlighted
+ 				wordInterval: 300,			// time between word displays
+ 				wordStart: 0				// time the current word started being "typed"
+ 			},
  			gameOpts: GameOptions,
+ 			gameData: GameData,
 	 		openScreen: "",
 	 	 	changeScreen: function( s ) {
  				this.openScreen = s;
@@ -32,8 +43,85 @@ window.addEventListener("load", function() {
  				// Create a game
  				wsClient.action( "createGame", GameOptions );
  			}
+	 	},
+	 	computed: {
+	 		/**
+			 * The board, but including highlighted letters if applicable
+			 * Nearly the same method as the one in GameInner
+			 * @return {Array} 2d board array
+			 */
+			boardHighlighted: function() {
+				var board = this.gameData.game.board;
+				// Reset board highlights
+				for ( var x = 0; x < board.length; x++ )
+				{
+					for ( var y = 0; y < board.length; y++ )
+					{
+						board[x][y].highlight = "";
+					}
+				}
+				// Highlight current sequence if possible
+				if ( this.wordToHighlight.length )
+				{
+					var highlights = BoardHighlighter( this.wordToHighlight.toUpperCase(), this.gameData.game.board );
+					for ( var i = 0; i < highlights.length; i++ )
+					{
+						for ( var j = 0; j < highlights[i].length; j++ )
+						{
+							var pos = highlights[i][j].pos;
+							// This is one letter in the first highlight
+							board[ pos.x ][ pos.y ].highlight = "on";
+						}
+					}
+				}
+				return board;
+			}
+	 	},
+	 	methods: {
+	 		startHighlightTimer: function() {
+	 			if ( typeof Date.now == "function" )
+	 			{
+	 				var ksi = this.autoHighlight.keystrokeInterval;
+	 				var wd = this.autoHighlight.wordDisplay;
+	 				var wi = this.autoHighlight.wordInterval;
+	 				var self = this;
+	 				setInterval( function() {
+
+	 					// console.log("test");
+
+		 				var time = Date.now();
+		 				var delta = time - self.autoHighlight.wordStart;
+		 				var totalTime = self.wordToHighlightFull.length*ksi + wd + wi;
+		 				var restart = ( delta > totalTime );
+		 				if ( restart  || self.wordToHighlightFull == [] )
+		 				{
+		 					self.autoHighlight.wordStart = time;
+		 					// Pick a new random word from the solution
+		 					var words = Object.keys( GameData.game.solution );
+		 					self.wordToHighlightFull = words[ Math.floor( Math.random()*words.length ) ];
+		 					self.wordToHighlight = "";
+		 					return;
+		 				}
+		 				self.wordToHighlight = "";
+
+		 				console.log(  );
+
+		 				// Do highlight
+		 				var count = Math.min( Math.round( (delta - wi) / ksi ), self.wordToHighlightFull.length );
+		 				if ( count > 0 )
+		 				{
+		 					self.wordToHighlight = self.wordToHighlightFull.substr( 0, count );
+		 				}
+
+		 				// console.log( "Highlighting " + self.wordToHighlight );
+
+	 				}, ksi );
+	 			}
+	 		}
 	 	}
 	});
+
+	Mainpage.startHighlightTimer();
 
 	var PlayerCard = new Vue({
 		el: "#playercard",
@@ -268,7 +356,7 @@ window.addEventListener("load", function() {
 				// Highlight current sequence if possible
 				if ( w.length )
 				{
-					var highlights = this.getBoardHighlights( w.toUpperCase() );
+					var highlights = BoardHighlighter( w.toUpperCase(), this.gameData.game.board );
 					for ( var i = 0; i < highlights.length; i++ )
 					{
 						for ( var j = 0; j < highlights[i].length; j++ )
@@ -352,138 +440,6 @@ window.addEventListener("load", function() {
 				console.log("Checking Word: " + this.wordToCheck.toUpperCase() );
 				wsClient.action("checkWord", { word: this.wordToCheck.toUpperCase() } )
 				this.wordToCheck = "";
-			},
-
-			/**
-			 * Returns a 2D Array whose children are sequences that should be highlighted in the board, depending on w
-			 * An example of the return value might look like this:
-			 * [ [ {letter: "C", pos: {x: 0, y: 1}}, {letter: "D", pos: {x: 1, y:1}} ] ]
-			 *
-			 * We return a 2d array, because each item in the outer array is a single sequence, which itself has multiple positions to be highlight
-			 * The 2d array may have more than one child if the sequence appears more than once in the same board
-			 * Highlighting more than one sequence will be a client side optional feature in the future
-			 * 
-			 * @param  {String} w - String/word to highlight
-			 * @return {Array}   Array of arrays of objects with letter and pos properties
-			 */
-			getBoardHighlights: function( w ) {
-
-				var board = this.gameData.game.board;
-				// Set up word
-				var word = w.split("");
-				// List of sequences of word found in the board
-				var finds = [];
-
-				// Iterate all cells in board
-				for ( var x = 0; x < board.length; x++ )
-				{
-					for ( var y = 0; y < board.length; y++ )
-					{
-						// Build the sequence starting from this cell
-						// This is going to be a little insane, apologies in advance
-
-						// console.log("\nStarting recursive check");
-						var positions = [ {x:1,y:-1}, {x:1,y:0}, {x:1,y:1}, {x:0,y:-1}, {x:0,y:1}, {x:-1,y:-1}, {x:-1,y:0}, {x:-1,y:1} ];
-						var sequence = (function checkpos( pos, seq, n ) {
-							// console.log("Level" + n + "  -  At pos " + JSON.stringify( oldPos ) );
-							
-							// The letter we're looking for at this level
-							var ltr = word[ n ];
-
-							// If n is zero, define the sequence
-							if ( n == 0 ) { seq = []; }
-
-							// Add the point at the current level/position
-							// We will only get here if (n == 0) or we already checked that the letter exists at this point
-							// If (n == 0) we do need to check though
-							if ( n > 0 || board[x][y].letter === ltr )
-							{
-								seq[ n ] = { letter: ltr, pos: pos };
-							}
-
-							// If the sequence matches the string, return it
-							var seqStr = "";
-							for ( var m = 0; m < seq.length; m++ )
-							{
-								seqStr += seq[ m ].letter;
-							}
-							// console.log("Level" + n + "  -  String is " + seqStr );
-							if ( seqStr === w )
-							{
-								// console.log("Sequence found ending at " + JSON.stringify( pos ) );
-								return seq;
-							}
-
-							// If the string is a substring at the start of the word, then we want to check positions around it
-							// Checking the match should only be needed if (n == 0)
-							if ( !!seqStr && w.match( new RegExp( "^" + seqStr ) ) )
-							{
-								// console.log( "Level" + n + "  -  " + seqStr + " is a substring of " + w );
-								for ( var i = 0; i < 8; i++ )
-								{
-									// Does the next position contain the next letter from the string?
-									var next = { x: pos.x + positions[i].x, y: pos.y + positions[i].y };
-									if ( !!board[next.x] && !!board[next.x][next.y] && board[ next.x ][ next.y ].letter == word[ n+1 ] )
-									{
-										// Is it already in the sequence?
-										var inSequence = false;
-										for ( var j = 0; j < seq.length; j++ )
-										{
-											if ( seq[j].pos.x == next.x && seq[j].pos.y == next.y )
-											{
-												inSequence = true;
-												break;
-											}
-										}
-										if ( !inSequence )
-										{
-											// No, it's unique, so we want to continue the recursion
-											seq = checkpos( next, seq, n+1 );
-
-											// If the result of the recursion is the whole string, return it
-											var seqStr = "";
-											for ( var k = 0; k < seq.length; k++ )
-											{
-												seqStr += seq[k].letter;
-											}
-											if ( seqStr === w )
-											{
-												return seq;
-											}
-											// Otherwise, the sequence will be the same and we can continue checking other positions
-										}
-									}
-								}
-							}
-							// console.log("Level" + n + "  -  No viable continuations at " + JSON.stringify( pos ) );
-
-							// No viable letters were found around this position, and it wasn't the full word
-							// Then we remove the last letter and return to continue to the next position
-							// Or just return an empty sequence if we're on n == 0
-							seq.pop();
-							return seq;
-
-						}( { x: x, y: y }, [], 0 ) );
-
-						// console.log("Recursion done: " + JSON.stringify( sequence ) );
-						if ( sequence.length > 0 ) 
-						{
-							// Recursion from this cell done
-							finds.push( sequence );
-							// Skip to end of loop once we find one instance? Comment this out to allow multiple highlights
-							// Make this a user option in the future
-							x = board.length;
-							break;
-						}
-
-					}
-				}
-
-				// Render the highlights for each find into the board
-				// The first one should be full opacity, the rest should be lower
-
-				// Return the board
-				return finds;
 			}
 
 		}
