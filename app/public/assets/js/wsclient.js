@@ -1,7 +1,7 @@
 
 require("./vuesync.js");
-var GameData = require("./gamedata.js");
-var User = require("./userdata.js");
+// var GameData = require("./gamedata.js");
+// var User = require("./userdata.js");
 
 module.exports = new function() {
 

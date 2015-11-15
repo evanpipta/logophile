@@ -17,7 +17,7 @@ window.addEventListener("beforeunload", function(){
     wsClient.connection.close();
 });
 
-var BoardHighlighter = require("./boardhighlighter.js")
+var BoardHighlighter = require("./boardhighlighter.js");
 
 // Start actual client code on load
 window.addEventListener("load", function() {
@@ -103,8 +103,6 @@ window.addEventListener("load", function() {
 		 					return;
 		 				}
 		 				self.wordToHighlight = "";
-
-		 				console.log(  );
 
 		 				// Do highlight
 		 				var count = Math.min( Math.round( (delta - wi) / ksi ), self.wordToHighlightFull.length );
