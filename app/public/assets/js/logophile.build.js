@@ -697,7 +697,18 @@ var Vue = require("vue");
 module.exports = new Vue(
 {
 	el: "#playercard",
-	data: Logophile.User
+	data: Logophile.User,
+	computed: {
+
+		/**
+		 * The display name for the playercard. Only shows "Guest" if you're a guest, so you don't see the random number after it
+		 * @return {String} - the modified string
+		 */
+		displayUserName: function() {
+			return ( this.registered ) ? this.name : "Guest";
+		}
+
+	}
 } );
 },{"vue":79}],9:[function(require,module,exports){
 var Vue = require("vue");
