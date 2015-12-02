@@ -169,10 +169,10 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 #mainpage {
 	overflow: hidden;
 	height: 100%; width: 100%;
-	.cell.on { 
-		background: $orange;
-		border: 1px solid $orange;
-	}
+	// .cell.on { 
+	// 	background: $orange;
+	// 	border: 1px solid $orange;
+	// }
 	.menu {
 		// background: $grey;
 		width: 850px;
