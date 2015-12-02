@@ -7,7 +7,7 @@ module.exports = {
 	private: false,
 	ranked: false,
 	scoreStyle: "Normal",
-	minLettersToScore: 5,
+	minLettersToScore: 4,
 	boardHighFrequency: false,
 	boardMinWords: 100,
 	boardRequireLength: 11

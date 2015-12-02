@@ -1,0 +1,21 @@
+
+div( id="popup-background" v-show="showPopup" v-on:click="hideFromTarget( $event )" )
+
+	div( class="popup-wrapper" )
+
+		div( class="popup" )
+
+			div( class="title" )
+				h2 [[title]]
+				//- h2 New Game Setup
+
+			div( class="content" id="popup-content" )
+				//- p This is a normal test
+				//- p [[showPopup]]
+
+			div( class="buttons" )
+				ul
+					li( v-show="showCancel" )
+						a( href="#" v-on:click="hide()" class="button" ) Cancel
+					li( v-for="btn in btns" )
+						a( href="#" v-on:click="btn.click()" class="button" ) [[btn.text]]

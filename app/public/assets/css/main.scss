@@ -8,17 +8,17 @@ $grey70: rgba(34,34,34,0.7);		// Partially transparent middle grey
 $grey2: #444;						// Lightest grey for backgrounds and some low-importance fonts. Used in the sidebar
 $beige: #F6F3E3;					// Beige color, used for game settings panel, and possibly popups/tooltips in the future
 $beige2: #D9D8D0;				// Alternate beige
-$darkTransp1: rgba(0, 0, 0, 0.1);	// Transparent black lighter
-$darkTransp3: rgba(0, 0, 0, 0.3);	// Transparent black
-$darkTransp5: rgba(0, 0, 0, 0.5);	// Transparent black
-$darkTransp7: rgba(0, 0, 0, 0.7);	// Transparent black
-$darkTransp8: rgba(0, 0, 0, 0.8);	// Transparent black lighter
+$darkTransp1: rgba(0, 0, 0, 0.1);
+$darkTransp3: rgba(0, 0, 0, 0.3);
+$darkTransp5: rgba(0, 0, 0, 0.5);
+$darkTransp7: rgba(0, 0, 0, 0.7);
+$darkTransp8: rgba(0, 0, 0, 0.8);
 
 $white: #FFF;						// Plain while color, mostly for text
 $white10: rgba(255,255,255,0.1);
 $white20: rgba(255,255,255,0.2);
 $white30: rgba(255,255,255,0.3);
-$white50: rgba(255,255,255,0.5);// Transparent white color
+$white50: rgba(255,255,255,0.5);	// Transparent white color
 $white75: rgba(255,255,255,0.75);// Transparent white color
 $frost: #C6DEE9;					// Some alternate for white
 $blue: #2FB4F0;					// Unused currently
@@ -59,6 +59,9 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 // Import resets and global element styles
 @import "common";
 
+// Popup css
+@import "popup";
+
 // Input mixin
 @mixin textInput( $fontSize, $pad ) {
 	width: 100%;
@@ -89,7 +92,8 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 	margin: 10px auto;
 	// border: 1px solid $white50;
 	background: $white10;
-	border-radius: 20px;
+	// border-radius: 20px;
+	border-radius: 3px;
 	padding: 10px 40px 8px;
 	transition: background 0.3s, border 0.3s;
 }
@@ -165,6 +169,10 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 #mainpage {
 	overflow: hidden;
 	height: 100%; width: 100%;
+	.cell.on { 
+		background: $orange;
+		border: 1px solid $orange;
+	}
 	.menu {
 		// background: $grey;
 		width: 850px;
@@ -308,7 +316,7 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 }
 
 .share {
-	z-index: 5;
+	z-index: 400;
 	position: absolute;
 	transition: left 0.2s, opacity 0.3s;
 	bottom: $cornerOffset * 0.7; left: $cornerOffset;
@@ -327,7 +335,7 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 	transition: left 0.2s;
 	margin-top: -3px;
 	top: $cornerOffset; left: $cornerOffset;
-	z-index: 5;
+	z-index: 400;
 	span {
 		text-transform: uppercase;
 		color: $orange;
@@ -371,7 +379,7 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 }
 
 .playercard {
-	z-index: 5;
+	z-index: 500;
 	position: absolute;
 	top: 0;
 	right: 0px;
@@ -445,6 +453,7 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 .game-info, .sidebar {
 	position: fixed;
 	left: 0; top: 0;
+	border-right: 1px solid #333;
 	width: $sidebarWidth;
 	@media ( max-width: $breakTablet ) {
 		width: $sidebarWidthMobile;
@@ -452,7 +461,7 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 }
 .game-info {
 	border-bottom: 1px solid $white20;
-	z-index: 100;
+	z-index: 400;
 	background: $teal;
 	overflow: hidden;
 	transition: width 0.2s, height 0.2s;
@@ -608,7 +617,7 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 		background: rgba(25,25,25,0.9);
 		position: absolute;
 		top: 0; left: 0;
-		z-index: 5;
+		z-index: 100;
 		transition: background 0.2s, border 0.2s;
 	}
 	.resizer:hover {
@@ -646,10 +655,9 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 		padding-left: $sidebarWidthMobile;
 	}
 	.inner {
-		// background: linear-gradient(160deg, #444 0%, #2c2c2c 10%, #252525 20%, #202020 30%, #252525 100%) repeat scroll 0% 0%;
-		background: $grey;
-		// background: linear-gradient( 5deg, #061d2e 0%,#3c78a4 95% );
-		background: linear-gradient(-5deg, #04163D 0%, #37AED7 93%);
+		background: $dark;
+		background: linear-gradient(160deg, #444 0%, #2c2c2c 10%, #252525 20%, #202020 30%, #252525 100%) repeat scroll 0% 0%;
+		// background: linear-gradient(-5deg, #04163D 0%, #37AED7 93%);
 		padding: $gameEdgePadding;
 		// white-space: nowrap;
 		display: flex;

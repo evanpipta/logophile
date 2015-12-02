@@ -1,5 +1,5 @@
 /**
- * Returns a 2D Array whose children are sequences that should be highlighted in the board, depending on w
+ * Returns a 2D Array whose children are sequences that should be highlighted in the board, depending on the word passed
  * An example of the return value might look like this:
  * [ [ {letter: "C", pos: {x: 0, y: 1}}, {letter: "D", pos: {x: 1, y:1}} ] ]
  *

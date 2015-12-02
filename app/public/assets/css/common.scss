@@ -8,9 +8,9 @@ html {
 	height: 100%;
 }
 body {
-	background: $grey;
-	// background: linear-gradient( 15deg, #061d2e 0%,#3c78a4 100% );
-	background: linear-gradient(-5deg, #04163D 0%, #37AED7 93%);
+	background: $dark;
+	background: linear-gradient(160deg, #444 0%, #2c2c2c 10%, #252525 20%, #202020 30%, #252525 100%) repeat scroll 0% 0%;
+	// background: linear-gradient(-5deg, #04163D 0%, #37AED7 93%);
 	height: 100%;
 }
 ul li {

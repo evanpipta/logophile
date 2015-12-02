@@ -1,7 +1,6 @@
 
-require("./vuesync.js");
-// var GameData = require("./gamedata.js");
-// var User = require("./userdata.js");
+var Vue = require("vue");
+require("./vue-sync.js");
 
 module.exports = new function() {
 
@@ -27,13 +26,18 @@ module.exports = new function() {
 				console.log("Joining game " + gameId );
 			}
 		}
-
 	}
 
 	this.connection.onclose = function() {
 		setTimeout( function() {
-			alert("Websocket connection closed.");
-		}, 1000 );
+			Logophile.Popup.showCancel = false;
+			Logophile.Popup.title = "Websocket Connection Closed";
+			var dcmessage = Vue.extend({
+				template: '<p class="center">The connection to the game server was closed. You may need to reload the page.</p>'
+			});
+			Logophile.Popup.setContent( new dcmessage() );
+ 			Logophile.Popup.show();
+		}, 3000 );
 	}
 
 	this.connection.onmessage = function( msg ) {
@@ -59,17 +63,17 @@ module.exports = new function() {
 	this.events = {
 
 		/**
-		 * Syncrhonizes the GameData model with what was sent in the message
+		 * Synchronizes the GameData model with what was sent in the message
 		 * See vuesync.js for more details
 		 * @param {Object} args - Should have an identical structure to the GameData model object
 		 */
 		onGameUpdate: function( args ) {
 			// Sync GameData.game and GameData.users separately
-			Object.$sync( GameData.game, args.game, function() {
-				// console.log( "sync result: " + JSON.stringify( GameData ) );
+			Object.$sync( Logophile.GameData.game, args.game, function() {
+				// console.log( "sync result: " + JSON.stringify( Logophile.GameData ) );
 			} );
-			Object.$sync( GameData.users, args.users, function() {
-				// console.log( "sync result: " + JSON.stringify( GameData ) );
+			Object.$sync( Logophile.GameData.users, args.users, function() {
+				// console.log( "sync result: " + JSON.stringify( Logophile.GameData ) );
 			} );
 		},
 
@@ -80,7 +84,7 @@ module.exports = new function() {
 		 */
 		onUserUpdate: function( args ) {
 
-			Object.$sync( User, args );
+			Object.$sync( Logophile.User, args );
 		},
 
 
@@ -89,7 +93,7 @@ module.exports = new function() {
 		 * @param {Object} args - Currently not used
 		 */
 		onRoundStart: function( args ) {
-			User.words = {};
+			Logophile.User.words = {};
 		},
 
 		/**
@@ -117,5 +121,10 @@ module.exports = new function() {
 		}
 
 	}
+
+	// Close the connection on window unload
+	window.addEventListener("beforeunload", function(){
+		self.connection.close();
+	});
 
 }

@@ -7,15 +7,13 @@ include ./parts/assets.jade
 script
 
 body
+	include ./parts/popup.jade
 	include ./parts/playercard.jade
 	//- include ./parts/logo-small.jade
 	//- include ./parts/logo-small-white.jade
 	include ./parts/share.jade
 
 	div( id="mainpage" )
-		div( class="create-game-wrapper" v-bind:class="{ 'active' : openScreen == 'createNew' }" )
-			div( class="options")
-			a( href="#" class="button" v-on:click="createGame()" ) Create
 
 		div( class="menu" v-bind:class="{ 'open' : !!openScreen }" )
 			div( class="inner" )
@@ -35,7 +33,7 @@ body
 					li
 						a( href="#" class="disabled" title="Currently Unavailable" v-bind:class="{ 'active' : openScreen == 'gameList' }" ) Join Game
 					li
-						a( href="#" v-on:click="changeScreen('createNew')" v-bind:class="{ 'active' : openScreen == 'createNew' }" ) Create New Game
+						a( href="#" v-on:click="createGamePopup()" v-bind:class="{ 'active' : openScreen == 'createNew' }" ) Create New Game
 					li
 						a( href="#" class="disabled" title="Currently Unavailable" v-bind:class="{ 'active' : openScreen == 'howToPlay' }" ) How to Play
 

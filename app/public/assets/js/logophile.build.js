@@ -1,6 +1,31 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+
+// Set up vue
+var Vue = require("vue");
+Vue.config.delimiters = ["[[", "]]"];
+require("./scripts/vue-filters");
+
+// Use logophile namespace
+Logophile.GameOptions = require("./scripts/game-options.js");
+Logophile.wsClient = require("./scripts/ws-client.js");
+Logophile.BoardHighlighter = require("./scripts/board-highlighter.js");
+
+window.addEventListener("load", function() {
+
+	// Load Vue elements on window load
+	Logophile.Popup = require("./scripts/popup.js");
+	Logophile.MainPage = 	require("./scripts/main-page.js");
+	Logophile.PlayerCard = require("./scripts/player-card.js");
+	Logophile.LogoSmall = require("./scripts/logo-small.js");
+	Logophile.GameInner = require("./scripts/game-inner.js");	// Main "game" controller
+	Logophile.Sidebar = require("./scripts/sidebar.js");
+	Logophile.GameInfo = require("./scripts/game-info.js");
+
+});
+
+},{"./scripts/board-highlighter.js":2,"./scripts/game-info.js":3,"./scripts/game-inner.js":4,"./scripts/game-options.js":5,"./scripts/logo-small.js":6,"./scripts/main-page.js":7,"./scripts/player-card.js":8,"./scripts/popup.js":9,"./scripts/sidebar.js":10,"./scripts/vue-filters":11,"./scripts/ws-client.js":13,"vue":79}],2:[function(require,module,exports){
 /**
- * Returns a 2D Array whose children are sequences that should be highlighted in the board, depending on w
+ * Returns a 2D Array whose children are sequences that should be highlighted in the board, depending on the word passed
  * An example of the return value might look like this:
  * [ [ {letter: "C", pos: {x: 0, y: 1}}, {letter: "D", pos: {x: 1, y:1}} ] ]
  *
@@ -140,7 +165,357 @@ module.exports = function( w, board )
  	// Return the board
  	return finds;
  }
-},{}],2:[function(require,module,exports){
+},{}],3:[function(require,module,exports){
+var Vue = require("vue");
+module.exports = new Vue(
+{
+	el: "#game-info",
+	data:
+	{
+		gameData: Logophile.GameData
+	},
+	methods:
+	{
+		/**
+		 * Calls the start game action in wsclient
+		 * This probably won't be used because there's a big "Start Game" button in the middle of the screen
+		 */
+		startGame: function()
+		{
+			console.log( "starting game" );
+			Logophile.wsClient.action( "initGame" );
+		}
+	}
+} );
+},{"vue":79}],4:[function(require,module,exports){
+var Vue = require("vue");
+module.exports = new Vue(
+{
+	el: "#game-inner",
+	data:
+	{
+		gameData: Logophile.GameData,
+		userData: Logophile.User,
+		modifierKeys:
+		{
+			ctrl: false,
+			shift: false
+		},
+		wordToCheck: "Type Here",
+		wordToHighlight: ""
+	},
+	computed:
+	{
+
+		/**
+		 * The size of the board in pixels, depending on the number of cells
+		 * @return {Number} 
+		 */
+		boardpx: function()
+		{
+
+			return Math.max( 300, Math.min( 500, this.gameData.game.board.length * 100 - 100 ) );
+		},
+
+		/**
+		 * Computed width in percentage of the left column, depending on the board size and whether a round has started or not
+		 * @return {String} CSS width value
+		 */
+		leftColWidth: function()
+		{
+			if ( this.gameData.game.roundStarted || this.gameData.game.rounds < 1 )
+			{
+				return ( this.gameData.game.board.length > 4 ) ? "25%" : "30%";
+			}
+			else
+			{
+				return "60px";
+			}
+		},
+
+		/**
+		 * Percentage of words in the solution found by the current user
+		 * @return {Number} 0-100
+		 */
+		foundPercentage: function()
+		{
+			var found = Object.keys( this.userData.words ).length;
+			var total = 0;
+			for ( k in this.gameData.game.wordCounts )
+			{
+				total += this.gameData.game.wordCounts[ k ];
+			}
+			total = ( total ) ? total : 1; // Make sure total is >0
+			var pct = Math.round( ( found / total ) * 100 );
+			return ( pct ) ? pct : 0;
+		},
+
+		/**
+		 * Number of words found in the solution by the current user
+		 * @return {Number}
+		 */
+		foundNum: function()
+		{
+
+			return Object.keys( this.userData.words ).length;
+		},
+
+		/**
+		 * The solution length
+		 * @return {[type]} [description]
+		 */
+		solutionLength: function()
+		{
+
+			return Object.keys( this.gameData.game.solution ).length;
+		},
+
+		/**
+		 * The current user's found words, sorted into lengths. 
+		 * For example, userWordsSorted[5] would be an object containing all words the user found of length 5
+		 * @return {Object}
+		 */
+		userWordsSorted: function()
+		{
+			var sorted = {};
+			var counts = {};
+			// Put words in the the object at the index matching their length
+			// E.g. wordsSorted[5] will contain all 5 letter words
+			for ( var w in this.userData.words )
+			{
+				var len = w.length;
+				if ( !sorted[ len ] )
+				{
+					// Create a new list in the sorted words using this key's length
+					sorted[ len ] = {};
+					counts[ len ] = 0;
+				}
+				sorted[ len ][ w ] = this.userData.words[ w ];
+				counts[ len ] += 1;
+			}
+			return sorted;
+		},
+
+		/**
+		 * The keys of userWordsSorted, sorted in descending order
+		 * @return {Array}
+		 */
+		userWordsSortedKeys: function()
+		{
+
+			return Object.keys( this.userWordsSorted ).sort( function( a, b )
+			{
+				return b - a;
+			} );
+		},
+
+		/**
+		 * The count of the remaining words of each length in the board that the current user has not found yet
+		 * @return {Object} Contains keys for each length, and values with the number of words left
+		 */
+		userRemainingCount: function()
+		{
+			var userSorted = this.userWordsSorted;
+			var userCounts = {};
+			for ( len in userSorted )
+			{
+				userCounts[ len ] = Object.keys( userSorted[ len ] ).length;
+			}
+			var remainingCounts = {};
+			for ( len in this.gameData.game.wordCounts )
+			{
+				remainingCounts[ len ] = this.gameData.game.wordCounts[ len ];
+				if ( !!userCounts[ len ] )
+				{
+					remainingCounts[ len ] -= userCounts[ len ];
+				}
+			}
+			return remainingCounts;
+		},
+
+		/**
+		 * Sorted keys for userRemainingCount, descending
+		 * @return {Array}
+		 */
+		userRemainingCountKeys: function()
+		{
+
+			return Object.keys( this.userRemainingCount ).sort( function( a, b )
+			{
+				return b - a;
+			} );
+		},
+
+		/**
+		 * The solution words for the current/previous board, sorted into objects by word length
+		 * For example, solutionSorted[5] would contain an object whose keys are all the 5 letter words in the board
+		 * @return {Object}
+		 */
+		solutionSorted: function()
+		{
+
+			var sorted = {};
+			var counts = {};
+
+			// Put words in the the object at the index matching their length
+			// E.g. wordsSorted[5] will contain all 5 letter words
+			for ( var w in this.gameData.game.solution )
+			{
+				var len = w.length;
+				if ( !sorted[ len ] )
+				{
+					// Create a new list in the sorted words using this key's length
+					sorted[ len ] = {};
+					counts[ len ] = 0;
+				}
+				sorted[ len ][ w ] = this.gameData.game.solution[ w ];
+				counts[ len ] += 1;
+			}
+			return sorted;
+		},
+
+		/**
+		 * Sorted keys for solutionSorted, descending
+		 * @return {Array}
+		 */
+		solutionSortedKeys: function()
+		{
+
+			return Object.keys( this.solutionSorted ).sort( function( a, b )
+			{
+				return b - a;
+			} );
+		},
+
+		/**
+		 * The board, but including highlighted letters if applicable
+		 * @return {Array} 2d board array
+		 */
+		boardHighlighted: function()
+		{
+
+			// wordToHighlight should probably be set upon input change
+			// For now we can just use wordToCheck to test
+
+			var board = this.gameData.game.board;
+
+			// Reset board highlights
+			for ( var x = 0; x < board.length; x++ )
+			{
+				for ( var y = 0; y < board.length; y++ )
+				{
+					board[ x ][ y ].highlight = "";
+				}
+			}
+
+			var w = this.wordToHighlight;
+			if ( this.wordToCheck.length > 0 && this.wordToCheck !== "Type Here" && this.wordToHighlight.length == 0 )
+			{
+				w = this.wordToCheck;
+			}
+
+			// Highlight current sequence if possible
+			if ( w.length )
+			{
+				var highlights = Logophile.BoardHighlighter( w.toUpperCase(), this.gameData.game.board );
+				for ( var i = 0; i < highlights.length; i++ )
+				{
+					for ( var j = 0; j < highlights[ i ].length; j++ )
+					{
+						var pos = highlights[ i ][ j ].pos;
+						// This is one letter in the first highlight
+						board[ pos.x ][ pos.y ].highlight = "on";
+					}
+				}
+			}
+
+			return board;
+		}
+
+	},
+	methods:
+	{
+
+		/**
+		 * Calls the wsclient's start game action, can be called by any user to initialize the first round
+		 */
+		startGame: function()
+		{
+			console.log( "starting game" );
+			Logophile.wsClient.action( "initGame" );
+		},
+
+		/**
+		 * Handles keydown events from the "word check" input element
+		 * @param  {Object} e - The dom event object
+		 */
+		wordInputDown: function( e )
+		{
+			var k = e.keyCode;
+			// Check modifier keys
+			this.modifierKeys.shift = ( k == 16 );
+			this.modifierKeys.ctrl = ( k == 17 );
+			allowed = [
+				8, 9, 16, 17, 18, 20, 27, 33, 34, 35, 36, 45, 46, // modifier keys 
+				37, 38, 39, 40, // arrow keys 
+				65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, // alphabet 
+				112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123 // f-keys 
+			];
+			if ( allowed.indexOf( k ) < 0 && !this.modifierKeys.shift && !this.modifierKeys.ctrl )
+			{
+				// Prevent default for disallowed keys if no modifier keys are pressed with them
+				e.preventDefault();
+				return false;
+			}
+			this.wordToHighlight = "";
+		},
+
+		/**
+		 * Handles keyup events from the "word check" input element
+		 * @param  {Object} e - The dom event object
+		 */
+		wordInputUp: function( e )
+		{
+			// Reset modifier keys
+			this.modifierKeys.shift = ( e.keyCode == 16 ) ? false : this.modifierKeys.shift;
+			this.modifierKeys.ctrl = ( e.keyCode == 17 ) ? false : this.modifierKeys.ctrl;
+		},
+
+		/**
+		 * Handles focus events from the "word check" input element
+		 * @param  {Object} e - The dom event object
+		 */
+		wordInputFocus: function( e )
+		{
+			this.wordToCheck = "";
+			this.wordToHighlight = "";
+		},
+
+		/**
+		 * Handles blur events from the "word check" input element
+		 * @param  {Object} e - The dom event object
+		 */
+		wordInputBlur: function( e )
+		{
+			this.wordToCheck = "Type Here";
+		},
+
+		/**
+		 * Calls the wsclient's action to send a word to be checked/scored
+		 */
+		submit: function()
+		{
+			console.log( "Checking Word: " + this.wordToCheck.toUpperCase() );
+			Logophile.wsClient.action( "checkWord",
+			{
+				word: this.wordToCheck.toUpperCase()
+			} )
+			this.wordToCheck = "";
+		}
+
+	}
+} );
+},{"vue":79}],5:[function(require,module,exports){
 module.exports = {
 	name: "",
 	boardSize: 5,
@@ -150,568 +525,344 @@ module.exports = {
 	private: false,
 	ranked: false,
 	scoreStyle: "Normal",
-	minLettersToScore: 5,
+	minLettersToScore: 4,
 	boardHighFrequency: false,
 	boardMinWords: 100,
 	boardRequireLength: 11
 }
 
-},{}],3:[function(require,module,exports){
-
-// Game/user state objects will be rendered by jade
-// GameData = require("./gamedata");
-// User = require("./userdata");
-
-// Default game options for creating a new game
-GameOptions = require("./gameoptions");
-
-// Set up vue
+},{}],6:[function(require,module,exports){
 var Vue = require("vue");
-Vue.config.delimiters = ["[[", "]]"];
-require("./vuefilters");
-
-// Set up websocket client
-var wsClient = require("./wsclient.js");
-window.addEventListener("beforeunload", function(){
-    wsClient.connection.close();
-});
-
-var BoardHighlighter = require("./boardhighlighter.js");
-
-// Start actual client code on load
-window.addEventListener("load", function() {
-
-	Mainpage = new Vue({
- 		el: "#mainpage",
- 		data: {
- 			wordToHighlight: "",
- 			wordToHighlightFull: "",		// The full string of the word to highlight
- 			autoHighlight: {
- 				keystrokeInterval: 150,	// time between "keystrokes"
- 				wordDisplay: 3000,		// time to display words after they've been highlighted
- 				wordInterval: 300,			// time between word displays
- 				wordStart: 0				// time the current word started being "typed"
- 			},
- 			gameOpts: GameOptions,
- 			gameData: GameData,
-	 		openScreen: "",
-	 	 	changeScreen: function( s ) {
- 				this.openScreen = s;
- 			},
- 			createGame: function() {
- 				// Create a game
- 				wsClient.action( "createGame", GameOptions );
- 			}
-	 	},
-	 	computed: {
-	 		/**
-			 * The board, but including highlighted letters if applicable
-			 * Nearly the same method as the one in GameInner
-			 * @return {Array} 2d board array
-			 */
-			boardHighlighted: function() {
-				var board = this.gameData.game.board;
-				// Reset board highlights
-				for ( var x = 0; x < board.length; x++ )
-				{
-					for ( var y = 0; y < board.length; y++ )
-					{
-						board[x][y].highlight = "";
-					}
-				}
-				// Highlight current sequence if possible
-				if ( this.wordToHighlight.length )
-				{
-					var highlights = BoardHighlighter( this.wordToHighlight.toUpperCase(), this.gameData.game.board );
-					for ( var i = 0; i < highlights.length; i++ )
-					{
-						for ( var j = 0; j < highlights[i].length; j++ )
-						{
-							var pos = highlights[i][j].pos;
-							// This is one letter in the first highlight
-							board[ pos.x ][ pos.y ].highlight = "on";
-						}
-					}
-				}
-				return board;
-			}
-	 	},
-	 	methods: {
-	 		startHighlightTimer: function() {
-	 			if ( typeof Date.now == "function" )
-	 			{
-	 				var ksi = this.autoHighlight.keystrokeInterval;
-	 				var wd = this.autoHighlight.wordDisplay;
-	 				var wi = this.autoHighlight.wordInterval;
-	 				var self = this;
-	 				setInterval( function() {
-
-	 					// console.log("test");
-
-		 				var time = Date.now();
-		 				var delta = time - self.autoHighlight.wordStart;
-		 				var totalTime = self.wordToHighlightFull.length*ksi + wd + wi;
-		 				var restart = ( delta > totalTime );
-		 				if ( restart  || self.wordToHighlightFull == [] )
-		 				{
-		 					self.autoHighlight.wordStart = time;
-		 					// Pick a new random word from the solution
-		 					var words = Object.keys( GameData.game.solution );
-		 					self.wordToHighlightFull = words[ Math.floor( Math.random()*words.length ) ];
-		 					self.wordToHighlight = "";
-		 					return;
-		 				}
-		 				self.wordToHighlight = "";
-
-		 				// Do highlight
-		 				var count = Math.min( Math.round( (delta - wi) / ksi ), self.wordToHighlightFull.length );
-		 				if ( count > 0 )
-		 				{
-		 					self.wordToHighlight = self.wordToHighlightFull.substr( 0, count );
-		 				}
-
-		 				// console.log( "Highlighting " + self.wordToHighlight );
-
-	 				}, ksi );
-	 			}
-	 		}
-	 	}
-	});
-
-	Mainpage.startHighlightTimer();
-
-	var PlayerCard = new Vue({
-		el: "#playercard",
-		data: User,
-		logout: function() {
-			// console.log("Logging out.");
-		},
-		login: function( email, password ) {
-			// console.log("Logging in.");
-		}
-	});
-
-	var LogoSmall = new Vue({
-		el: "#logo-small",
-		data: {
-			changeScreen: function(s, e) {
-				if ( window.location.toString().indexOf("game") < 0 )
-				{
-					// We only do this if we aren't in a game
-					// If we're in a game, it just takes us back to the site root
-					e.preventDefault();
-					Mainpage.changeScreen( s );
-					return false;
-				}
+module.exports = new Vue(
+{
+	el: "#logo-small",
+	data:
+	{
+		/**
+		 * Changes the mainpage screen if we're on the main page. Currently unused and may be removed soon.
+		 */
+		changeScreen: function( s, e )
+		{
+			if ( window.location.toString().indexOf( "game" ) < 0 )
+			{
+				// We only do this if we aren't in a game
+				// If we're in a game, it just takes us back to the site root
+				e.preventDefault();
+				Logophile.MainPage.changeScreen( s );
+				return false;
 			}
 		}
-	});
-	
-	/**
-	 * The main client-side "game" controller
-	 */
-	var GameInner = new Vue({
-		el: "#game-inner",
-		data: {
-			gameData: GameData,
-			userData: User,
-			modifierKeys: {
-				ctrl: false,
-				shift: false
-			},
-			wordToCheck: "Type Here",
-			wordToHighlight: ""
+	}
+} );
+},{"vue":79}],7:[function(require,module,exports){
+var Vue = require( "vue" );
+module.exports = new Vue(
+{
+	el: "#mainpage",
+	data:
+	{
+		wordToHighlight: "",
+		wordToHighlightFull: "", // The full string of the word to highlight
+		autoHighlight:
+		{
+			keystrokeInterval: 150, // time between "keystrokes"
+			wordDisplay: 3000, // time to display words after they've been highlighted
+			wordInterval: 300, // time between word displays
+			wordStart: 0 // time the current word started being "typed"
 		},
-		computed: {
-
-			/**
-			 * The size of the board in pixels, depending on the number of cells
-			 * @return {Number} 
-			 */
-			boardpx: function() {
-
-				return Math.max( 300, Math.min( 500, this.gameData.game.board.length*100 - 100 ) );
-			},
-
-			/**
-			 * Computed width in percentage of the left column, depending on the board size and whether a round has started or not
-			 * @return {String} CSS width value
-			 */
-			leftColWidth: function() {
-				if ( this.gameData.game.roundStarted || this.gameData.game.rounds < 1 )
-				{
-					return ( this.gameData.game.board.length > 4 ) ? "25%" : "30%";
-				}
-				else
-				{
-					return "60px";
-				}
-			},
-
-			/**
-			 * Percentage of words in the solution found by the current user
-			 * @return {Number} 0-100
-			 */
-			foundPercentage: function() {
-				var found = Object.keys( this.userData.words ).length;
-				var total = 0;
-				for ( k in this.gameData.game.wordCounts )
-				{
-					total += this.gameData.game.wordCounts[ k ];
-				}
-				total = ( total ) ? total : 1; // Make sure total is >0
-				var pct = Math.round( ( found / total ) * 100 );
-				return ( pct ) ? pct : 0;
-			},
-
-			/**
-			 * Number of words found in the solution by the current user
-			 * @return {Number}
-			 */
-			foundNum: function() {
-
-				return Object.keys( this.userData.words ).length;
-			},
-
-			/**
-			 * The solution length
-			 * @return {[type]} [description]
-			 */
-			solutionLength: function() {
-
-				return Object.keys( this.gameData.game.solution ).length;
-			},
-
-			/**
-			 * The current user's found words, sorted into lengths. 
-			 * For example, userWordsSorted[5] would be an object containing all words the user found of length 5
-			 * @return {Object}
-			 */
-			userWordsSorted: function() {
-				var sorted = {};
-				var counts = {};
-				// Put words in the the object at the index matching their length
-				// E.g. wordsSorted[5] will contain all 5 letter words
-				for ( var w in this.userData.words )
-				{
-					var len = w.length;
-					if ( !sorted[ len ] )
-					{
-						// Create a new list in the sorted words using this key's length
-						sorted[ len ] = {};
-						counts[ len ] = 0;
-					}
-					sorted[ len ][ w ] = this.userData.words[ w ];
-					counts[ len ] += 1;
-				}
-				return sorted;
-			},
-
-			/**
-			 * The keys of userWordsSorted, sorted in descending order
-			 * @return {Array}
-			 */
-			userWordsSortedKeys: function() {
-
-				return Object.keys( this.userWordsSorted ).sort( function( a, b ) { return b - a; } );
-			},
-
-			/**
-			 * The count of the remaining words of each length in the board that the current user has not found yet
-			 * @return {Object} Contains keys for each length, and values with the number of words left
-			 */
-			userRemainingCount: function() {
-				var userSorted = this.userWordsSorted;
-				var userCounts = {};
-				for ( len in userSorted )
-				{
-					userCounts[ len ] = Object.keys( userSorted[ len ] ).length;
-				}
-				var remainingCounts = {};
-				for ( len in this.gameData.game.wordCounts ) 
-				{
-					remainingCounts[ len ] = this.gameData.game.wordCounts[ len ];
-					if ( !!userCounts[ len ] )
-					{
-						remainingCounts[ len ] -= userCounts[ len ];
-					}
-				}
-				return remainingCounts;
-			},
-
-			/**
-			 * Sorted keys for userRemainingCount, descending
-			 * @return {Array}
-			 */
-			userRemainingCountKeys: function() {
-
-				return Object.keys( this.userRemainingCount ).sort( function( a, b ) { return b - a; } );
-			},
-
-			/**
-			 * The solution words for the current/previous board, sorted into objects by word length
-			 * For example, solutionSorted[5] would contain an object whose keys are all the 5 letter words in the board
-			 * @return {Object}
-			 */
-			solutionSorted: function() {
-
-				var sorted = {};
-				var counts = {};
-
-				// Put words in the the object at the index matching their length
-				// E.g. wordsSorted[5] will contain all 5 letter words
-				for ( var w in this.gameData.game.solution )
-				{
-					var len = w.length;
-					if ( !sorted[ len ] )
-					{
-						// Create a new list in the sorted words using this key's length
-						sorted[ len ] = {};
-						counts[ len ] = 0;
-					}
-					sorted[ len ][ w ] = this.gameData.game.solution[ w ];
-					counts[ len ] += 1;
-				}
-				return sorted;
-			},
-
-			/**
-			 * Sorted keys for solutionSorted, descending
-			 * @return {Array}
-			 */
-			solutionSortedKeys: function() {
-
-				return Object.keys( this.solutionSorted ).sort( function( a, b ) { return b - a; } );
-			},
-
-			/**
-			 * The board, but including highlighted letters if applicable
-			 * @return {Array} 2d board array
-			 */
-			boardHighlighted: function() {
-
-				// wordToHighlight should probably be set upon input change
-				// For now we can just use wordToCheck to test
-
-				var board = this.gameData.game.board;
-
-				// Reset board highlights
-				for ( var x = 0; x < board.length; x++ )
-				{
-					for ( var y = 0; y < board.length; y++ )
-					{
-						board[x][y].highlight = "";
-					}
-				}
-
-				var w = this.wordToHighlight;
-				if ( this.wordToCheck.length > 0 && this.wordToCheck !== "Type Here" && this.wordToHighlight.length == 0 )
-				{
-					w = this.wordToCheck;
-				}
-
-				// Highlight current sequence if possible
-				if ( w.length )
-				{
-					var highlights = BoardHighlighter( w.toUpperCase(), this.gameData.game.board );
-					for ( var i = 0; i < highlights.length; i++ )
-					{
-						for ( var j = 0; j < highlights[i].length; j++ )
-						{
-							var pos = highlights[i][j].pos;
-							// This is one letter in the first highlight
-							board[ pos.x ][ pos.y ].highlight = "on";
-						}
-					}
-				}
-
-				return board;
-			}
-
-		},
-		methods: {
-
-			/**
-			 * Calls the wsclient's start game action, can be called by any user to initialize the first round
-			 */
-			startGame: function() {
-				console.log("starting game");
-				wsClient.action("initGame");
-			},
-
-			/**
-			 * Handles keydown events from the "word check" input element
-			 * @param  {Object} e - The dom event object
-			 */
-			wordInputDown: function( e ) {
-				var k = e.keyCode;
-				// Check modifier keys
-				this.modifierKeys.shift = ( k == 16 );
-				this.modifierKeys.ctrl = ( k == 17 );
-				allowed = [
-					8,9,16,17,18,20,27,33,34,35,36,45,46,													// modifier keys 
-					37,38,39,40,																			// arrow keys 
-					65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90, 	// alphabet 
-					112,113,114,115,116,117,118,119,120,121,122,123									// f-keys 
-				];
-				if ( allowed.indexOf( k ) < 0 && !this.modifierKeys.shift && !this.modifierKeys.ctrl )
-				{
-					// Prevent default for disallowed keys if no modifier keys are pressed with them
-					e.preventDefault();
-					return false;
-				}
-				this.wordToHighlight = "";
-			},
-
-			/**
-			 * Handles keyup events from the "word check" input element
-			 * @param  {Object} e - The dom event object
-			 */
-			wordInputUp: function( e ) {
-				// Reset modifier keys
-				this.modifierKeys.shift = ( e.keyCode == 16 ) ? false : this.modifierKeys.shift;
-				this.modifierKeys.ctrl = ( e.keyCode == 17 ) ? false : this.modifierKeys.ctrl;
-			},
-
-			/**
-			 * Handles focus events from the "word check" input element
-			 * @param  {Object} e - The dom event object
-			 */
-			wordInputFocus: function( e ) {
-				this.wordToCheck = "";
-				this.wordToHighlight = "";
-			},
-
-			/**
-			 * Handles blur events from the "word check" input element
-			 * @param  {Object} e - The dom event object
-			 */
-			wordInputBlur: function( e ) {
-				this.wordToCheck = "Type Here";
-			},
-
-			/**
-			 * Calls the wsclient's action to send a word to be checked/scored
-			 */
-			submit: function() {
-				console.log("Checking Word: " + this.wordToCheck.toUpperCase() );
-				wsClient.action("checkWord", { word: this.wordToCheck.toUpperCase() } )
-				this.wordToCheck = "";
-			}
-
+		gameOpts: Logophile.GameOptions,
+		gameData: Logophile.GameData,
+		openScreen: "",
+		changeScreen: function( s )
+		{
+			this.openScreen = s;
 		}
-	});
-
-	var Sidebar = new Vue({
-		el: "#sidebar",
-		data: {
-			gameData: GameData,
-			userData: User,
-			boardIsFrozen: false,
-			usersFrozen: {
-				playing: [], 
-				queued: [], 
-				joined: []
-			}
-		},
-		computed: {
-
-			/**
-			 * Array of users playing in the current game, sorted by score
-			 * If boardIsFrozen is true, it will return a static list instead of the one from the current model
-			 */
-			playersSorted: function() {
-				if ( !this.boardIsFrozen )
+	},
+	computed:
+	{
+		/**
+		 * The board, but including highlighted letters if applicable
+		 * Nearly the same method as the one in GameInner
+		 * @return {Array} 2d board array
+		 */
+		boardHighlighted: function()
+		{
+			var board = this.gameData.game.board;
+			// Reset board highlights
+			for ( var x = 0; x < board.length; x++ )
+			{
+				for ( var y = 0; y < board.length; y++ )
 				{
-					return this.gameData.users.playing.sort( function( a, b ) { return b.score - a.score; } );
-				}
-				else
-				{
-					return this.usersFrozen.playing.sort( function( a, b ) { return b.score - a.score; } );
+					board[ x ][ y ].highlight = "";
 				}
 			}
-
-		},
-		methods: {
-
-			/**
-			 * Sets boardIsFrozen and sets the board to be equal to the current user data model
-			 * @param  {Object} e - DOM event object
-			 */
-			freezeBoard: function( e ) {
-				if ( !this.boardIsFrozen )
+			// Highlight current sequence if possible
+			if ( this.wordToHighlight.length )
+			{
+				var highlights = Logophile.BoardHighlighter( this.wordToHighlight.toUpperCase(), this.gameData.game.board );
+				for ( var i = 0; i < highlights.length; i++ )
 				{
-					this.boardIsFrozen = true;
-
-					// Copy the values of this.gameData.users into this.usersFrozen
-					// Again, we should really have a working clone function for this, gd
-					for ( each in this.gameData.users )
+					for ( var j = 0; j < highlights[ i ].length; j++ )
 					{
-						this.usersFrozen[each] = [];
-						var list = this.gameData.users[each];
-						for ( var i = 0; i < list.length; i++ )
+						var pos = highlights[ i ][ j ].pos;
+						// This is one letter in the first highlight
+						board[ pos.x ][ pos.y ].highlight = "on";
+					}
+				}
+			}
+			return board;
+		}
+	},
+	methods:
+	{
+		/**
+		 * Shows the popup with the "create game" options
+		 */
+		createGamePopup: function()
+		{
+			console.log( "create game popup" );
+			Logophile.Popup.btns = [
+			{
+				text: "Create Game",
+				click: function()
+				{
+					Logophile.wsClient.action( "createGame", Logophile.GameOptions );
+				}
+			} ];
+			var GameOptionsView = Vue.extend(
+			{
+				template: '<div class="game-option">' +
+					// '<div class="right">' +
+					// '<input type="text" value="Temporary">' +
+					// '</div>' +
+					// '<p>Game Name:</p>' +
+					'</div>'
+			} );
+			Logophile.Popup.showCancel = true;
+			Logophile.Popup.title = "Create New Game";
+			Logophile.Popup.setContent( new GameOptionsView() );
+			Logophile.Popup.show();
+		},
+
+		/**
+		 * Highlights words in the board on the homepage at set intervals via setInterval
+		 */
+		startHighlightTimer: function()
+		{
+			if ( typeof Date.now == "function" )
+			{
+				var ksi = this.autoHighlight.keystrokeInterval;
+				var wd = this.autoHighlight.wordDisplay;
+				var wi = this.autoHighlight.wordInterval;
+				var self = this;
+				setInterval( function()
+				{
+
+					// console.log("test");
+
+					var time = Date.now();
+					var delta = time - self.autoHighlight.wordStart;
+					var totalTime = ( !!self.wordToHighlightFull ) ? self.wordToHighlightFull.length * ksi + wd + wi : 0;
+					var restart = ( delta > totalTime );
+					if ( restart || self.wordToHighlightFull == [] )
+					{
+						self.autoHighlight.wordStart = time;
+						// Pick a new random word from the solution
+						var words = Object.keys( Logophile.GameData.game.solution );
+						self.wordToHighlightFull = words[ Math.floor( Math.random() * words.length ) ];
+						self.wordToHighlight = "";
+						return;
+					}
+					self.wordToHighlight = "";
+
+					// Do highlight
+					var count = Math.min( Math.round( ( delta - wi ) / ksi ), self.wordToHighlightFull.length );
+					if ( count > 0 )
+					{
+						self.wordToHighlight = self.wordToHighlightFull.substr( 0, count );
+					}
+
+					// console.log( "Highlighting " + self.wordToHighlight );
+
+				}, ksi );
+			}
+		}
+	}
+} );
+
+module.exports.startHighlightTimer();
+
+},{"vue":79}],8:[function(require,module,exports){
+var Vue = require("vue");
+module.exports = new Vue(
+{
+	el: "#playercard",
+	data: Logophile.User
+} );
+},{"vue":79}],9:[function(require,module,exports){
+var Vue = require("vue");
+module.exports = new Vue(
+{
+	el: "#popup-background",
+	data:
+	{
+		title: "",
+		showCancel: true,
+		showPopup: false,
+		btns: []
+	},
+	methods:
+	{
+		/**
+		 * Hides the popup
+		 */
+		hide: function()
+		{
+			this.showPopup = false;
+		},
+
+		/**
+		 * Shows the popup
+		 */
+		show: function()
+		{
+			this.showPopup = true;
+		},
+
+		/**
+		 * Hides only if the click came from the target element
+		 */
+		hideFromTarget: function( e )
+		{
+			if ( e.target.id == this.$el.id )
+			{
+				this.hide();
+			}
+		},
+
+		/**
+		 * Mounts an instance of a Vue component (i.e. made with Vue.extend) in the popup content area
+		 * The instance should have a template
+		 */
+		setContent: function( instance )
+		{
+			instance.$mount( "#popup-content" );
+		}
+	}
+
+} );
+
+},{"vue":79}],10:[function(require,module,exports){
+var Vue = require("vue");
+module.exports = new Vue( {
+	el: "#sidebar",
+	data:
+	{
+		gameData: Logophile.GameData,
+		userData: Logophile.User,
+		boardIsFrozen: false,
+		usersFrozen:
+		{
+			playing: [],
+			queued: [],
+			joined: []
+		}
+	},
+	computed:
+	{
+
+		/**
+		 * Array of users playing in the current game, sorted by score
+		 * If boardIsFrozen is true, it will return a static list instead of the one from the current model
+		 */
+		playersSorted: function()
+		{
+			if ( !this.boardIsFrozen )
+			{
+				return this.gameData.users.playing.sort( function( a, b )
+				{
+					return b.score - a.score;
+				} );
+			}
+			else
+			{
+				return this.usersFrozen.playing.sort( function( a, b )
+				{
+					return b.score - a.score;
+				} );
+			}
+		}
+
+	},
+	methods:
+	{
+
+		/**
+		 * Sets boardIsFrozen and sets the board to be equal to the current user data model
+		 * @param  {Object} e - DOM event object
+		 */
+		freezeBoard: function( e )
+		{
+			if ( !this.boardIsFrozen )
+			{
+				this.boardIsFrozen = true;
+
+				// Copy the values of this.gameData.users into this.usersFrozen
+				// Again, we should really have a working clone function for this, gd
+				for ( each in this.gameData.users )
+				{
+					this.usersFrozen[ each ] = [];
+					var list = this.gameData.users[ each ];
+					for ( var i = 0; i < list.length; i++ )
+					{
+						this.usersFrozen[ each ][ i ] = {};
+						for ( key in list[ i ] )
 						{
-							this.usersFrozen[ each ][ i ] = {};
-							for ( key in list[ i ] )
+							this.usersFrozen[ each ][ i ][ key ] = list[ i ][ key ];
+							if ( typeof list[ i ][ key ] == "object" && !( list[ i ][ key ] instanceof Array ) )
 							{
-								this.usersFrozen[ each ][ i ][ key ] = list[ i ][ key ];
-								if ( typeof list[ i ][ key ] == "object" && !( list[ i ][ key ] instanceof Array ) )
+								list[ i ][ key ] = {};
+								for ( key2 in list[ i ][ key ] )
 								{
-									list[ i ][ key ] = {};
-									for ( key2 in list[ i ][ key ] )
-									{
-										this.usersFrozen[ each ][ i ][ key ][ key2 ] = list[ i ][ key2 ];
-									}
+									this.usersFrozen[ each ][ i ][ key ][ key2 ] = list[ i ][ key2 ];
 								}
 							}
 						}
 					}
-
-					console.log("Freezing board");
-					console.log( JSON.stringify( this.usersFrozen ) );
-
 				}
-			},
 
-			/**
-			 * Sets boardIsFrozen to false, unless the event came from a child of this.$el
-			 * @param  {Object} e - DOM event object
-			 */
-			unfreezeBoard: function( e ) {
-				// We don't want to unfreeze the board if we're hitting a child element
-				var parent = e.toElement || e.relatedTarget;
-				var isChild = false;
-				while ( parent )
-				{
-					if ( parent == this.$el )
-					{
-						// If it's a child, return false
-						isChild = true;
-						return false;
-					}
-					parent = parent.parentNode;
-				}
-				console.log("Unfreezing board");
-				this.boardIsFrozen = false;
+				console.log( "Freezing board" );
+				console.log( JSON.stringify( this.usersFrozen ) );
+
 			}
-
-		}
-	});
-
-	var GameInfo = new Vue({
-		el: "#game-info",
-		data: {
-			gameData: GameData
 		},
-		methods: {
-			startGame: function() {
-				console.log("starting game");
-				wsClient.action("initGame");
+
+		/**
+		 * Sets boardIsFrozen to false, unless the event came from a child of this.$el
+		 * @param  {Object} e - DOM event object
+		 */
+		unfreezeBoard: function( e )
+		{
+			// We don't want to unfreeze the board if we're hitting a child element
+			var parent = e.toElement || e.relatedTarget;
+			var isChild = false;
+			while ( parent )
+			{
+				if ( parent == this.$el )
+				{
+					// If it's a child, return false
+					isChild = true;
+					return false;
+				}
+				parent = parent.parentNode;
 			}
+			console.log( "Unfreezing board" );
+			this.boardIsFrozen = false;
 		}
-	});
-});
-},{"./boardhighlighter.js":1,"./gameoptions":2,"./vuefilters":4,"./wsclient.js":6,"vue":72}],4:[function(require,module,exports){
+
+	}
+} );
+},{"vue":79}],11:[function(require,module,exports){
 	
 var Vue = require("vue");
 
@@ -771,7 +922,7 @@ Vue.filter("keylength", function( obj, len ) {
 	}
 	return output;
 });
-},{"vue":72}],5:[function(require,module,exports){
+},{"vue":79}],12:[function(require,module,exports){
 /**
  * Synchronizes the data between two objects in a Vue-friendly way.
  * @param  {[type]}   data     	- The original data to modify
@@ -804,11 +955,10 @@ Object.$sync = function( data, newdata, callback, depth ) {
 
 }
 
-},{}],6:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 
-require("./vuesync.js");
-// var GameData = require("./gamedata.js");
-// var User = require("./userdata.js");
+var Vue = require("vue");
+require("./vue-sync.js");
 
 module.exports = new function() {
 
@@ -834,13 +984,18 @@ module.exports = new function() {
 				console.log("Joining game " + gameId );
 			}
 		}
-
 	}
 
 	this.connection.onclose = function() {
 		setTimeout( function() {
-			alert("Websocket connection closed.");
-		}, 1000 );
+			Logophile.Popup.showCancel = false;
+			Logophile.Popup.title = "Websocket Connection Closed";
+			var dcmessage = Vue.extend({
+				template: '<p class="center">The connection to the game server was closed. You may need to reload the page.</p>'
+			});
+			Logophile.Popup.setContent( new dcmessage() );
+ 			Logophile.Popup.show();
+		}, 3000 );
 	}
 
 	this.connection.onmessage = function( msg ) {
@@ -866,17 +1021,17 @@ module.exports = new function() {
 	this.events = {
 
 		/**
-		 * Syncrhonizes the GameData model with what was sent in the message
+		 * Synchronizes the GameData model with what was sent in the message
 		 * See vuesync.js for more details
 		 * @param {Object} args - Should have an identical structure to the GameData model object
 		 */
 		onGameUpdate: function( args ) {
 			// Sync GameData.game and GameData.users separately
-			Object.$sync( GameData.game, args.game, function() {
-				// console.log( "sync result: " + JSON.stringify( GameData ) );
+			Object.$sync( Logophile.GameData.game, args.game, function() {
+				// console.log( "sync result: " + JSON.stringify( Logophile.GameData ) );
 			} );
-			Object.$sync( GameData.users, args.users, function() {
-				// console.log( "sync result: " + JSON.stringify( GameData ) );
+			Object.$sync( Logophile.GameData.users, args.users, function() {
+				// console.log( "sync result: " + JSON.stringify( Logophile.GameData ) );
 			} );
 		},
 
@@ -887,7 +1042,7 @@ module.exports = new function() {
 		 */
 		onUserUpdate: function( args ) {
 
-			Object.$sync( User, args );
+			Object.$sync( Logophile.User, args );
 		},
 
 
@@ -896,7 +1051,7 @@ module.exports = new function() {
 		 * @param {Object} args - Currently not used
 		 */
 		onRoundStart: function( args ) {
-			User.words = {};
+			Logophile.User.words = {};
 		},
 
 		/**
@@ -925,9 +1080,14 @@ module.exports = new function() {
 
 	}
 
+	// Close the connection on window unload
+	window.addEventListener("beforeunload", function(){
+		self.connection.close();
+	});
+
 }
 
-},{"./vuesync.js":5}],7:[function(require,module,exports){
+},{"./vue-sync.js":12,"vue":79}],14:[function(require,module,exports){
 var _ = require('../util')
 var Watcher = require('../watcher')
 var Path = require('../parsers/path')
@@ -1103,7 +1263,7 @@ function clean (obj) {
   return JSON.parse(JSON.stringify(obj))
 }
 
-},{"../parsers/directive":57,"../parsers/expression":58,"../parsers/path":59,"../parsers/text":61,"../util":69,"../watcher":73}],8:[function(require,module,exports){
+},{"../parsers/directive":64,"../parsers/expression":65,"../parsers/path":66,"../parsers/text":68,"../util":76,"../watcher":80}],15:[function(require,module,exports){
 var _ = require('../util')
 var transition = require('../transition')
 
@@ -1309,7 +1469,7 @@ function remove (el, vm, cb) {
   if (cb) cb()
 }
 
-},{"../transition":62,"../util":69}],9:[function(require,module,exports){
+},{"../transition":69,"../util":76}],16:[function(require,module,exports){
 var _ = require('../util')
 
 /**
@@ -1480,7 +1640,7 @@ function modifyListenerCount (vm, event, count) {
   }
 }
 
-},{"../util":69}],10:[function(require,module,exports){
+},{"../util":76}],17:[function(require,module,exports){
 var _ = require('../util')
 var config = require('../config')
 
@@ -1634,7 +1794,7 @@ config._assetTypes.forEach(function (type) {
   }
 })
 
-},{"../compiler":16,"../config":18,"../directives/internal":25,"../fragment/factory":47,"../parsers/directive":57,"../parsers/expression":58,"../parsers/path":59,"../parsers/template":60,"../parsers/text":61,"../util":69}],11:[function(require,module,exports){
+},{"../compiler":23,"../config":25,"../directives/internal":32,"../fragment/factory":54,"../parsers/directive":64,"../parsers/expression":65,"../parsers/path":66,"../parsers/template":67,"../parsers/text":68,"../util":76}],18:[function(require,module,exports){
 (function (process){
 var _ = require('../util')
 var compiler = require('../compiler')
@@ -1706,7 +1866,7 @@ exports.$compile = function (el, host, scope, frag) {
 }
 
 }).call(this,require('_process'))
-},{"../compiler":16,"../util":69,"_process":74}],12:[function(require,module,exports){
+},{"../compiler":23,"../util":76,"_process":81}],19:[function(require,module,exports){
 (function (process){
 var _ = require('./util')
 var config = require('./config')
@@ -1808,7 +1968,7 @@ exports.push = function (watcher) {
 }
 
 }).call(this,require('_process'))
-},{"./config":18,"./util":69,"_process":74}],13:[function(require,module,exports){
+},{"./config":25,"./util":76,"_process":81}],20:[function(require,module,exports){
 /**
  * A doubly linked list-based Least Recently Used (LRU)
  * cache. Will keep most recently used items while
@@ -1922,7 +2082,7 @@ p.get = function (key, returnEntry) {
 
 module.exports = Cache
 
-},{}],14:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 (function (process){
 var _ = require('../util')
 var dirParser = require('../parsers/directive')
@@ -2132,7 +2292,7 @@ function getDefault (vm, options) {
 }
 
 }).call(this,require('_process'))
-},{"../config":18,"../directives/internal/prop":26,"../parsers/directive":57,"../parsers/path":59,"../util":69,"_process":74}],15:[function(require,module,exports){
+},{"../config":25,"../directives/internal/prop":33,"../parsers/directive":64,"../parsers/path":66,"../util":76,"_process":81}],22:[function(require,module,exports){
 (function (process){
 var _ = require('../util')
 var publicDirectives = require('../directives/public')
@@ -2845,13 +3005,13 @@ function makeNodeLinkFn (directives) {
 }
 
 }).call(this,require('_process'))
-},{"../directives/internal":25,"../directives/public":35,"../parsers/directive":57,"../parsers/template":60,"../parsers/text":61,"../util":69,"./compile-props":14,"_process":74}],16:[function(require,module,exports){
+},{"../directives/internal":32,"../directives/public":42,"../parsers/directive":64,"../parsers/template":67,"../parsers/text":68,"../util":76,"./compile-props":21,"_process":81}],23:[function(require,module,exports){
 var _ = require('../util')
 
 _.extend(exports, require('./compile'))
 _.extend(exports, require('./transclude'))
 
-},{"../util":69,"./compile":15,"./transclude":17}],17:[function(require,module,exports){
+},{"../util":76,"./compile":22,"./transclude":24}],24:[function(require,module,exports){
 (function (process){
 var _ = require('../util')
 var templateParser = require('../parsers/template')
@@ -3003,7 +3163,7 @@ function mergeAttrs (from, to) {
 }
 
 }).call(this,require('_process'))
-},{"../parsers/template":60,"../util":69,"_process":74}],18:[function(require,module,exports){
+},{"../parsers/template":67,"../util":76,"_process":81}],25:[function(require,module,exports){
 module.exports = {
 
   /**
@@ -3109,7 +3269,7 @@ Object.defineProperty(module.exports, 'unsafeDelimiters', {
   }
 })
 
-},{"./parsers/text":61}],19:[function(require,module,exports){
+},{"./parsers/text":68}],26:[function(require,module,exports){
 (function (process){
 var _ = require('./util')
 var Watcher = require('./watcher')
@@ -3425,11 +3585,11 @@ Directive.prototype._teardown = function () {
 module.exports = Directive
 
 }).call(this,require('_process'))
-},{"./parsers/expression":58,"./util":69,"./watcher":73,"_process":74}],20:[function(require,module,exports){
+},{"./parsers/expression":65,"./util":76,"./watcher":80,"_process":81}],27:[function(require,module,exports){
 exports.slot = require('./slot')
 exports.partial = require('./partial')
 
-},{"./partial":21,"./slot":22}],21:[function(require,module,exports){
+},{"./partial":28,"./slot":29}],28:[function(require,module,exports){
 (function (process){
 var _ = require('../../util')
 var vIf = require('../public/if')
@@ -3476,7 +3636,7 @@ module.exports = {
 }
 
 }).call(this,require('_process'))
-},{"../../fragment/factory":47,"../../util":69,"../public/if":34,"_process":74}],22:[function(require,module,exports){
+},{"../../fragment/factory":54,"../../util":76,"../public/if":41,"_process":81}],29:[function(require,module,exports){
 var _ = require('../../util')
 var templateParser = require('../../parsers/template')
 
@@ -3602,7 +3762,7 @@ function extractFragment (nodes, parent, main) {
   }
 }
 
-},{"../../parsers/template":60,"../../util":69}],23:[function(require,module,exports){
+},{"../../parsers/template":67,"../../util":76}],30:[function(require,module,exports){
 var _ = require('../../util')
 var addClass = _.addClass
 var removeClass = _.removeClass
@@ -3673,7 +3833,7 @@ function contains (value, key) {
     : value.hasOwnProperty(key)
 }
 
-},{"../../util":69}],24:[function(require,module,exports){
+},{"../../util":76}],31:[function(require,module,exports){
 (function (process){
 var _ = require('../../util')
 var templateParser = require('../../parsers/template')
@@ -4008,14 +4168,14 @@ module.exports = {
 }
 
 }).call(this,require('_process'))
-},{"../../parsers/template":60,"../../util":69,"_process":74}],25:[function(require,module,exports){
+},{"../../parsers/template":67,"../../util":76,"_process":81}],32:[function(require,module,exports){
 exports.style = require('./style')
 exports['class'] = require('./class')
 exports.component = require('./component')
 exports.prop = require('./prop')
 exports.transition = require('./transition')
 
-},{"./class":23,"./component":24,"./prop":26,"./style":27,"./transition":28}],26:[function(require,module,exports){
+},{"./class":30,"./component":31,"./prop":33,"./style":34,"./transition":35}],33:[function(require,module,exports){
 // NOTE: the prop internal directive is compiled and linked
 // during _initScope(), before the created hook is called.
 // The purpose is to make the initial prop values available
@@ -4081,7 +4241,7 @@ module.exports = {
   }
 }
 
-},{"../../config":18,"../../util":69,"../../watcher":73}],27:[function(require,module,exports){
+},{"../../config":25,"../../util":76,"../../watcher":80}],34:[function(require,module,exports){
 var _ = require('../../util')
 var prefixes = ['-webkit-', '-moz-', '-ms-']
 var camelPrefixes = ['Webkit', 'Moz', 'ms']
@@ -4191,7 +4351,7 @@ function prefix (prop) {
   }
 }
 
-},{"../../util":69}],28:[function(require,module,exports){
+},{"../../util":76}],35:[function(require,module,exports){
 var _ = require('../../util')
 var Transition = require('../../transition/transition')
 
@@ -4213,7 +4373,7 @@ module.exports = {
   }
 }
 
-},{"../../transition/transition":64,"../../util":69}],29:[function(require,module,exports){
+},{"../../transition/transition":71,"../../util":76}],36:[function(require,module,exports){
 (function (process){
 var _ = require('../../util')
 
@@ -4323,7 +4483,7 @@ module.exports = {
 }
 
 }).call(this,require('_process'))
-},{"../../util":69,"_process":74}],30:[function(require,module,exports){
+},{"../../util":76,"_process":81}],37:[function(require,module,exports){
 module.exports = {
   bind: function () {
     var el = this.el
@@ -4333,7 +4493,7 @@ module.exports = {
   }
 }
 
-},{}],31:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 var _ = require('../../util')
 
 module.exports = {
@@ -4362,7 +4522,7 @@ module.exports = {
   }
 }
 
-},{"../../util":69}],32:[function(require,module,exports){
+},{"../../util":76}],39:[function(require,module,exports){
 (function (process){
 var _ = require('../../util')
 var FragmentFactory = require('../../fragment/factory')
@@ -4964,7 +5124,7 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 }).call(this,require('_process'))
-},{"../../fragment/factory":47,"../../util":69,"_process":74}],33:[function(require,module,exports){
+},{"../../fragment/factory":54,"../../util":76,"_process":81}],40:[function(require,module,exports){
 var _ = require('../../util')
 var templateParser = require('../../parsers/template')
 
@@ -5006,7 +5166,7 @@ module.exports = {
   }
 }
 
-},{"../../parsers/template":60,"../../util":69}],34:[function(require,module,exports){
+},{"../../parsers/template":67,"../../util":76}],41:[function(require,module,exports){
 (function (process){
 var _ = require('../../util')
 var FragmentFactory = require('../../fragment/factory')
@@ -5076,7 +5236,7 @@ module.exports = {
 }
 
 }).call(this,require('_process'))
-},{"../../fragment/factory":47,"../../util":69,"_process":74}],35:[function(require,module,exports){
+},{"../../fragment/factory":54,"../../util":76,"_process":81}],42:[function(require,module,exports){
 // text & html
 exports.text = require('./text')
 exports.html = require('./html')
@@ -5102,7 +5262,7 @@ exports.ref = require('./ref')
 // cloak
 exports.cloak = require('./cloak')
 
-},{"./bind":29,"./cloak":30,"./el":31,"./for":32,"./html":33,"./if":34,"./model":37,"./on":41,"./ref":42,"./show":43,"./text":44}],36:[function(require,module,exports){
+},{"./bind":36,"./cloak":37,"./el":38,"./for":39,"./html":40,"./if":41,"./model":44,"./on":48,"./ref":49,"./show":50,"./text":51}],43:[function(require,module,exports){
 var _ = require('../../../util')
 
 module.exports = {
@@ -5166,7 +5326,7 @@ module.exports = {
   }
 }
 
-},{"../../../util":69}],37:[function(require,module,exports){
+},{"../../../util":76}],44:[function(require,module,exports){
 (function (process){
 var _ = require('../../../util')
 
@@ -5252,7 +5412,7 @@ module.exports = {
 }
 
 }).call(this,require('_process'))
-},{"../../../util":69,"./checkbox":36,"./radio":38,"./select":39,"./text":40,"_process":74}],38:[function(require,module,exports){
+},{"../../../util":76,"./checkbox":43,"./radio":45,"./select":46,"./text":47,"_process":81}],45:[function(require,module,exports){
 var _ = require('../../../util')
 
 module.exports = {
@@ -5288,7 +5448,7 @@ module.exports = {
   }
 }
 
-},{"../../../util":69}],39:[function(require,module,exports){
+},{"../../../util":76}],46:[function(require,module,exports){
 var _ = require('../../../util')
 
 module.exports = {
@@ -5408,7 +5568,7 @@ function indexOf (arr, val) {
   return -1
 }
 
-},{"../../../util":69}],40:[function(require,module,exports){
+},{"../../../util":76}],47:[function(require,module,exports){
 var _ = require('../../../util')
 
 module.exports = {
@@ -5537,7 +5697,7 @@ module.exports = {
   }
 }
 
-},{"../../../util":69}],41:[function(require,module,exports){
+},{"../../../util":76}],48:[function(require,module,exports){
 (function (process){
 var _ = require('../../util')
 
@@ -5664,7 +5824,7 @@ module.exports = {
 }
 
 }).call(this,require('_process'))
-},{"../../util":69,"_process":74}],42:[function(require,module,exports){
+},{"../../util":76,"_process":81}],49:[function(require,module,exports){
 (function (process){
 if (process.env.NODE_ENV !== 'production') {
   module.exports = {
@@ -5678,7 +5838,7 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 }).call(this,require('_process'))
-},{"../../util":69,"_process":74}],43:[function(require,module,exports){
+},{"../../util":76,"_process":81}],50:[function(require,module,exports){
 var _ = require('../../util')
 var transition = require('../../transition')
 
@@ -5706,7 +5866,7 @@ module.exports = {
   }
 }
 
-},{"../../transition":62,"../../util":69}],44:[function(require,module,exports){
+},{"../../transition":69,"../../util":76}],51:[function(require,module,exports){
 var _ = require('../../util')
 
 module.exports = {
@@ -5722,7 +5882,7 @@ module.exports = {
   }
 }
 
-},{"../../util":69}],45:[function(require,module,exports){
+},{"../../util":76}],52:[function(require,module,exports){
 var _ = require('../util')
 var Path = require('../parsers/path')
 var toArray = require('../directives/public/for')._postProcess
@@ -5829,7 +5989,7 @@ function contains (val, search) {
   }
 }
 
-},{"../directives/public/for":32,"../parsers/path":59,"../util":69}],46:[function(require,module,exports){
+},{"../directives/public/for":39,"../parsers/path":66,"../util":76}],53:[function(require,module,exports){
 var _ = require('../util')
 
 /**
@@ -5949,7 +6109,7 @@ exports.debounce = function (handler, delay) {
 
 _.extend(exports, require('./array-filters'))
 
-},{"../util":69,"./array-filters":45}],47:[function(require,module,exports){
+},{"../util":76,"./array-filters":52}],54:[function(require,module,exports){
 var _ = require('../util')
 var compiler = require('../compiler')
 var templateParser = require('../parsers/template')
@@ -6007,7 +6167,7 @@ FragmentFactory.prototype.create = function (host, scope, parentFrag) {
 
 module.exports = FragmentFactory
 
-},{"../cache":13,"../compiler":16,"../parsers/template":60,"../util":69,"./fragment":48}],48:[function(require,module,exports){
+},{"../cache":20,"../compiler":23,"../parsers/template":67,"../util":76,"./fragment":55}],55:[function(require,module,exports){
 var _ = require('../util')
 var transition = require('../transition')
 
@@ -6184,7 +6344,7 @@ function detach (child) {
 
 module.exports = Fragment
 
-},{"../transition":62,"../util":69}],49:[function(require,module,exports){
+},{"../transition":69,"../util":76}],56:[function(require,module,exports){
 (function (process){
 var _ = require('../util')
 var inDoc = _.inDoc
@@ -6351,7 +6511,7 @@ exports._callHook = function (hook) {
 }
 
 }).call(this,require('_process'))
-},{"../util":69,"_process":74}],50:[function(require,module,exports){
+},{"../util":76,"_process":81}],57:[function(require,module,exports){
 var mergeOptions = require('../util').mergeOptions
 
 /**
@@ -6463,7 +6623,7 @@ exports._init = function (options) {
   }
 }
 
-},{"../util":69}],51:[function(require,module,exports){
+},{"../util":76}],58:[function(require,module,exports){
 var _ = require('../util')
 var Directive = require('../directive')
 var compiler = require('../compiler')
@@ -6680,7 +6840,7 @@ exports._cleanup = function () {
   this.$off()
 }
 
-},{"../compiler":16,"../directive":19,"../util":69}],52:[function(require,module,exports){
+},{"../compiler":23,"../directive":26,"../util":76}],59:[function(require,module,exports){
 (function (process){
 var _ = require('../util')
 
@@ -6777,7 +6937,7 @@ exports._resolveComponent = function (id, cb) {
 }
 
 }).call(this,require('_process'))
-},{"../util":69,"_process":74}],53:[function(require,module,exports){
+},{"../util":76,"_process":81}],60:[function(require,module,exports){
 (function (process){
 var _ = require('../util')
 var compiler = require('../compiler')
@@ -7022,7 +7182,7 @@ exports._initMeta = function () {
 }
 
 }).call(this,require('_process'))
-},{"../compiler":16,"../observer":56,"../observer/dep":55,"../util":69,"../watcher":73,"_process":74}],54:[function(require,module,exports){
+},{"../compiler":23,"../observer":63,"../observer/dep":62,"../util":76,"../watcher":80,"_process":81}],61:[function(require,module,exports){
 var _ = require('../util')
 var arrayProto = Array.prototype
 var arrayMethods = Object.create(arrayProto)
@@ -7120,7 +7280,7 @@ _.define(
 
 module.exports = arrayMethods
 
-},{"../util":69}],55:[function(require,module,exports){
+},{"../util":76}],62:[function(require,module,exports){
 var _ = require('../util')
 var uid = 0
 
@@ -7183,7 +7343,7 @@ Dep.prototype.notify = function () {
 
 module.exports = Dep
 
-},{"../util":69}],56:[function(require,module,exports){
+},{"../util":76}],63:[function(require,module,exports){
 var _ = require('../util')
 var Dep = require('./dep')
 var arrayMethods = require('./array')
@@ -7420,7 +7580,7 @@ _.defineReactive = defineReactive
 
 module.exports = Observer
 
-},{"../util":69,"./array":54,"./dep":55}],57:[function(require,module,exports){
+},{"../util":76,"./array":61,"./dep":62}],64:[function(require,module,exports){
 var _ = require('../util')
 var Cache = require('../cache')
 var cache = new Cache(1000)
@@ -7556,7 +7716,7 @@ exports.parse = function (s) {
   return dir
 }
 
-},{"../cache":13,"../util":69}],58:[function(require,module,exports){
+},{"../cache":20,"../util":76}],65:[function(require,module,exports){
 (function (process){
 var _ = require('../util')
 var Path = require('./path')
@@ -7824,7 +7984,7 @@ exports.isSimplePath = function (exp) {
 }
 
 }).call(this,require('_process'))
-},{"../cache":13,"../util":69,"./path":59,"_process":74}],59:[function(require,module,exports){
+},{"../cache":20,"../util":76,"./path":66,"_process":81}],66:[function(require,module,exports){
 (function (process){
 var _ = require('../util')
 var Cache = require('../cache')
@@ -8186,7 +8346,7 @@ exports.set = function (obj, path, val) {
 }
 
 }).call(this,require('_process'))
-},{"../cache":13,"../util":69,"_process":74}],60:[function(require,module,exports){
+},{"../cache":20,"../util":76,"_process":81}],67:[function(require,module,exports){
 var _ = require('../util')
 var Cache = require('../cache')
 var templateCache = new Cache(1000)
@@ -8476,7 +8636,7 @@ exports.parse = function (template, clone, noSelector) {
     : frag
 }
 
-},{"../cache":13,"../util":69}],61:[function(require,module,exports){
+},{"../cache":20,"../util":76}],68:[function(require,module,exports){
 var Cache = require('../cache')
 var config = require('../config')
 var dirParser = require('./directive')
@@ -8638,7 +8798,7 @@ function inlineFilters (exp, single) {
   }
 }
 
-},{"../cache":13,"../config":18,"./directive":57}],62:[function(require,module,exports){
+},{"../cache":20,"../config":25,"./directive":64}],69:[function(require,module,exports){
 var _ = require('../util')
 
 /**
@@ -8719,7 +8879,7 @@ var apply = exports.apply = function (el, direction, op, vm, cb) {
   transition[action](op, cb)
 }
 
-},{"../util":69}],63:[function(require,module,exports){
+},{"../util":76}],70:[function(require,module,exports){
 var _ = require('../util')
 var queue = []
 var queued = false
@@ -8756,7 +8916,7 @@ function flush () {
   return f
 }
 
-},{"../util":69}],64:[function(require,module,exports){
+},{"../util":76}],71:[function(require,module,exports){
 var _ = require('../util')
 var queue = require('./queue')
 var addClass = _.addClass
@@ -9125,7 +9285,7 @@ function isHidden (el) {
 
 module.exports = Transition
 
-},{"../util":69,"./queue":63}],65:[function(require,module,exports){
+},{"../util":76,"./queue":70}],72:[function(require,module,exports){
 (function (process){
 var _ = require('./index')
 
@@ -9279,7 +9439,7 @@ function formatValue (val) {
 }
 
 }).call(this,require('_process'))
-},{"./index":69,"_process":74}],66:[function(require,module,exports){
+},{"./index":76,"_process":81}],73:[function(require,module,exports){
 (function (process){
 /**
  * Enable debug utilities.
@@ -9330,7 +9490,7 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 }).call(this,require('_process'))
-},{"../config":18,"_process":74}],67:[function(require,module,exports){
+},{"../config":25,"_process":81}],74:[function(require,module,exports){
 (function (process){
 var _ = require('./index')
 var config = require('../config')
@@ -9696,7 +9856,7 @@ exports.removeNodeRange = function (start, end, vm, frag, cb) {
 }
 
 }).call(this,require('_process'))
-},{"../config":18,"../transition":62,"./index":69,"_process":74}],68:[function(require,module,exports){
+},{"../config":25,"../transition":69,"./index":76,"_process":81}],75:[function(require,module,exports){
 // can we use __proto__?
 exports.hasProto = '__proto__' in {}
 
@@ -9783,7 +9943,7 @@ exports.nextTick = (function () {
   }
 })()
 
-},{}],69:[function(require,module,exports){
+},{}],76:[function(require,module,exports){
 var lang = require('./lang')
 var extend = lang.extend
 
@@ -9794,7 +9954,7 @@ extend(exports, require('./options'))
 extend(exports, require('./component'))
 extend(exports, require('./debug'))
 
-},{"./component":65,"./debug":66,"./dom":67,"./env":68,"./lang":70,"./options":71}],70:[function(require,module,exports){
+},{"./component":72,"./debug":73,"./dom":74,"./env":75,"./lang":77,"./options":78}],77:[function(require,module,exports){
 /**
  * Set a property on an object. Adds the new property and
  * triggers change notification if the property doesn't
@@ -10184,7 +10344,7 @@ exports.looseEqual = function (a, b) {
   /* eslint-enable eqeqeq */
 }
 
-},{}],71:[function(require,module,exports){
+},{}],78:[function(require,module,exports){
 (function (process){
 var _ = require('./index')
 var config = require('../config')
@@ -10541,7 +10701,7 @@ exports.resolveAsset = function resolve (options, type, id) {
 }
 
 }).call(this,require('_process'))
-},{"../config":18,"./index":69,"_process":74}],72:[function(require,module,exports){
+},{"../config":25,"./index":76,"_process":81}],79:[function(require,module,exports){
 var _ = require('./util')
 var extend = _.extend
 
@@ -10632,7 +10792,7 @@ extend(p, require('./api/lifecycle'))
 Vue.version = '1.0.0-rc.2'
 module.exports = _.Vue = Vue
 
-},{"./api/data":7,"./api/dom":8,"./api/events":9,"./api/global":10,"./api/lifecycle":11,"./directives/element":20,"./directives/public":35,"./filters":46,"./instance/events":49,"./instance/init":50,"./instance/lifecycle":51,"./instance/misc":52,"./instance/state":53,"./util":69}],73:[function(require,module,exports){
+},{"./api/data":14,"./api/dom":15,"./api/events":16,"./api/global":17,"./api/lifecycle":18,"./directives/element":27,"./directives/public":42,"./filters":53,"./instance/events":56,"./instance/init":57,"./instance/lifecycle":58,"./instance/misc":59,"./instance/state":60,"./util":76}],80:[function(require,module,exports){
 (function (process){
 var _ = require('./util')
 var config = require('./config')
@@ -10980,7 +11140,7 @@ function traverse (obj) {
 module.exports = Watcher
 
 }).call(this,require('_process'))
-},{"./batcher":12,"./config":18,"./observer/dep":55,"./parsers/expression":58,"./util":69,"_process":74}],74:[function(require,module,exports){
+},{"./batcher":19,"./config":25,"./observer/dep":62,"./parsers/expression":65,"./util":76,"_process":81}],81:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -11073,4 +11233,4 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}]},{},[3]);
+},{}]},{},[1]);

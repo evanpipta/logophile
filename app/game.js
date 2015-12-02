@@ -441,6 +441,7 @@ module.exports = function( options ) {
 
 	/**
 	 * Gets the round time as a string
+	 * We don't really need this since it's done client side
 	 */
 	// this.getTime = function() {
 	// 	var m = Math.floor( Math.round(this.data.round.elapsed) / 60 ).toString();
@@ -450,6 +451,7 @@ module.exports = function( options ) {
 
 	/**
 	 * Gets the round time remaining as a string
+	 * We don't really need this since it's done client side
 	 */
 	// this.getTimeRemaining = function() {
 	// 	var m = Math.floor( Math.round(this.data.round.remaining) / 60 ).toString();
