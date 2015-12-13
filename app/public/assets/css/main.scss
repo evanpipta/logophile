@@ -105,6 +105,15 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 	// border: 1px solid $white75;
 }
 
+#webgl-background {
+	width: 100%; height: 100%;
+	position: absolute;
+	top: 0; left: 0;
+	canvas {
+		width: 100%; height: 100%;
+	}
+}
+
 .board {
 	// opacity: 0.5;
 	// background: $darkTransp1;

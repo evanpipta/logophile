@@ -1,3 +1,4 @@
+require("object-clone");
 var Dictionary = require( "./dictionary" );
 var Sequence = require( "./sequence" );
 var Frequencies = require( "./frequencies" );
@@ -401,19 +402,8 @@ module.exports = function( size )
 	this.solveSequence = function( level, lastSeq )
 	{
 
-		// Clone sequence
-		// Have to clone the array inside of sequence too, otherwise it will just be a reference to the original
-		// *** We should really find or write a working deep clone method instead of having this code here ***
-		var seq = new Sequence();
-		for ( each in lastSeq )
-		{
-			seq[ each ] = lastSeq[ each ];
-		}
-		seq.points = [];
-		for ( var i = 0; i < lastSeq.points.length; i++ )
-		{
-			seq.points[ i ] = lastSeq.points[ i ];
-		}
+		// Clone the sequence so we're working with new values
+		var seq = Object.clone( lastSeq );
 
 		// Iterate all adjacent cells on this level
 		for ( var i = 0; i < 8; i++ )

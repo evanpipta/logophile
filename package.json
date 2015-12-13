@@ -15,8 +15,10 @@
     "cookie-parser": "^1.4.0",
     "defaults": "^1.0.3",
     "express": "^4.13.3",
+    "express-render-sass": "^0.1.0",
     "jade": "^1.11.0",
     "node-sass": "^3.3.3",
+    "object-clone": "^0.1.1",
     "vue": "^1.0.0-rc.2",
     "ws": "^0.8.0"
   },
