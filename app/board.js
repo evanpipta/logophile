@@ -12,7 +12,7 @@ module.exports = function( size )
 {
 
 	// keys are the letters and values are their frequency
-	this.letters = Frequencies["Uniques"];
+	this.letters = Frequencies["UNIQUES"];
 
 	// All the words in the board
 	this.solution = {};
@@ -49,7 +49,7 @@ module.exports = function( size )
 	this.generationCriteriaMet = false;
 
 	/**
-	 * Return a kv object where letter frequencies are points from 0 to 1 corresponding to their percentage of the summed frequency weights
+	 * Return a kv object where letter frequencies are points from 0 to 1 corresponding to the percentage of summed frequency weights
 	 * So e.g. if the board's frequencies are {"A": 100, "B": 300, "C": 100}, it would return {"A": 0, "B": 0.2, "C": 0.8}
 	 * @return {Object}
 	 */

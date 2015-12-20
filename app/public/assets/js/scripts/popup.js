@@ -7,7 +7,7 @@ module.exports = new Vue(
 		title: "",
 		showCancel: true,
 		showPopup: false,
-		btns: []
+		buttons: []
 	},
 	methods:
 	{
@@ -45,6 +45,23 @@ module.exports = new Vue(
 		setContent: function( instance )
 		{
 			instance.$mount( "#popup-content" );
+		},
+
+		/**
+		 * Wraps all functionality of the popup, allowing creation and display of a new popup
+		 */
+		create: function( options ) {
+			for ( each in options )
+			{
+				if ( !!this[ each ] )
+				{
+					this[ each ] = options[ each ];
+				}
+			}
+			// console.log("HELLO MOTHERFUCKER?");
+			this.title = options.title;
+			this.setContent( options.content );
+			this.show();
 		}
 	}
 

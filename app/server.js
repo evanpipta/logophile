@@ -13,6 +13,7 @@ var CookieParser = require("cookie-parser");
 var PageMap = require("./pagemap");
 var PackageInfo = require('../package.json');
 var Board = require("./board");
+var Dictionary = require('./dictionary');
 
 var httpPort = ( process.env.PORT ) ? process.env.PORT : 5000;
 
@@ -192,6 +193,7 @@ module.exports = new function() {
 
 						console.log("Sending main page with generated board");
   						res.send( Jade.renderFile( __dirname + "/templates/" + PageMap[ url ].type + ".jade", {
+  							rn: Dictionary.getRandom( Math.round( ( Math.random() ) * 12 ) + 3 ) +" "+ Dictionary.getRandom( Math.round( ( Math.random() ) * 12 ) + 3 ),
 	  						version: PackageInfo.version,
   							pagetype: PageMap[ url ].type,
   							board: JSON.stringify( b.getBoard() ),

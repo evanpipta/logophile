@@ -1,6 +1,8 @@
 var Vue = require( "vue" );
+var Ajax = require( "simple-ajax" );
 module.exports = new Vue(
 {
+
 	el: "#mainpage",
 	data:
 	{
@@ -21,6 +23,7 @@ module.exports = new Vue(
 			this.openScreen = s;
 		}
 	},
+
 	computed:
 	{
 		/**
@@ -56,6 +59,7 @@ module.exports = new Vue(
 			return board;
 		}
 	},
+
 	methods:
 	{
 		/**
@@ -63,28 +67,40 @@ module.exports = new Vue(
 		 */
 		createGamePopup: function()
 		{
-			console.log( "create game popup" );
-			Logophile.Popup.btns = [
+
+			// Get popup html via ajax
+			var ajax = new Ajax( "/assets/templates/game-options.html" );
+			ajax.on( "success", function( event )
 			{
-				text: "Create Game",
-				click: function()
+
+				// Create template from response html
+				var GameOptionsTemplate = Vue.extend(
 				{
-					Logophile.wsClient.action( "createGame", Logophile.GameOptions );
-				}
-			} ];
-			var GameOptionsView = Vue.extend(
-			{
-				template: '<div class="game-option">' +
-					// '<div class="right">' +
-					// '<input type="text" value="Temporary">' +
-					// '</div>' +
-					// '<p>Game Name:</p>' +
-					'</div>'
+					data: function()
+					{
+						return {
+							parent: Logophile.MainPage
+						};
+					},
+					template: event.target.responseText
+				} );
+
+				// Do popup
+				Logophile.Popup.create(
+				{
+					buttons: [
+					{
+						text: "Create Game",
+						click: Logophile.MainPage.createGame
+					} ],
+					title: "New Game Options",
+					showCancel: true,
+					content: new GameOptionsTemplate(),
+				} );
+
 			} );
-			Logophile.Popup.showCancel = true;
-			Logophile.Popup.title = "Create New Game";
-			Logophile.Popup.setContent( new GameOptionsView() );
-			Logophile.Popup.show();
+			ajax.send();
+
 		},
 
 		/**
@@ -129,8 +145,69 @@ module.exports = new Vue(
 
 				}, ksi );
 			}
+		},
+
+		/**
+		 * Convert GameOptions values to their required type, constrain them to their min/max, and validate them
+		 * @return {[type]} [description]
+		 */
+		validateGameOptions: function()
+		{
+			var valid = true;
+			for ( each in this.gameOpts )
+			{
+				// Each value in gameOpts is an object, so "opt" will be a reference to that
+				var opt = this.gameOpts[ each ];
+
+				// Do number-specific validation
+				if ( opt.type === "number" ) {
+
+					opt.val = ( typeof opt.val === "number" ) ? opt.val : parseInt( opt.val.replace( /[^0-9]/g, "" ) );
+					opt.val = ( !!opt.min ) ? Math.max( opt.min, opt.val ) : opt.val;
+					opt.val = ( !!opt.max ) ? Math.min( opt.max, opt.val ) : opt.val;
+
+					if ( isNaN( opt.val ) )
+					{
+						opt.val = "";
+						opt.valid = valid = false;
+					}
+				}
+				// Then string-specific
+				if ( opt.type === "string" && typeof opt.val === "string" ) {
+					opt.val = opt.val.replace( /[^A-Z a-z]/g, "" ).toUpperCase().trim();
+				}
+				// Then general validation
+				if ( ( opt.type !== typeof opt.val ) || ( !opt.canBeFalsy && !opt.val ) ) {
+					opt.valid = valid = false;
+				}
+			}
+			return valid;
+		},
+
+		/**
+		 * Validate game options and create a new game if they're valid
+		 */
+		createGame: function()
+		{
+			// Validate game options object
+			if ( this.validateGameOptions() )
+			{
+				// Build simplified game options object to pass to the server
+				var gameOptionsShort = {};
+				for ( each in Logophile.GameOptions )
+				{
+					gameOptionsShort[ each ] = Logophile.GameOptions[ each ].val;
+				}
+
+				// Add the time limit manually
+				gameOptionsShort.timeLimit = Logophile.GameOptions.timeLimitMinutes.val*60 + Logophile.GameOptions.timeLimitSeconds.val;
+
+				console.log( gameOptionsShort );
+				Logophile.wsClient.action( "createGame", gameOptionsShort );
+			}
 		}
 	}
+
 } );
 
 module.exports.startHighlightTimer();

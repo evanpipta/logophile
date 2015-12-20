@@ -15,14 +15,14 @@ module.exports = function( options ) {
 
 	this.data = Defaults( options, {
 		boardSize: 5,
-		frequences: "Uniques",
+		frequences: "UNIQUES",
 		name: Dictionary.getRandom( Math.round( ( Math.random() ) * 12 ) + 3 ) +" "+ Dictionary.getRandom( Math.round( ( Math.random() ) * 12 ) + 3 ),
 		timeLimit: 30,
 		pauseTime: 40,
 		private: false,
 		ranked: false,
 		allowGuests: true,
-		scoreStyle: "Normal", 			// "normal" or "prolific"
+		scoreStyle: "NORMAL", 			// "normal" or "prolific"
 		initd: false,
 		rounds: 0,						// rounds played so far
 		minLettersToScore: 4,

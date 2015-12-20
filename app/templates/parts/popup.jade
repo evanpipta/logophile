@@ -17,5 +17,5 @@ div( id="popup-background" v-show="showPopup" v-on:click="hideFromTarget( $event
 				ul
 					li( v-show="showCancel" )
 						a( href="#" v-on:click="hide()" class="button" ) Cancel
-					li( v-for="btn in btns" )
+					li( v-for="btn in buttons" )
 						a( href="#" v-on:click="btn.click()" class="button" ) [[btn.text]]

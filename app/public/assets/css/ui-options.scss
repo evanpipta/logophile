@@ -1,0 +1,64 @@
+
+.ui-options {
+	display: flex;
+	justify-content: space-between;
+	flex-direction: row;
+   	flex-wrap: wrap;
+   	flex-flow: row wrap;
+	.opt {
+		transition: height 0.3s, margin 0.3s;
+		overflow: hidden;
+		position: relative;
+		text-align: right;
+		min-width: 300px;
+		font-size: 14px;
+		background: #2A2A2A;
+		padding: 11px 24px 0;
+		width: 465px; height: 57px;
+		white-space: nowrap;
+		margin-bottom: 8px;
+		.two-digit-input {
+			width: 54px;
+			padding: 8px 12px 6px;
+		}
+		.four-digit-input {
+			width: 110px;
+		}
+		input {
+			text-transform: uppercase;
+			background: $darkTransp3;
+			border: 0; border-radius: 0;
+			padding: 8px 16px 6px;
+			text-align: center;
+			font-size: 15px;
+			font-weight: 300;
+			margin: 0 10px;
+		}
+		input:last-child { margin-right: 0; }
+		input:first-child { margin-left: 0; }
+		label {
+			float: left;
+			font-size: 14px;
+			font-weight: 500;
+			margin: 8px 0 0;
+		}
+		span {
+			font-size: 14px;
+		}
+	}
+	.opt.disabled:before {
+		content: "";
+		width: 100%; height: 100%;
+		position: absolute;
+		top: 0; left: 0;
+		background: $grey90;
+	}
+	.opt.disabled {
+		// margin: 0;
+		height: 0;
+	}
+	.opt.disabled * {
+		color: $white20;
+	}
+}
+

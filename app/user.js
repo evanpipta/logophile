@@ -139,7 +139,7 @@ module.exports = function( options ) {
 		 */
 		createGame: function( args ) {
 			// Temporarily deleting args name for fun
-			delete args.name;
+			// delete args.name;
 			console.log("Creating game");
 			self.actions.leaveGame();
 			var g = GameList.create( args );

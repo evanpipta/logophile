@@ -5,6 +5,7 @@
 $dark: #121212;					// Darkest grey for backgrounds. Used in chat and textareas
 $grey: #222;						// Middle grey for backgrounds. This is used in the main game area
 $grey70: rgba(34,34,34,0.7);		// Partially transparent middle grey
+$grey90: rgba(34,34,34,0.7);		// Partially transparent middle grey
 $grey2: #444;						// Lightest grey for backgrounds and some low-importance fonts. Used in the sidebar
 $beige: #F6F3E3;					// Beige color, used for game settings panel, and possibly popups/tooltips in the future
 $beige2: #D9D8D0;				// Alternate beige
@@ -61,6 +62,9 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 
 // Popup css
 @import "popup";
+
+// Options
+@import "ui-options";
 
 // Input mixin
 @mixin textInput( $fontSize, $pad ) {

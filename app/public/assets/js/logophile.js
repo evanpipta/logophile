@@ -16,11 +16,10 @@ window.addEventListener("load", function() {
   Logophile.MainPage = require("./scripts/main-page.js");
   Logophile.PlayerCard = require("./scripts/player-card.js");
   Logophile.LogoSmall = require("./scripts/logo-small.js");
-  Logophile.GameInner = require("./scripts/game-inner.js");	// Main "game" controller
+  Logophile.GameInner = require("./scripts/game-inner.js");	// Main "game" controllerq 
   Logophile.Sidebar = require("./scripts/sidebar.js");
   Logophile.GameInfo = require("./scripts/game-info.js");
 
-
-  Logophile.CanvasRenderer = require('./scripts/canvas-renderer');
+  // Logophile.CanvasRenderer = require('./scripts/canvas-renderer');
 
 });

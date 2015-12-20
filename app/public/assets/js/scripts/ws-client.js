@@ -30,13 +30,18 @@ module.exports = new function() {
 
 	this.connection.onclose = function() {
 		setTimeout( function() {
-			Logophile.Popup.showCancel = false;
-			Logophile.Popup.title = "Websocket Connection Closed";
-			var dcmessage = Vue.extend({
+
+			var DCMessage = Vue.extend({
 				template: '<p class="center">The connection to the game server was closed. You may need to reload the page.</p>'
 			});
-			Logophile.Popup.setContent( new dcmessage() );
- 			Logophile.Popup.show();
+
+			Logophile.Popup.create( {
+				buttons: [],
+				title: "Websocket Connection Closed",
+				showCancel: false,
+				content: new DCMessage()
+			} );
+
 		}, 3000 );
 	}
 
