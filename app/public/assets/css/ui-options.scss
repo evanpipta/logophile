@@ -12,11 +12,14 @@
 		text-align: right;
 		min-width: 300px;
 		font-size: 14px;
-		background: #2A2A2A;
+		background: $teal;
 		padding: 11px 24px 0;
-		width: 465px; height: 57px;
+		width: 467px; height: 57px;
 		white-space: nowrap;
-		margin-bottom: 8px;
+		margin-bottom: 2px;
+		* {
+			font-weight: 300;
+		}
 		.two-digit-input {
 			width: 54px;
 			padding: 8px 12px 6px;
@@ -31,15 +34,19 @@
 			padding: 8px 16px 6px;
 			text-align: center;
 			font-size: 15px;
-			font-weight: 300;
+			// font-weight: 300;
 			margin: 0 10px;
+			transition: background 0.3s;
+		}
+		input:focus {
+			background: $darkTransp5;
 		}
 		input:last-child { margin-right: 0; }
 		input:first-child { margin-left: 0; }
 		label {
 			float: left;
-			font-size: 14px;
-			font-weight: 500;
+			font-size: 15px;
+			// font-weight: 300;
 			margin: 8px 0 0;
 		}
 		span {

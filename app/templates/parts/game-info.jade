@@ -1,14 +1,7 @@
 div( class="game-info" id="game-info" )
 	include ./logo-small-white.jade
 	span( class="desktop-view" )
-		p( class="label" ) Game:
+		p( class="label" ) Current Game
 		h2 [[gameData.game.name]]
-		ul( class="menu inline" )
-			li
-				a( href="/" ) Leave
-			li
-				a( href="#" ) Info
-			li
-				a( href="#" v-if="!gameData.game.initd" v-on:click="startGame()" ) Start
 
 	span( class="mobile-view" )

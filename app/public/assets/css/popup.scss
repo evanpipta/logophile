@@ -6,7 +6,7 @@ $popupdark: #1d1d1d;
 	position: absolute; top: 0; left: 0;
 	z-index: 1000;
 	transition: opacity 0.3s;
-	background: rgba(0,0,0,0.5);
+	background: rgba( 20,20,20,0.9 );
 	overflow-y: auto;
 	max-height: 100%;
 	// cursor: pointer;
@@ -30,7 +30,7 @@ $popupdark: #1d1d1d;
 		width: 100%;
 	}
 	padding: 36px 55px;
-	background: $popupdark;
+	// background: $darkGradientPopup;
 	.content, .content p {
 		font: 200 16px/16px $fontStack; letter-spacing: -0.25px;
 		p, h2, h3 {

@@ -4,13 +4,18 @@
 	font: 400 16px/22px $fontStack;
 	color: $white;
 }
+img {
+	-moz-user-select: none;
+	user-select: none;
+}
 html {
 	height: 100%;
 }
 body {
 	background: $dark;
 	// background: linear-gradient(160deg, #444 0%, #2c2c2c 10%, #252525 20%, #202020 30%, #252525 100%) repeat scroll 0% 0%;
-	background: linear-gradient(-5deg, #04163D 0%, #37AED7 93%);
+	background: linear-gradient(-5deg, #051329 5%, #177CAB 70%, #175F87);
+	background: url(/assets/images/logophile-background-static.jpg) no-repeat scroll center center / cover;
 	height: 100%;
 	overflow: hidden;
 }
@@ -60,4 +65,13 @@ a.disabled:hover {
 }
 .alignLeft {
 	text-align: left;
+}
+
+::selection {
+	background: $green;
+	color: $dark;
+}
+::-moz-selection {
+	background: $green;
+	color: $dark;
 }

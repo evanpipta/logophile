@@ -2,7 +2,7 @@ div( class="sidebar" id="sidebar" )
 	div( class="upper" )
 
 		div( class="leaderboard" v-on:mouseover="freezeBoard($event)" v-on:mouseout="unfreezeBoard($event)" )
-			h3 Leaderboard
+			h3 Scoreboard
 			ul
 				//- We need to figure out how to make sure this is sorted by the user scores, not just their position in the array
 				li( v-for="user in playersSorted" v-bind:class="{ 'me': user.name == userData.name }" ) [[$index+1]]. [[user.name]]
@@ -13,15 +13,12 @@ div( class="sidebar" id="sidebar" )
 					span 59
 
 		div( class="game-setup" )
-	div( class="chat" )
-		div( class="resizer" )
-		div( class="log" )
-			ul
-				//- Eventually we will add chat here
-				//- li
-					span( class="name" ) Name:
-					| Test message
-				//- li
-					span( class="name" ) Test:
-					| Test message
-		input( type="text" placeholder="Type here to chat" )
+	div( class="controls" )
+		ul( class="inline" )
+			li
+				a( v-bind:class="{ active: true }" ) Score
+			li
+				a( v-bind:class="{ active: false }" ) Info
+			li
+				a( v-bind:class="{ active: false }" ) Chat
+		div( class="marker" )

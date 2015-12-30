@@ -1,11 +1,7 @@
 h1( class="logo-small white" id="logo-small" )
 
 	mixin logo
-		each val, index in "Logophile".split("")
-			if ( index < 4 )
-				span( class="inverse" )=val
-			else
-				span=val
+		img( src="/assets/images/logo-48px.png" )
 
 	if ( locals.pagetype == "game" )
 		a( href="/", title="Leave Game", v-on:click="changeScreen('', $event)" )

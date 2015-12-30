@@ -27,10 +27,17 @@ $green: #c2e436;
 $grey3: #666;						// Color for some low-importance fonts
 
 $teal: #2C85A5;					// Background color for inactive or static teal elements
+// $teal: #5396B5;
 $teal30: rgba(44, 133, 165, 0.3);	// Transparent version of teal color
-$tealLit: #2EAAD7;					// Backgorund for hovered / active teal elements
+$tealLit: #5BC2DF;					// Backgorund for hovered / active teal elements
 $orange: #E68729;				// Background color for inactive or static orange elements
-$orangeLit: #EBAF22;				// Background color for hovered / active orange buttons or elements
+$orangeLit: #FCAC36;				// Background color for hovered / active orange buttons or elements
+
+// Gradient backgrounds!
+$darkGradientPopup: linear-gradient(to bottom, #444 0%, #333 10%, #333 100%);
+$darkGradientSidebar: linear-gradient(to bottom, #333 200px, #242424 400px, #242424 100%);
+// $tealGradient: linear-gradient(to bottom, $teal 0%, #1E79A0 50%, #1C7595 100%);
+$tealGradient: linear-gradient(to bottom, #4F9FBC 0%, $teal 100%);
 
 $breakTablet: 1150px;			// Break point for tablet version
 $breakTabletSmall: 930px;	// Break point for smaller tablet version
@@ -44,7 +51,9 @@ $gameInfoHeightMobile: 42px;	// Height of the top left game info area on mobile,
 $sidebarPadding: 40px;			// Padding for elements in the sidebar
 $sidebarPaddingMobile: 10px;		// Padding for elements in the sidebar on mobile
 
-$chatStartHeight: 0px;			// Chat starting height
+$sidebarControlsHeight: 50px;			// Sidebar controls height
+$sidebarControlsButtonPadding: 15px 18px;
+
 $inputHeight: 52px;				// Height for text inputs in the game panel as well as the chat area
 
 $gameEdgePadding: 0;			// Padding around the edge of the game panel
@@ -94,19 +103,18 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 	font-weight: 300;
 	letter-spacing: -0.2px;
 	margin: 10px auto;
-	// border: 1px solid $white50;
+	border: 1px solid transparent;
 	background: $white10;
 	// border-radius: 20px;
 	border-radius: 3px;
-	padding: 10px 40px 8px;
+	padding: 11px 40px 8px;
 	transition: background 0.3s, border 0.3s;
+	color: $white;
 }
 .button:hover {
 	opacity: 1;
-	// background: $orange;
-	// border: 1px solid $orange;
 	background: $white30;
-	// border: 1px solid $white75;
+	// border: 1px solid $frost;
 }
 
 #webgl-background {
@@ -349,6 +357,7 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 	margin-top: -3px;
 	top: $cornerOffset; left: $cornerOffset;
 	z-index: 400;
+	text-align: center;
 	span {
 		text-transform: uppercase;
 		color: $orange;
@@ -370,11 +379,23 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 		font-size: 12px;
 		text-transform: lowercase;
 	}
+	a {
+		display: inline-block;
+		width: 100%;
+		transition: background 0.3s;
+		height: 58px;
+		padding: 7px 0;
+		border-radius: 3px;
+	}
+	a:hover {
+		background: $darkTransp1;
+		opacity: 1;
+	}
 }
 
 .logo-small.white {
 	position: static;
-	margin-bottom: 20px;
+	margin-bottom: 15px;
 	span {
 		color: $white;
 	}
@@ -473,9 +494,9 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 	}
 }
 .game-info {
-	border-bottom: 1px solid $white20;
+	// border-bottom: 1px solid $white20;
 	z-index: 400;
-	background: $teal;
+	background: $tealGradient;
 	overflow: hidden;
 	transition: width 0.2s, height 0.2s;
 	height: $gameInfoHeight;
@@ -489,7 +510,7 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 		font-size: 14px;
 	}
 	h2 {
-		font: 300 20px/22px $fontStack;
+		font: 300 24px/24px $fontStack;
 		letter-spacing: -1px;
 		// overflow: hidden;
 		max-height: 58px;
@@ -501,9 +522,9 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 		// bottom: 16px;
 	 	a {
 			display: block;
-			padding: 4px 13px;
+			padding: 8px 27px;
 			// margin-top: -8px;
-			font-size: 14px;
+			font-size: 15px;
 			// letter-spacing: -0.2px;
 			font-weight: 200;
 		}
@@ -511,7 +532,7 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 			// height: 24px;
 			background: $white20;
 			border-radius: 3px;
-			margin-right: 4px;
+			margin-right: 6px;
 			transition: background 0.25s;
 			// border-right: 1px solid rgba(255,255,255,0.3);
 		}
@@ -535,17 +556,52 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 	height: 100%;
 	overflow: hidden;
 	background: $grey;
+	background: $darkGradientSidebar;
 	transition: padding 0.2s;
 	padding-top: $gameInfoHeight;
 	@media ( max-width: $breakTablet ) {
 		padding-top: $gameInfoHeightMobile;
 	}
-	// We'll use a script to change .siderbar's padding-bottom when the user resizes the chat
-	padding-bottom: $chatStartHeight;
+	padding-bottom: $sidebarControlsHeight;
 	// Upper contains the leaderboard as well as the game settings
 	.upper {
 		position: relative;
 		height: 100%;
+	}
+	.controls {
+		position: fixed;
+		bottom: 0;
+		height: $sidebarControlsHeight;
+		width: $sidebarWidth;
+		background: #333;
+		// padding-bottom: $inputHeight;
+		@media ( max-width: $breakTablet ) {
+			display: none;
+		}
+		text-align: center;
+		ul li a {
+			font-size: 14px;
+			color: $white20;
+			display: block;
+			cursor: pointer;
+			height: $sidebarControlsHeight;
+			padding: $sidebarControlsButtonPadding;
+		}
+		ul li a:hover {
+			opacity: 1;
+			color: $teal;
+		}
+		ul li a.active {
+			color: $tealLit;
+		}
+		.marker {
+			position: absolute;
+			bottom: 0;
+			height: 4px;
+			background: $tealLit;
+			width: 78px;
+			left: 20px;
+		}
 	}
 }
 .leaderboard {
@@ -556,6 +612,7 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 	}
 	height: 100%;
 	padding: 37px 0;
+	padding-bottom: $sidebarControlsHeight;
 	position: relative;
 	transition: left 0.3s;
 	left: 0;
@@ -563,21 +620,22 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 		padding: 0 40px;
 		font-size: 20px;
 		margin-bottom: 20px;
-		font-weight: $gameHeadingsFontWeight;
+		// font-weight: $gameHeadingsFontWeight;
+		font-weight: 300;
 		@media ( max-width: $breakTablet ) {
 			display: none;
 		}
 	}
 	ul {
-		margin-bottom: 30px;
+		margin: 20px 0 30px;
 	}
 	ul li {
-		transition: background 0.2s, height 0.2s, padding 0.2s, font 0.1s;
-		padding: 5px 40px;
+		transition: color 0.2s;
+		padding: 15px 40px;
 		font-size: 14px;
-		font-weight: 300;
+		font-weight: 200;
 		position: relative;
-		height: 32px;
+		height: 48px;
 		overflow: hidden;
 		@media ( max-width: $breakTablet ) {
 			left: -24px;
@@ -586,17 +644,22 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 		}
 	}
 	ul li.me {
-		background: $orange;
+		background: linear-gradient( 90deg, rgba(255,255,255,0.1) 0%, transparent 100%) repeat scroll 0% 0%;
 		font-weight: 600;
+		transition: color 0.2s;
 	}
 	ul li.me span { font-weight: 600; }
 	ul li span {
 		position: absolute; right: 40px;
 		font-weight: 300;
+		transition: color 0.2s;
 	}
 	ul li:hover {
 		cursor: pointer;
-		background: $orange;
+		color: $orangeLit;
+	}
+	ul li:hover span {
+		color: $orangeLit;
 	}
 }
 
@@ -611,53 +674,6 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 	height: 100%;
 	transition: left 0.3s;
 	background: $beige2;
-}
-.chat {
-	display: none;
-	position: absolute;
-	bottom: 0;
-	height: $chatStartHeight;
-	min-height: 70px;
-	width: 100%;
-	background: $dark;
-	padding-bottom: $inputHeight;
-	@media ( max-width: $breakTablet ) {
-		display: none;
-	}
-	.resizer {
-		border-top: 1px solid $grey;
-		height: 15px; width: 100%;
-		background: rgba(25,25,25,0.9);
-		position: absolute;
-		top: 0; left: 0;
-		z-index: 100;
-		transition: background 0.2s, border 0.2s;
-	}
-	.resizer:hover {
-		cursor: row-resize;
-		background: $teal;
-	}
-	.log {
-		height: 100%;
-		padding: 24px;
-		overflow-x: hidden; overflow-y: auto;
-		ul li {
-			padding: 5px 0;
-			font: 300 12px/14px $fontStack;
-			color: $grey3;
-		}
-		 ul li span {
-		 	font: 500 12px/14px $fontStack;
-		 	color: $grey3;
-		 }
-	}
-	input[type="text"] {
-		@include textInput(14px, 12px);
-	}
-	input[type="text"]:focus {
-		color: $white;
-		font-style: normal;
-	}
 }
 
 // Game elements
