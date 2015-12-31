@@ -22,15 +22,15 @@ $popupdark: #1d1d1d;
 
 .popup {
 	// cursor: default;
-	width: 1050px;
+	width: 1049px;
 	@media ( max-width: $breakTablet ) {
 		width: 578px;
 	}
 	@media ( max-width: $breakMobile ) {
 		width: 100%;
 	}
-	padding: 36px 55px;
-	// background: $darkGradientPopup;
+	padding: 36px 0 0;
+	background: $darkGradientPopup;
 	.content, .content p {
 		font: 200 16px/16px $fontStack; letter-spacing: -0.25px;
 		p, h2, h3 {
@@ -50,16 +50,35 @@ $popupdark: #1d1d1d;
 		font: 200 20px/20px $fontStack; letter-spacing: -0.25px;
 	}
 	.buttons {
-		text-align: center;
+		min-height: 15px;
+		margin-top: 16px;
+		text-align: right;
+		ul {
+			background: #333;
+			padding: 0 20px;
+		}
 		ul li {
 			display: inline-block;
-			margin-right: 20px;
 		}
 		ul li:last-child {
 			margin-right: 0;
 		}
+		ul li.cancel {
+			float: left;
+		}
 	}
 	.button {
-		margin: 20px 0 0 0;
+		margin: 0;
+		background: transparent;
+		border-radius: 0;
+		border-bottom: 4px solid transparent;
+		color: $white30;
+		transition: color 0.3s, border 0.3s;
+		padding: 13px 20px 9px;
+	}
+	.button:hover {
+		background: transparent;
+		border-bottom: 4px solid $teal;
+		color: $tealLit;
 	}
 }

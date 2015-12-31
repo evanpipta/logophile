@@ -6,30 +6,30 @@
 		</span>
 	</li>
 	<li class="opt">
-		<label>Time Limit:</label>
+		<label for="timeLimitMins">Time Limit:</label>
 		<span class="align-right">
-			<input onclick="select()" @blur="parent.validateGameOptions" maxlength="2" class="two-digit-input" v-model="parent.gameOpts.timeLimitMinutes.val">
+			<input id="timeLimitMins" onclick="select()" @blur="parent.validateGameOptions" maxlength="2" class="two-digit-input" v-model="parent.gameOpts.timeLimitMinutes.val">
 			<span>minute<span v-show="parent.gameOpts.timeLimitMinutes.val > 1">s</span> and</span>
 			<input onclick="select()" @blur="parent.validateGameOptions" maxlength="2" class="two-digit-input" v-model="parent.gameOpts.timeLimitSeconds.val">
 			<span>seconds</span>
 		</span>
 	</li>
 	<li class="opt">
-		<label>Time Between Rounds:</label>
+		<label for="timeBetweenRounds">Time Between Rounds:</label>
 		<span class="align-right">
-			<input onclick="select()" @blur="parent.validateGameOptions" maxlength="2" class="two-digit-input" v-model="parent.gameOpts.pauseTime.val"><span> seconds</span>
+			<input id="timeBetweenRounds" onclick="select()" @blur="parent.validateGameOptions" maxlength="2" class="two-digit-input" v-model="parent.gameOpts.pauseTime.val"><span> seconds</span>
 		</span>
 	</li>
 	<li class="opt">
-		<label>Board Size:</label>
+		<label for="boardSize">Board Size:</label>
 		<span class="align-right">
-			<input onclick="select()" @blur="parent.validateGameOptions" maxlength="2" class="two-digit-input" v-model="parent.gameOpts.boardSize.val"><span> x [[parent.gameOpts.boardSize.val]]</span>
+			<input id="boardSize" onclick="select()" @blur="parent.validateGameOptions" maxlength="2" class="two-digit-input" v-model="parent.gameOpts.boardSize.val"><span> x [[parent.gameOpts.boardSize.val]]</span>
 		</span>
 	</li>
 	<li class="opt">
-		<label>Minimum Letters to Score Word</label> 
+		<label for="minScoreLength">Minimum Letters to Score Word</label> 
 		<span class="align-right">
-			<input onclick="select()" @blur="parent.validateGameOptions" maxlength="1" class="two-digit-input" v-model="parent.gameOpts.minLettersToScore.val">
+			<input id="minScoreLength" onclick="select()" @blur="parent.validateGameOptions" maxlength="1" class="two-digit-input" v-model="parent.gameOpts.minLettersToScore.val">
 		</span>
 	</li>
 <!-- 	<li class="opt">
@@ -44,18 +44,18 @@
 		<label for="highfreq">High Frequency Mode</label> <input type="checkbox" id="highfreq" v-model="parent.gameOpts.boardHighFrequency.val">
 	</li>
 	<li class="opt" v-bind:class="{ disabled: parent.gameOpts.boardHighFrequency.val }">
-		<label>Boards must contain at least</label> <input onclick="select()" @blur="parent.validateGameOptions" maxlength="3" class="four-digit-input" v-model="parent.gameOpts.boardMinWords.val"> <span>words</span>
+		<label for="minWords">Boards must contain at least</label> <input id="minWords" onclick="select()" @blur="parent.validateGameOptions" maxlength="3" class="four-digit-input" v-model="parent.gameOpts.boardMinWords.val"> <span>words</span>
 	</li>
 	<li class="opt" v-bind:class="{ disabled: parent.gameOpts.boardHighFrequency.val }">
-		<label>Boards must contain at least one</label> <input onclick="select()" @blur="parent.validateGameOptions" maxlength="2" class="two-digit-input" v-model="parent.gameOpts.boardRequireLength.val"> <span>letter word</span>
+		<label for="minWordLength">Boards must contain at least one</label> <input id="minWordLength" onclick="select()" @blur="parent.validateGameOptions" maxlength="2" class="two-digit-input" v-model="parent.gameOpts.boardRequireLength.val"> <span>letter word</span>
 	</li>
 <!-- 	<li class="opt">
 		<label>Letter Frequencies</label>
 	</li> -->
 	<li class="opt">
-		<label>Make Unlisted</label> <input type="checkbox" id="highfreq" v-model="parent.gameOpts.private.val">
+		<label for="unlisted">Make Unlisted</label> <input id="unlisted" type="checkbox" id="highfreq" v-model="parent.gameOpts.private.val">
 	</li>
 	<li class="opt">
-		<label>Ranked</label> <input type="checkbox" id="highfreq" v-model="parent.gameOpts.ranked.val">
+		<label for="ranked">Ranked</label> <input id="ranked" type="checkbox" id="highfreq" v-model="parent.gameOpts.ranked.val">
 	</li>
 </ul>

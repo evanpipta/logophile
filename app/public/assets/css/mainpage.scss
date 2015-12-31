@@ -1,0 +1,120 @@
+#mainpage {
+	overflow: hidden;
+	height: 100%; width: 100%;
+
+	.menu {
+		// background: $grey;
+		width: 850px;
+		@media ( max-width: $breakTabletSmall ) {
+			width: 500px;
+		}
+		@media ( max-width: $breakMobile ) {
+			width: 90%;
+		}
+		margin: 0 auto;
+		position: relative;
+		top: 50%;
+		transition: top 0.3s;
+		h1.notfound {
+			font: 100 40.4px/45px $fontStack;
+			color: $white50;
+			margin-top: -30px;
+			letter-spacing: 1.35px;
+		}
+		h2 {
+			font: 300 30px/36px $fontStack;
+			@media ( max-width: $breakMobile ) {
+				font-size: 24px;
+				margin-bottom: 10px;
+			}
+			font-weight: 200;
+			letter-spacing: -0.5px;
+			margin-bottom: 20px;
+			transition: opacity 0.2s, top 0.3s;
+			opacity: 1;
+			top: 0;
+		}
+		.inner {
+			transition: transform 0.3s;
+			transform: translateY(-50%);
+			p {
+				transition: opacity 0.2s, top 0.3s;
+				font-size: 17px;
+				margin-bottom: 15px;
+				@media ( max-width: $breakMobile ) {
+					margin-bottom: 5px;
+				}
+				font-weight: 200;
+				letter-spacing: -0.1px;
+				line-height: 25px;
+				top: 0;
+				span.logophile {
+					font-weight: 600;
+				}
+			}
+			.board {
+				float: left;
+				height: 250px;
+				width: 250px;
+				min-height: 250px;
+				margin: -30px 40px 0 0;
+				@media ( max-width: $breakMobile ) {
+					display: none;
+				}
+			}
+		}
+		.options {
+			margin-top: 80px;
+			@media ( max-width: $breakMobile ) {
+				margin-top: -10px;
+			}
+			padding: 18px 0;
+			white-space: nowrap;
+			text-align: center;
+		}
+		.options li {
+			// border-right: 1px solid $white50;
+			margin-right: -3px;
+			@media ( max-width: $breakMobile ) {
+				display: block;
+				width: 100%;
+			}
+		}
+		.options li a { 
+			padding: 17px 26px 13px; opacity: 0.6; background: $white10;
+			@media ( max-width: $breakMobile ) {
+				width: 100%;
+				display: block;
+				margin: 10px auto;
+			} 
+		}
+		.options li a.active { color: $white; opacity: 1; }
+		.options li a:hover { color: $white; opacity: 1; }
+		.options li a.disabled { color: $white50; opacity: 0.4; }
+		.options li a.disabled:hover { color: $white50; opacity: 0.4; }
+		// .options li:first-child a { padding-left: 0; }
+		// .options li:last-child a { padding-right: 0; }
+		.options li:last-child { border: 0; margin-right: 0; }
+	}
+	.menu.open {
+		top: $cornerOffset - 72px;
+		@media ( max-width: $breakMobile ) {
+			top: $cornerOffset - 22px;
+		}
+		h2 {
+			// opacity: 0;
+			display: none;
+		}
+		p {
+			display: none;
+			// position: absolute;
+		}
+		.inner {
+			transform: translateY(0);
+		}
+		.board {
+			display: none;
+		}
+	}
+
+}
