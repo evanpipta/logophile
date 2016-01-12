@@ -18,11 +18,13 @@ body
 		div( class="menu" v-bind:class="{ 'open' : !!openScreen }" )
 			div( class="inner" )
 
+				img( src="/assets/images/logo-308px.png" class="main-logo" alt="Logophile" )
+
 				div
 					div( class="board" )
 						div( class="row" v-bind:style="{ height: 100/gameData.game.board.length+'%' }" v-for="x in gameData.game.board" )
 							div( v-bind:class="{ 'cell': true, 'on': this.boardHighlighted[$parent.$index][$index].highlight == 'on', 'partial': this.boardHighlighted[$parent.$index][$index].highlight == 'partial' }" v-bind:style="{ width: 100/gameData.game.board.length+'%' }" v-for="y in gameData.game.board[$index]" track-by="$index" )
-								div( class="letter" style="font-size: 30px; font-weight: 200;" ).
+								div( class="letter" style="font-size: 24px; font-weight: 300;" ).
 									[[ gameData.game.board[$parent.$index][$index].letter ]]
 
 					h2 Play custom online boggle games with other people, completely free!

@@ -193,7 +193,7 @@ module.exports = new function() {
 
 						console.log("Sending main page with generated board");
   						res.send( Jade.renderFile( __dirname + "/templates/" + PageMap[ url ].type + ".jade", {
-  							rn: Dictionary.getRandom( Math.round( ( Math.random() ) * 12 ) + 3 ) +" "+ Dictionary.getRandom( Math.round( ( Math.random() ) * 12 ) + 3 ),
+  							rn: Dictionary.getRandom( Math.round( Math.random() * 9 ) + 3 ) +" "+ Dictionary.getRandom( Math.round( Math.random() * 9 ) + 3 ),
 	  						version: PackageInfo.version,
   							pagetype: PageMap[ url ].type,
   							board: JSON.stringify( b.getBoard() ),

@@ -10,6 +10,7 @@ $grey2: #444;						// Lightest grey for backgrounds and some low-importance font
 $beige: #F6F3E3;					// Beige color, used for game settings panel, and possibly popups/tooltips in the future
 $beige2: #D9D8D0;				// Alternate beige
 $darkTransp1: rgba(0, 0, 0, 0.1);
+$darkTransp2: rgba(0, 0, 0, 0.2);
 $darkTransp3: rgba(0, 0, 0, 0.3);
 $darkTransp5: rgba(0, 0, 0, 0.5);
 $darkTransp7: rgba(0, 0, 0, 0.7);
@@ -132,7 +133,6 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 	height: $boardSize;
 	min-height: $boardSize;
 	margin: 0 auto;
-	// border: 1px solid $grey2;
 	// box-shadow: 0 0 50px $darkTransp3;
 	display: block;
 	position: relative;
@@ -148,10 +148,11 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 	.cell {
 		// background: rgba(30, 30, 30, 0.8);
 		background: $grey;
+		background: transparent;
 		margin: 0 -1px -1px 0;
 		height: 100%;
 		width: 25%;
-		border: 1px solid $grey2;
+		border: 1px solid $white10;
 		display: inline-block; vertical-align: top;
 		text-align: center;
 		transition: background 0.2s, border 0.2s;
