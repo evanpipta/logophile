@@ -54,7 +54,7 @@ body
 							//- h2( class="round-starts-timer" ) [[ gameData.game.pauseTimeLimit - gameData.game.pauseTime | time 'ceil' ]]
 
 						h2( class="waiting-to-start" v-if="!gameData.game.initd" ) Waiting to start first round
-						a( href="#" class="button" v-if="!gameData.game.initd" v-on:click="startGame()") Start Game
+						a( href="#" class="button" v-if="!gameData.game.initd" v-on:click="startGame()") !{locals.svg["play.svg"]} Start Game 
 
 					div( class="board" v-bind:class="{ 'active': gameData.game.roundStarted || gameData.game.rounds < 0 }" v-bind:style="{ height: boardpx+'px', width: boardpx+'px', minHeight: boardpx+'px', maxHeight: boardpx+'px' }" )
 						div( class="row" v-bind:style="{ height: 100/gameData.game.board.length+'%' }" v-for="x in gameData.game.board" )

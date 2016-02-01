@@ -1,8 +1,8 @@
 div( class="sidebar" id="sidebar" )
 	div( class="upper" )
 
-		div( class="leaderboard" v-on:mouseover="freezeBoard($event)" v-on:mouseout="unfreezeBoard($event)" )
-			h3 Scoreboard
+		div( class="leaderboard panel" v-on:mouseover="freezeBoard($event)" v-on:mouseout="unfreezeBoard($event)" )
+			h3 Scoreboard !{locals.svg["clipboard-2.svg"]} 
 			ul
 				//- We need to figure out how to make sure this is sorted by the user scores, not just their position in the array
 				li( v-for="user in playersSorted" v-bind:class="{ 'me': user.name == userData.name }" ) [[$index+1]]. [[user.name]]
@@ -12,7 +12,12 @@ div( class="sidebar" id="sidebar" )
 				//- li( class="me" ) 3. Cosine Pi
 					span 59
 
-		div( class="game-setup" )
+		div( class="game-setup panel" )
+			h3 Game Info !{locals.svg["mixer.svg"]}
+
+		div( class="chat panel" )
+			h3 Game Info !{locals.svg["speech-bubble-right-2.svg"]}
+
 	div( class="controls" )
 		ul( class="inline" )
 			li

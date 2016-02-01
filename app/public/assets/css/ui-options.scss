@@ -115,7 +115,7 @@
 		transition: color 0.2s;
 		color: $white50;
 	}
-	.opt.checked::after, .opt.unchecked::after {
+	.opt.checked::before, .opt.unchecked::before {
 		transition: background 0.2s;
 		content: ""; display: block;
 		color: $teal;
@@ -133,7 +133,7 @@
 		border-radius: 50%;
 		background: $darkTransp2;
 	}
-	.opt.checked::after {
+	.opt.checked::before {
 		// content: "on";
 		font-weight: 600;
 		border: 2px solid $darkTransp3;

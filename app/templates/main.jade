@@ -20,6 +20,7 @@ body
 
 				img( src="/assets/images/logo-308px.png" class="main-logo" alt="Logophile" )
 
+
 				div
 					div( class="board" )
 						div( class="row" v-bind:style="{ height: 100/gameData.game.board.length+'%' }" v-for="x in gameData.game.board" )
@@ -33,11 +34,11 @@ body
 
 				ul( class="options inline" )
 					li
-						a( href="#" class="disabled" title="Currently Unavailable" v-bind:class="{ 'active' : openScreen == 'gameList' }" ) Join Game
+						a( href="#" class="disabled" title="Currently Unavailable" v-bind:class="{ 'active' : openScreen == 'gameList' }" ) !{locals.svg["browser-upload-2.svg"]} Join Game
 					li
-						a( href="#" v-on:click="createGamePopup()" v-bind:class="{ 'active' : openScreen == 'createNew' }" ) Create New Game
+						a( href="#" v-on:click="createGamePopup()" v-bind:class="{ 'active' : openScreen == 'createNew' }" ) !{locals.svg["browser-new-window-2.svg"]} Create New Game
 					li
-						a( href="#" class="disabled" title="Currently Unavailable" v-bind:class="{ 'active' : openScreen == 'howToPlay' }" ) How to Play
+						a( href="#" class="disabled" title="Currently Unavailable" v-bind:class="{ 'active' : openScreen == 'howToPlay' }" ) !{locals.svg["bulb.svg"]} How to Play
 
 
 

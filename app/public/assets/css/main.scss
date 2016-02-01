@@ -109,6 +109,14 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 	padding: 11px 22px 8px;
 	transition: background 0.3s, border 0.3s;
 	color: $white;
+	svg {
+		width: 22px; height: 22px;
+		position: relative;
+		margin-top: -100px;
+		top: 4px;
+		left: -8px;
+		fill: $white;
+	}
 }
 .button:hover {
 	opacity: 1;
@@ -419,6 +427,8 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 	.upper {
 		position: relative;
 		height: 100%;
+		// overflow: hidden;
+		white-space: nowrap;
 	}
 	.controls {
 		position: fixed;
@@ -439,13 +449,19 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 			height: $sidebarControlsHeight;
 			padding: $sidebarControlsButtonPadding;
 		}
-		ul li a:hover {
-			opacity: 1;
-			color: $tealLit;
+		ul li a svg { 
+			margin-top: -100px;
+			position: relative;
+			top: 5px; left: -5px;
+			margin-left: -20px;
+			width: 20px; height: 20px;
+			transition: fill 0.3s;
+			fill: $white20;
 		}
-		ul li a.active {
-			color: $tealLit;
-		}
+		ul li a:hover { opacity: 1; color: $tealLit; }
+		ul li a:hover svg { fill: $tealLit; }
+		ul li a.active { color: $tealLit; }
+		ul li a.active svg { fill: $tealLit; }
 		.marker {
 			position: absolute;
 			bottom: 0;
@@ -456,7 +472,12 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 		}
 	}
 }
-.leaderboard {
+.sidebar .upper .panel {
+	vertical-align: top;
+	position: relative;
+	white-space: normal;
+	display: inline-block;
+	width: 100%;
 	overflow-x: hidden;
 	overflow-y: auto;
 	@media ( max-width: $breakTablet ) {
@@ -476,6 +497,14 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 		font-weight: 300;
 		@media ( max-width: $breakTablet ) {
 			display: none;
+		}
+		svg {
+			width: 30px;
+			height: 30px;
+			float: right;
+			fill: $white75;
+			margin-top:-6px;
+			margin-right:-8px;
 		}
 	}
 	ul {

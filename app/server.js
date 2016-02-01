@@ -14,12 +14,21 @@ var PageMap = require("./pagemap");
 var PackageInfo = require('../package.json');
 var Board = require("./board");
 var Dictionary = require('./dictionary');
+var SvgLoader = require('./svg-loader');
 
 var httpPort = ( process.env.PORT ) ? process.env.PORT : 5000;
 
 module.exports = new function() {
 
 	console.log("starting server");
+
+	// Load the svg icons
+	var icons = new SvgLoader({
+		svgdir: "/svg",
+		callback: function() {
+			console.log("svg icons loaded");
+		}
+	});
 
 	var self = this;
 
@@ -198,6 +207,7 @@ module.exports = new function() {
   							pagetype: PageMap[ url ].type,
   							board: JSON.stringify( b.getBoard() ),
   							solution: JSON.stringify( b.solution ),
+  							svg: icons.svg,
   							pretty: "  "
   						} ) );
 
@@ -213,6 +223,7 @@ module.exports = new function() {
   						pagetype: PageMap[ url ].type,
   						board: "[[' ',' ',' ',' '],[' ',' ',' ',' '],[' ',' ',' ',' '],[' ',' ',' ',' ']]",
   						solution: "{}",
+  						svg: icons.svg,
   						pretty: "  "
   					} ) );
   				}

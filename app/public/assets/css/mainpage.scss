@@ -92,10 +92,21 @@
 				margin: 10px auto;
 			} 
 		}
+		.options li a svg {
+			margin-top: -100px;
+			position: relative;
+			top: 5px; left: -10px;
+			height: 24px; width: 24px;
+			fill: $white;
+		}
 		.options li a.active { color: $white; opacity: 1; }
+		.options li a.active svg { fill: $white; }
 		.options li a:hover { color: $white; opacity: 1; }
+		.options li a:hover svg { fill: $white; }
 		.options li a.disabled { color: $white50; opacity: 0.4; }
+		.options li a.disabled svg { fill: $white50; }
 		.options li a.disabled:hover { color: $white50; opacity: 0.4; }
+		.options li a.disabled:hover svg { fill: $white50;}
 		// .options li:first-child a { padding-left: 0; }
 		// .options li:last-child a { padding-right: 0; }
 		.options li:last-child { border: 0; margin-right: 0; }
