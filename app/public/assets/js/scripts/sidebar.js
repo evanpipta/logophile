@@ -1,4 +1,5 @@
 var Vue = require("vue");
+require('object-clone');
 module.exports = new Vue( {
 	el: "#sidebar",
 	data:
@@ -6,6 +7,9 @@ module.exports = new Vue( {
 		gameData: Logophile.GameData,
 		userData: Logophile.User,
 		boardIsFrozen: false,
+		panelSelected: 0,
+		markerLeft: 20,
+		markerWidth: 78,
 		usersFrozen:
 		{
 			playing: [],
@@ -36,6 +40,37 @@ module.exports = new Vue( {
 					return b.score - a.score;
 				} );
 			}
+		},
+
+		/**
+		 * Make sure certain properties are deleted from the game info before returning it
+		 */
+		gameInfo: function()
+		{
+
+			// Map user-friendly strings to game variables
+			var infoKeys = {
+				"name": "Game name",
+				"boardSize": "Board size",
+				"timeLimit": "Time limit",
+				"ranked": "Ranked",
+				"scoreStyle": "Scoring mode",
+				"private": "Unlisted",
+				"minLettersToScore": "Minimum word length to score",
+				"boardHighFrequency": "High frequency mode",
+				"boardRequireLength": "Include at least one word of length",
+				"boardMinWords": "Board minimum total word count",
+				"pauseTimeLimit": "Time between rounds",
+				"rounds": "Rounds played in this game"
+			};
+			var infoOut = {};
+
+			for ( each in infoKeys )
+			{
+				infoOut[ infoKeys[ each ] ] = Logophile.GameData.game[ each ];
+			}
+			
+			return infoOut;
 		}
 
 	},
@@ -103,6 +138,17 @@ module.exports = new Vue( {
 			}
 			console.log( "Unfreezing board" );
 			this.boardIsFrozen = false;
+		},
+
+		/**
+		 * Changes the selected panel to display
+		 * @param  {Number} n Integer from 0 to 3, which goes from leftmost to rightmost panel as it counts up
+		 */
+		selectPanel: function( n, event ) {
+			this.panelSelected = n;
+			// console.log( event.target.tagName );
+			this.markerLeft = event.target.offsetLeft;
+			this.markerWidth = event.target.offsetWidth;
 		}
 
 	}

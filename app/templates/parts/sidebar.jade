@@ -1,5 +1,5 @@
 div( class="sidebar" id="sidebar" )
-	div( class="upper" )
+	div( class="upper" v-bind:style="{ left: -270 * panelSelected + 'px' }" )
 
 		div( class="leaderboard panel" v-on:mouseover="freezeBoard($event)" v-on:mouseout="unfreezeBoard($event)" )
 			h3 Scoreboard !{locals.svg["clipboard-2.svg"]} 
@@ -14,16 +14,22 @@ div( class="sidebar" id="sidebar" )
 
 		div( class="game-setup panel" )
 			h3 Game Info !{locals.svg["mixer.svg"]}
+			ul( class="ui-options" )
+				li( v-for="value in gameInfo" class="opt" ) 
+					[[$key]]: 
+					span( v-if=" typeof value == 'boolean' " class="checkbox" v-bind:class="{ checked: value }" )
+					span( v-else ) [[value]]
 
 		div( class="chat panel" )
-			h3 Game Info !{locals.svg["speech-bubble-right-2.svg"]}
+			h3 Player Chat !{locals.svg["speech-bubble-right-2.svg"]}
 
 	div( class="controls" )
 		ul( class="inline" )
 			li
-				a( v-bind:class="{ active: true }" ) Score
+				a( v-bind:class="{ active: panelSelected == 0 }" @click="selectPanel(0, $event)" ) Score
 			li
-				a( v-bind:class="{ active: false }" ) Info
+				a( v-bind:class="{ active: panelSelected == 1 }" @click="selectPanel(1, $event)" ) Info
 			li
-				a( v-bind:class="{ active: false }" ) Chat
-		div( class="marker" )
+				a( v-bind:class="{ active: panelSelected == 2 }" @click="selectPanel(2, $event)" ) Chat
+
+		div( class="marker" v-bind:style="{ width: markerWidth + 'px', left: markerLeft + 'px' }" )

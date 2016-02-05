@@ -429,6 +429,8 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 		height: 100%;
 		// overflow: hidden;
 		white-space: nowrap;
+		left: 0px;
+		transition: left 0.2s;
 	}
 	.controls {
 		position: fixed;
@@ -469,6 +471,7 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 			background: $tealLit;
 			width: 78px;
 			left: 20px;
+			transition: left 0.2s, width 0.2s;
 		}
 	}
 }
@@ -477,6 +480,7 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 	position: relative;
 	white-space: normal;
 	display: inline-block;
+	margin-right: -5px;
 	width: 100%;
 	overflow-x: hidden;
 	overflow-y: auto;
@@ -518,6 +522,8 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 		position: relative;
 		height: 48px;
 		overflow: hidden;
+		min-width: 0;
+		text-align: left;
 		@media ( max-width: $breakTablet ) {
 			left: -24px;
 			text-align: center;
@@ -541,6 +547,10 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 	}
 	ul li:hover span {
 		color: $orangeLit;
+	}
+	ul li.opt:hover, ul li.opt:hover span {
+		cursor: default;
+		color: inherit;
 	}
 }
 

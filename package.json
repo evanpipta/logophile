@@ -1,6 +1,6 @@
 {
   "name": "logophile",
-  "version": "0.2.1",
+  "version": "0.2.3",
   "description": "a word solving game",
   "main": "index.js",
   "scripts": {
