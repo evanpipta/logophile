@@ -76,6 +76,9 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 // Options
 @import "ui-options";
 
+// Scrollbar CSS
+@import "trackpad-scroll-emulator";
+
 // Input mixin
 @mixin textInput( $fontSize, $pad ) {
 	width: 100%;
@@ -488,8 +491,8 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 		overflow-y: hidden;
 	}
 	height: 100%;
-	padding: 37px 0;
-	padding-bottom: $sidebarControlsHeight;
+	// padding: 37px 0;
+	// padding-bottom: $sidebarControlsHeight;
 	position: relative;
 	transition: left 0.3s;
 	left: 0;
@@ -512,7 +515,7 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 		}
 	}
 	ul {
-		margin: 20px 0 30px;
+		margin: 20px 0 0;
 	}
 	ul li {
 		transition: color 0.2s;
@@ -548,9 +551,37 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 	ul li:hover span {
 		color: $orangeLit;
 	}
+	ul li.opt {
+		background: none;
+		width: 100%;
+		height: auto;
+		padding: 5px 40px 30px;
+		font-size: 16px;
+		white-space: normal;
+		position: relative;
+		span {
+			display: block;
+			position: absolute;
+			bottom: 8px;
+			left: 40px;
+			white-space: nowrap;
+		}
+	}
+	ul li.opt:last-child {
+		padding-bottom: 50px;
+		span {
+			bottom: 28px;
+		}
+	}
 	ul li.opt:hover, ul li.opt:hover span {
 		cursor: default;
 		color: inherit;
+	}
+	.ui-options {
+		margin: 0;
+	}
+	.tse-content {
+		padding: 30px 0 0;
 	}
 }
 

@@ -1,27 +1,29 @@
 div( class="sidebar" id="sidebar" )
 	div( class="upper" v-bind:style="{ left: -270 * panelSelected + 'px' }" )
 
-		div( class="leaderboard panel" v-on:mouseover="freezeBoard($event)" v-on:mouseout="unfreezeBoard($event)" )
-			h3 Scoreboard !{locals.svg["clipboard-2.svg"]} 
-			ul
-				//- We need to figure out how to make sure this is sorted by the user scores, not just their position in the array
-				li( v-for="user in playersSorted" v-bind:class="{ 'me': user.name == userData.name }" ) [[$index+1]]. [[user.name]]
-					span [[user.score]]
-				//- li 2. Mu Te
-					span 215
-				//- li( class="me" ) 3. Cosine Pi
-					span 59
+		div( class="leaderboard panel tse-scrollable" v-on:mouseover="freezeBoard($event)" v-on:mouseout="unfreezeBoard($event)" )
+			div( class="tse-content" )
+				h3 Scoreboard !{locals.svg["clipboard-2.svg"]} 
+				ul
+					//- We need to figure out how to make sure this is sorted by the user scores, not just their position in the array
+					li( v-for="user in playersSorted" v-bind:class="{ 'me': user.name == userData.name }" ) [[$index+1]]. [[user.name]]
+						span [[user.score]]
+					//- li 2. Mu Te
+						span 215
+					//- li( class="me" ) 3. Cosine Pi
+						span 59
 
-		div( class="game-setup panel" )
-			h3 Game Info !{locals.svg["mixer.svg"]}
-			ul( class="ui-options" )
-				li( v-for="value in gameInfo" class="opt" ) 
-					[[$key]]: 
-					span( v-if=" typeof value == 'boolean' " class="checkbox" v-bind:class="{ checked: value }" )
-					span( v-else ) [[value]]
+		div( class="game-setup panel tse-scrollable" )
+			div( class="tse-content" )
+				h3 Game Info !{locals.svg["mixer.svg"]}
+				ul( class="ui-options" )
+					li( v-for="value in gameInfo" class="opt" ) [[$key]]: 
+						//- span( v-if=" typeof value == 'boolean' " class="checkbox" v-bind:class="{ checked: value }" )
+						//- span( v-else ) [[value]]
+						span [[value]]
 
 		div( class="chat panel" )
-			h3 Player Chat !{locals.svg["speech-bubble-right-2.svg"]}
+				h3( style="margin-top: 30px;" ) Player Chat !{locals.svg["speech-bubble-right-2.svg"]}
 
 	div( class="controls" )
 		ul( class="inline" )

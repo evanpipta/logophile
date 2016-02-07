@@ -50,7 +50,7 @@ module.exports = new Vue( {
 
 			// Map user-friendly strings to game variables
 			var infoKeys = {
-				"name": "Game name",
+				// "name": "Game name",
 				"boardSize": "Board size",
 				"timeLimit": "Time limit",
 				"ranked": "Ranked",
