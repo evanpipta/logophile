@@ -1,5 +1,4 @@
-
-var Fs = require("fs");
+var Fs = require( "fs" );
 
 /**
  * Dictionary object
@@ -11,7 +10,7 @@ module.exports = new function() {
 	var encoding = "utf8";
 	var loaded = false;
 
-	this.maxlength = 15;	// Longest word length. We can set this manually or automatically, see loadDictionary function
+	this.maxlength = 15; // Longest word length. We can set this manually or automatically, see loadDictionary function
 	this.words = {};
 	this.subs = {};
 
@@ -22,33 +21,37 @@ module.exports = new function() {
 	 * @return {Boolean}
 	 */
 	this.preComputeDictionary = function( dictTextFile ) {
-		console.time("Output dictionary JSON to " + dictionaryFilename);
+		console.time( "Output dictionary JSON to " + dictionaryFilename );
 		Fs.readFile( dictTextFile, encoding, function( err, data ) {
 
-			if ( err ) { throw err; return; }
+			if ( err ) {
+				throw err;
+			}
 
-			var wordsArr = data.split("\r\n");
-			var output = { words: {}, subs: {} }
-			for ( var i = 0; i < wordsArr.length; i++ )
-			{
-				var s = wordsArr[i];
-				output.words[s] = s;
-				for ( var j = 1; j < wordsArr[i].length; j++ )
-				{
-					var sub = s.slice(0, j);
-					if ( !output.subs[sub] )
-					{
-						output.subs[sub] = sub;
+			var wordsArr = data.split( "\r\n" );
+			var output = {
+				words: {},
+				subs: {}
+			}
+			for ( var i = 0; i < wordsArr.length; i++ ) {
+				var s = wordsArr[ i ];
+				output.words[ s ] = s;
+				for ( var j = 1; j < wordsArr[ i ].length; j++ ) {
+					var sub = s.slice( 0, j );
+					if ( !output.subs[ sub ] ) {
+						output.subs[ sub ] = sub;
 					}
 				}
 			}
 
-			Fs.writeFile( dictionaryFilename, JSON.stringify( output ), encoding, function(err) {
-				if ( err ) { throw err; return; }
-				console.timeEnd("Output dictionary JSON to " + dictionaryFilename);
-			});
+			Fs.writeFile( dictionaryFilename, JSON.stringify( output ), encoding, function( err ) {
+				if ( err ) {
+					throw err;
+				}
+				console.timeEnd( "Output dictionary JSON to " + dictionaryFilename );
+			} );
 
-		});
+		} );
 	}
 
 	/**
@@ -56,18 +59,20 @@ module.exports = new function() {
 	 * @return {undefined}
 	 */
 	this.loadDictionary = function() {
-		console.time("Loaded dictionary file");
+		console.time( "Loaded dictionary file" );
 		// Read the file into fileContents
 		Fs.readFile( dictionaryFilename, encoding, function( err, data ) {
-			if ( err ) { throw err; return; }
+			if ( err ) {
+				throw err;
+			}
 			// File load successful, parse json
 			data = JSON.parse( data );
-			dict.words = data["words"];
-			dict.subs = data["subs"];
+			dict.words = data.words;
+			dict.subs = data.subs;
 			loaded = true;
-			console.timeEnd("Loaded dictionary file");
-			console.log( Object.keys(dict.words).length + " words and " + Object.keys(dict.subs).length + " substrings");
-		});
+			console.timeEnd( "Loaded dictionary file" );
+			console.log( Object.keys( dict.words ).length + " words and " + Object.keys( dict.subs ).length + " substrings" );
+		} );
 	}
 
 	/**
@@ -79,17 +84,15 @@ module.exports = new function() {
 		var setLength = ( typeof n == "number" )
 		var words = [];
 		var i = 0;
-		for ( w in dict.words )
-		{
+		for ( var w in dict.words ) {
 			// Add all words of the correct length to an array to select from
-			if ( !setLength || dict.words[w].length == n )
-			{
-				words[i] = dict.words[w];
+			if ( !setLength || dict.words[ w ].length == n ) {
+				words[ i ] = dict.words[ w ];
 				i++;
 			}
 		}
-		var randomIndex = Math.round( Math.random() * (words.length - 1) );
-		return words[randomIndex];
+		var randomIndex = Math.round( Math.random() * ( words.length - 1 ) );
+		return words[ randomIndex ];
 	}
 
 	/**
@@ -98,7 +101,7 @@ module.exports = new function() {
 	 * @return {Boolean}
 	 */
 	this.contains = function( word ) {
-		return !!dict.words[word];
+		return !!dict.words[ word ];
 	}
 
 	/**
@@ -107,7 +110,7 @@ module.exports = new function() {
 	 * @return {Boolean}
 	 */
 	this.containsSub = function( sub ) {
-		return !!dict.subs[sub];
+		return !!dict.subs[ sub ];
 	}
 
 	/**
@@ -118,15 +121,16 @@ module.exports = new function() {
 		// This takes roughly 20 ms to execute on my system
 		var length = 0;
 		var key = "";
-		for ( word in dict.words )
-		{
-			if ( dict.words[word].length > length )
-			{
-				length = dict.words[word].length;
+		for ( var word in dict.words ) {
+			if ( dict.words[ word ].length > length ) {
+				length = dict.words[ word ].length;
 				key = word;
 			}
 		}
-		return { "word": key, "size": length }
+		return {
+			"word": key,
+			"size": length
+		}
 	}
 
 

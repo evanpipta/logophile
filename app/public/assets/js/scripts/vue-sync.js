@@ -6,7 +6,7 @@
  */
 Object.$sync = function( data, newdata, callback, depth ) {
 
-	for ( key in newdata )
+	for ( var key in newdata )
 	{
 		// console.log( "syncing: " + key );
 		if ( data instanceof Array && !!data.$set )

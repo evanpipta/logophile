@@ -1,4 +1,4 @@
-
+"use strict";
 if ( !Object.clone ) {
   Object.defineProperty( Object, "clone", {
     enumerable: false,
@@ -12,7 +12,7 @@ if ( !Object.clone ) {
       }
 
       var newObj = new obj.constructor();
-      for ( key in obj ) {
+      for ( var key in obj ) {
         newObj[ key ] = Object.clone( obj[ key ] );
       }
 

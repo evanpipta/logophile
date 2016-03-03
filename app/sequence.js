@@ -1,4 +1,3 @@
-
 /**
  * Sequence class
  */
@@ -34,8 +33,8 @@ module.exports = function() {
 		{ x: 0, y: -1 },
 		{ x: -1, y: -1 },
 		{ x: -1, y: 0 },
-		{ x: -1, y: 1 }
-	];
+		{ x: -1, y: 1 } 
+	 ];
 
 	/**
 	 * Adds an adjacent cell, 
@@ -44,23 +43,21 @@ module.exports = function() {
 	this.addAdjacent = function( index ) {
 
 		var lastpt = this.points[ this.points.length - 1 ];
-	
+
 		// Same code as addPoint
 		// Copying it here instead of calling this.addPoint
 		// Simply to reduce the number of function calls used while solving the board
 		var pt = {
-			x: lastpt.x + this.adjacent[index].x,
-			y: lastpt.y + this.adjacent[index].y
+			x: lastpt.x + this.adjacent[ index ].x,
+			y: lastpt.y + this.adjacent[ index ].y
 		};
 
-		if ( 	!!this.board[pt.y] && !!this.board[pt.y][pt.x] && !this.containsPoint( pt ) )
-		{
-			this.points.push( pt );						// Push the position and strip out any members that aren't the x and y coords
-			this.letters += this.board[pt.y][pt.x]; 	// Add the letter to the string
+		if ( !!this.board[ pt.y ] && !!this.board[ pt.y ][ pt.x ] && !this.containsPoint( pt ) ) {
+			this.points.push( pt ); // Push the position and strip out any members that aren't the x and y coords
+			this.letters += this.board[ pt.y ][ pt.x ]; // Add the letter to the string
 			return true;
 		}
-		else
-		{
+		else {
 			return false;
 		}
 	}
@@ -72,10 +69,9 @@ module.exports = function() {
 		var pass = false;
 		// We want to keep trying to add a random position even if not all spots are avaialble.
 		var numsToTry = [ 0, 1, 2, 3, 4, 5, 6, 7 ];
-		while ( numsToTry.length > 0 && !pass )
-		{
+		while ( numsToTry.length > 0 && !pass ) {
 			var rn = Math.round( Math.random() * ( numsToTry.length - 1 ) );
-			var pass = this.addAdjacent( numsToTry.splice( rn, 1 ) );
+			pass = this.addAdjacent( numsToTry.splice( rn, 1 ) );
 		}
 		return pass;
 	}
@@ -86,15 +82,16 @@ module.exports = function() {
 	 * @return {Boolean}
 	 */
 	this.addPoint = function( pos ) {
-		var pt = { x: pos.x, y: pos.y };
-		if ( 	!!this.board[pt.y] && !!this.board[pt.y][pt.x] && !this.containsPoint( pt ) )
-		{
-			this.points.push( pt );						// Push the position and strip out any members that aren't the x and y coords
-			this.letters += this.board[pt.y][pt.x]; 	// Add the letter to the string
+		var pt = {
+			x: pos.x,
+			y: pos.y
+		};
+		if ( !!this.board[ pt.y ] && !!this.board[ pt.y ][ pt.x ] && !this.containsPoint( pt ) ) {
+			this.points.push( pt ); // Push the position and strip out any members that aren't the x and y coords
+			this.letters += this.board[ pt.y ][ pt.x ]; // Add the letter to the string
 			return true;
 		}
-		else
-		{
+		else {
 			return false;
 		}
 	}
@@ -103,8 +100,8 @@ module.exports = function() {
 	 * Remove last point from the list
 	 */
 	this.removeLast = function() {
-		this.letters = this.letters.substring( 0, this.letters.length - 1 );		// Remove last letter
-		this.points.pop();													// Remove last point
+		this.letters = this.letters.substring( 0, this.letters.length - 1 ); // Remove last letter
+		this.points.pop(); // Remove last point
 		return true;
 	}
 
@@ -114,10 +111,8 @@ module.exports = function() {
 	 * @return {Boolean}
 	 */
 	this.containsPoint = function( pos ) {
-		for ( var i = 0; i < this.points.length; i++ )
-		{
-			if ( this.points[i].x == pos.x && this.points[i].y == pos.y )
-			{
+		for ( var i = 0; i < this.points.length; i++ ) {
+			if ( this.points[ i ].x == pos.x && this.points[ i ].y == pos.y ) {
 				return true;
 			}
 		}

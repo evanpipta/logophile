@@ -1,5 +1,3 @@
-
-
 module.exports = function( word ) {
 
 	/**
@@ -8,7 +6,7 @@ module.exports = function( word ) {
 	 * @return {Number}
 	 */
 	this.NORMAL = function( word ) {
-		return Math.round( Math.max( 2.2*word.length - 6, 1 ) );
+		return Math.round( Math.max( 2.2 * word.length - 6, 1 ) );
 	}
 
 	/**
@@ -21,8 +19,7 @@ module.exports = function( word ) {
 	}
 
 	// Score with single by default
-	if ( typeof word == "string" )
-	{
+	if ( typeof word == "string" ) {
 		return this.NORMAL( word );
 	}
 

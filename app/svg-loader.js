@@ -1,6 +1,5 @@
-
-var Defaults = require('defaults');
-var Fs = require('fs');
+var Defaults = require( 'defaults' );
+var Fs = require( 'fs' );
 
 /**
  * SVG icon loader
@@ -12,7 +11,7 @@ module.exports = function( options ) {
 		svgdir: '/svg',
 		encoding: 'utf-8',
 		callback: function() {}
-	});
+	} );
 
 	// Private data
 	var _data = {
@@ -40,10 +39,10 @@ module.exports = function( options ) {
 			var self = this;
 
 			// Try to load this icon
-			Fs.readFile( fullFn, _options.encoding, function(err, data) {
+			Fs.readFile( fullFn, _options.encoding, function( err, data ) {
 				if ( err ) {
 					// Log error if it fails
-					console.log("Failed to load svg icon " + filename );
+					console.log( "Failed to load svg icon " + filename );
 				}
 				else {
 					// Otherwise, put the svg data into the svg object
@@ -58,11 +57,9 @@ module.exports = function( options ) {
 	};
 
 	// Delete all non-svg filenames
-	for ( i in _data.svgsToLoad )
-	{
+	for ( var i in _data.svgsToLoad ) {
 		var filename = _data.svgsToLoad[ i ];
-		if ( !filename.match( /\.svg$/ ) )
-		{
+		if ( !filename.match( /\.svg$/ ) ) {
 			delete _data.svgsToLoad[ i ];
 		}
 	}

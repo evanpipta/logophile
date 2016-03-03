@@ -556,21 +556,25 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 		width: 100%;
 		height: auto;
 		padding: 5px 40px 30px;
-		font-size: 16px;
+		font-size: 15px;
 		white-space: normal;
 		position: relative;
 		span {
 			display: block;
 			position: absolute;
-			bottom: 8px;
+			bottom: 2px;
+			padding-bottom: 6px;
 			left: 40px;
 			white-space: nowrap;
+			border-bottom: 1px solid $grey3;
 		}
 	}
 	ul li.opt:last-child {
 		padding-bottom: 50px;
 		span {
 			bottom: 28px;
+			padding-bottom: 0;
+			border-bottom: 0;
 		}
 	}
 	ul li.opt:hover, ul li.opt:hover span {

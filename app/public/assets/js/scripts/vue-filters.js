@@ -47,7 +47,7 @@ Vue.filter("keylength", function( obj, len ) {
 	else 
 	{
 		// Object version
-		for ( key in obj ) 
+		for ( var key in obj ) 
 		{
 			if ( key.length === len ) 
 			{

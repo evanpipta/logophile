@@ -1,9 +1,8 @@
-
-var Defaults = require("defaults");
-var GameList = require("./gamelist");
-var UserList = require("./userlist");
-var Score = require("./score");
-var MultiConnection = require("./multiconnection");
+var Defaults = require( "defaults" );
+var GameList = require( "./gamelist" );
+var UserList = require( "./userlist" );
+var Score = require( "./score" );
+var MultiConnection = require( "./multiconnection" );
 
 /**
  * User class
@@ -24,9 +23,9 @@ module.exports = function( options ) {
 		isPlaying: false,
 		words: {},
 		score: 0,
-		name: "Guest"+Math.round( Math.random()*999999 + 100000 ),
+		name: "Guest" + Math.round( Math.random() * 999999 + 100000 ),
 		registered: false,
-	});
+	} );
 
 	// Time in seconds to remove user from a game if all connections to that game are closed
 	this.autoLeaveTime = 5;
@@ -49,13 +48,14 @@ module.exports = function( options ) {
 		 * @param {Object} args - args.name should be the new name
 		 */
 		setName: function( args ) {
-			if ( typeof args.name == "string" )
-			{
+			if ( typeof args.name == "string" ) {
 				// Eventually we may make names unique, and duplicate names will get a random string of numbers after them
 				self.data.name = args.name.replace( /[^a-zA-Z0-9\s]/g, "" );
 				console.log( "User " + self.id + " changed their name to " + self.data.name );
 			}
-			self.broadcast({ name: self.data.name });
+			self.broadcast( {
+				name: self.data.name
+			} );
 		},
 
 		/**
@@ -65,11 +65,9 @@ module.exports = function( options ) {
 		 */
 		joinGame: function( args ) {
 			var newGame = GameList.getById( args.id );
-			if ( newGame )
-			{
+			if ( newGame ) {
 				console.log( "Moving user " + self.id + " to game " + args.id );
-				if ( self.gameRef && self.gameRef !== newGame )
-				{
+				if ( self.gameRef && self.gameRef !== newGame ) {
 					self.actions.leaveGame();
 				}
 				newGame.addUser( self, !!args.playing ? args.playing : false );
@@ -86,8 +84,7 @@ module.exports = function( options ) {
 		 */
 		leaveGame: function() {
 			var g = self.gameRef;
-			if ( !!g )
-			{
+			if ( !!g ) {
 				console.log( "Removing user " + self.id + " from game " + g.id );
 				g.removeUser( self );
 				self.connection.removeGameId();
@@ -102,34 +99,32 @@ module.exports = function( options ) {
 			var g = self.gameRef;
 			var found = false;
 			var alreadyFound = false;
-			if ( typeof args.word == "string" && !!g )
-			{
+			if ( typeof args.word == "string" && !!g ) {
 				// console.log("Checking word " + args.word );
-				if ( !g.data.round.started )
-				{
-					console.log("Round not started, can't check words");
+				if ( !g.data.round.started ) {
+					console.log( "Round not started, can't check words" );
 					return false;
 				}
 				var w = args.word.replace( /[^a-zA-Z]/g, "" ).toUpperCase();
 				found = g.check( w );
-				if ( found )
-				{
-					if ( !!self.data.words[ w ] )
-					{
+				if ( found ) {
+					if ( !!self.data.words[ w ] ) {
 						alreadyFound = true;
 					}
-					else
-					{
+					else {
 						self.scoreWord( w );
 					}
 				}
 			}
 
 			// Send a message back
-			self.connection.send( JSON.stringify({
+			self.connection.send( JSON.stringify( {
 				action: "onWordChecked",
-				args: { found: found, alreadyFound: alreadyFound }
-			}) );
+				args: {
+					found: found,
+					alreadyFound: alreadyFound
+				}
+			} ) );
 
 		},
 
@@ -140,15 +135,17 @@ module.exports = function( options ) {
 		createGame: function( args ) {
 			// Temporarily deleting args name for fun
 			// delete args.name;
-			console.log("Creating game");
+			console.log( "Creating game" );
 			self.actions.leaveGame();
 			var g = GameList.create( args );
 			g.addUser( self, true );
 			// self.broadcastUpdateFull();
-			self.connection.send( JSON.stringify({
+			self.connection.send( JSON.stringify( {
 				action: "onGameCreated",
-				args: { id: g.id }
-			}));
+				args: {
+					id: g.id
+				}
+			} ) );
 		},
 
 		/**
@@ -156,8 +153,7 @@ module.exports = function( options ) {
 		 */
 		initGame: function() {
 			var g = self.gameRef;
-			if ( !!g )
-			{
+			if ( !!g ) {
 				g.init();
 			}
 		},
@@ -182,7 +178,10 @@ module.exports = function( options ) {
 		this.data.score += this.data.words[ w ];
 		console.log( "Player " + this.id + " found word " + w + " for " + this.data.words[ w ] + " points. Total: " + this.data.score );
 		// Broadcast an update for words and score
-		self.broadcast({ words: self.data.words, score: self.data.score });
+		self.broadcast( {
+			words: self.data.words,
+			score: self.data.score
+		} );
 	}
 
 	/**
@@ -201,13 +200,13 @@ module.exports = function( options ) {
 		// Anonymous callback functions make sure "this" context is correct
 		conn.on( "message", function( msg ) {
 			self.handleMessage( msg, conn );
-		});
+		} );
 		conn.on( "close", function( msg ) {
 			self.handleDisconnect( msg );
-		});
+		} );
 		conn.on( "error", function( msg ) {
 			self.handleError( msg );
-		});
+		} );
 		// Send full user data to client
 		this.broadcastUpdateFull();
 	}
@@ -217,8 +216,7 @@ module.exports = function( options ) {
 		// Example data: { "action": "test", "args": {"dope": "af"} }
 		// If this.actions[data.action] exists as a function, we call it
 		var msgData = JSON.parse( msg );
-		if ( !!msgData.action && typeof this.actions[ msgData.action ] == "function" )
-		{
+		if ( !!msgData.action && typeof this.actions[ msgData.action ] == "function" ) {
 			// Make sure msgData.args is an object
 			msgData.args = ( !!msgData.args ) ? msgData.args : {};
 			// We also pass the connection object as an argument to the action
@@ -252,42 +250,35 @@ module.exports = function( options ) {
 	}
 
 	this.broadcast = function( args ) {
-		this.connection.send( JSON.stringify({
+		this.connection.send( JSON.stringify( {
 			action: "onUserUpdate",
 			args: args
-		}));
+		} ) );
 	}
 
 	/**
 	 * Remove the user from any joined games if they've been disconnected for a few seconds, OR if none of their connections have a game id assigned 
 	 */
-	this.autoLeaveGame = function() 
-	{
+	this.autoLeaveGame = function() {
 		// Check if any of the open connections are in a game
 		var inGame = false;
-		for ( var i = 0; i < this.connection.count(); i++ )
-		{
+		for ( var i = 0; i < this.connection.count(); i++ ) {
 			// console.log("user " + this.id + ",  connection " + i +" - state: " + this.connection.list[i].readyState + ", "+" gameId: " + this.connection.list[i].gameId );
-			if ( this.connection.list[i].readyState == 1 && !!this.connection.list[i].gameId )
-			{
+			if ( this.connection.list[ i ].readyState == 1 && !!this.connection.list[ i ].gameId ) {
 				inGame = true;
 			}
 		}
-		if ( !inGame && this.gameRef )
-		{
+		if ( !inGame && this.gameRef ) {
 			// This user is not active in a game, start the auto leave timer
-			if ( !this.autoLeaveStart )
-			{
-				this.autoLeaveStart = (new Date()).getTime() / 1000;
+			if ( !this.autoLeaveStart ) {
+				this.autoLeaveStart = ( new Date() ).getTime() / 1000;
 			}
-			else if ( ((new Date()).getTime() / 1000 ) - this.autoLeaveStart >= this.autoLeaveTime )
-			{
+			else if ( ( ( new Date() ).getTime() / 1000 ) - this.autoLeaveStart >= this.autoLeaveTime ) {
 				// Leave any connected game
 				this.actions.leaveGame();
 			}
 		}
-		else
-		{
+		else {
 			// This user is active in a game
 			this.autoLeaveStart = null;
 		}

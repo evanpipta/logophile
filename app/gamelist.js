@@ -1,4 +1,3 @@
-
 var Game = require( "./game" );
 
 /**
@@ -22,9 +21,8 @@ module.exports = new function() {
 
 		// Generate a new game id until it's unique
 		// For now this should work fine, if the app becomes mega popular we might have to find a new way to do this
-		while ( !!this.games[ g.id ] )
-		{
-			g.id = Math.round( Math.random()*999999 + 100000 );
+		while ( !!this.games[ g.id ] ) {
+			g.id = Math.round( Math.random() * 999999 + 100000 );
 		}
 
 		// Append game to games list
@@ -38,10 +36,9 @@ module.exports = new function() {
 	 * Remove a game by id
 	 */
 	this.removeById = function( id ) {
-		if ( !!this.games[id] )
-		{
-			this.games[id] = null;
-			delete this.games[id];
+		if ( !!this.games[ id ] ) {
+			this.games[ id ] = null;
+			delete this.games[ id ];
 		}
 	}
 
@@ -49,10 +46,9 @@ module.exports = new function() {
 	 * Remove a game by reference
 	 */
 	this.remove = function( game ) {
-		console.log("Removing game " + game.data.id );
-		if ( !!this.games[game.id] )
-		{
-			delete this.games[game.id];
+		console.log( "Removing game " + game.data.id );
+		if ( !!this.games[ game.id ] ) {
+			delete this.games[ game.id ];
 			game = null;
 		}
 	}
@@ -63,7 +59,7 @@ module.exports = new function() {
 	 * @return {Object}    The game instance
 	 */
 	this.getById = function( id ) {
-		return ( !!this.games[id] ) ? this.games[id] : false;
+		return ( !!this.games[ id ] ) ? this.games[ id ] : false;
 	}
 
 	/**
@@ -72,11 +68,9 @@ module.exports = new function() {
 	 */
 	this.getByIndex = function( index ) {
 		var i = 0;
-		for ( var k in this.games )
-		{
-			if ( i == index )
-			{
-				return this.games[k];
+		for ( var k in this.games ) {
+			if ( i == index ) {
+				return this.games[ k ];
 			}
 			i++;
 		}
@@ -98,11 +92,9 @@ module.exports = new function() {
 	 */
 	this.getAllShort = function() {
 		var list = [];
-		for ( var k in this.games )
-		{
-			if ( !this.games[k].data.private )
-			{
-				list.push( this.games[k].getPublicGameDataShort() );
+		for ( var k in this.games ) {
+			if ( !this.games[ k ].data.private ) {
+				list.push( this.games[ k ].getPublicGameDataShort() );
 			}
 		}
 		return list;
@@ -113,30 +105,25 @@ module.exports = new function() {
 	 * Checks all games in the list to see if they're empty and whether or not they need to be deleted
 	 */
 	this.killTimer = function() {
-		for ( key in this.games )
-		{
-			var game = this.games[key];
-			if ( game.users.joined.length == 0 && game.users.playing.length == 0 && game.users.queued.length == 0 )
-			{
+		for ( var key in this.games ) {
+			var game = this.games[ key ];
+			if ( game.users.joined.length == 0 && game.users.playing.length == 0 && game.users.queued.length == 0 ) {
 				// Nobody is in the game, start the kill timer if it isn't started
-				if ( !game.killTimeStart )
-				{
-					game.killTimeStart = (new Date()).getTime() / 1000;
+				if ( !game.killTimeStart ) {
+					game.killTimeStart = ( new Date() ).getTime() / 1000;
 				}
-				else if ( ((new Date()).getTime() / 1000 ) - game.killTimeStart >= this.killTime )
-				{
+				else if ( ( ( new Date() ).getTime() / 1000 ) - game.killTimeStart >= this.killTime ) {
 					// Check if kill time has passed, and if so destroy the game and clear any updates it has running
-					console.log("Destroying game " + game.id );
+					console.log( "Destroying game " + game.id );
 					clearInterval( game.data.timerId );
 					clearInterval( game.updateTimerId );
 					clearInterval( game.data.pauseTimerId );
 					game.data.board = null;
 					game = null;
-					delete this.games[key];
+					delete this.games[ key ];
 				}
 			}
-			else
-			{
+			else {
 				// Players are in the game
 				game.killTimeStart = null;
 			}
@@ -150,4 +137,3 @@ module.exports = new function() {
 	}, 1000 );
 
 }
-
