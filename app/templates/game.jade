@@ -106,4 +106,5 @@ body
 						ul( class="inline" )
 							li( v-for="word in solutionSorted[ len ]" v-on:mouseover="this.wordToHighlight = $key" v-on:mouseout="this.wordToHighlight = '' " v-bind:class="{ 'found-word': !!userData.words[ $key ], 'found-unique': false }" ) [[$key.toLowerCase()]]
 
+	include ./parts/footer-assets.jade
 != "</html>"
