@@ -9,7 +9,7 @@ var User = require( "./user" );
  * @param  {object} options [description]
  */
 module.exports = function( options ) {
-
+	
 	this.id = Math.round( Math.random() * 999999 + 100000 );
 
 	this.data = Defaults( options, {

@@ -1,5 +1,5 @@
-var Vue = require("vue");
-module.exports = new Vue({
+var Vue = require( "vue" );
+module.exports = new Vue( {
 	el: "#game-inner",
 	data: {
 		gameData: Logophile.GameData,
@@ -18,7 +18,12 @@ module.exports = new Vue({
 		 * @return {Number} 
 		 */
 		boardpx: function() {
-			return Math.max( 300, Math.min( 500, this.gameData.game.board.length * 100 - 100 ) );
+			if ( window.innerWidth > 680 ) {
+				return Math.max( 300, Math.min( 500, this.gameData.game.board.length * 100 - 100 ) );
+			}
+			else {
+				return 300;
+			}
 		},
 
 		/**
@@ -95,7 +100,7 @@ module.exports = new Vue({
 		userWordsSortedKeys: function() {
 			return Object.keys( this.userWordsSorted ).sort( function( a, b ) {
 				return b - a;
-			});
+			} );
 		},
 
 		/**
@@ -111,8 +116,7 @@ module.exports = new Vue({
 			var remainingCounts = {};
 			for ( len in this.gameData.game.wordCounts ) {
 				remainingCounts[ len ] = this.gameData.game.wordCounts[ len ];
-				if ( !!userCounts[ len ] )
-				{
+				if ( !!userCounts[ len ] ) {
 					remainingCounts[ len ] -= userCounts[ len ];
 				}
 			}
@@ -203,15 +207,28 @@ module.exports = new Vue({
 		}
 
 	},
-	methods:
-	{
+	methods: {
+
+		/**
+		 * Touch move event
+		 */
+		touchmove: function( event ) {
+			event.preventDefault();
+		},
+
+		/**
+		 * Touch start event
+		 */
+		touchstart: function( event ) {
+			event.preventDefault();
+		},
 
 		/**
 		 * Calls the wsclient's start game action, can be called by any user to initialize the first round
 		 */
 		startGame: function() {
-			console.log("starting game");
-			Logophile.wsClient.action("initGame");
+			console.log( "starting game" );
+			Logophile.wsClient.action( "initGame" );
 		},
 
 		/**
@@ -268,10 +285,10 @@ module.exports = new Vue({
 		 * Calls the wsclient's action to send a word to be checked/scored
 		 */
 		submit: function() {
-			console.log("Checking Word: " + this.wordToCheck.toUpperCase() );
-			Logophile.wsClient.action("checkWord", {
+			console.log( "Checking Word: " + this.wordToCheck.toUpperCase() );
+			Logophile.wsClient.action( "checkWord", {
 				word: this.wordToCheck.toUpperCase()
-			});
+			} );
 			this.wordToCheck = "";
 		}
 

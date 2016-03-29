@@ -1,7 +1,7 @@
 
 include ./parts/header.jade
 title Logophile | Game
-meta( name="description", content="Logophile is a fast-paced word finding game similar to boggle." )
+meta( name="description", content="Logophile is a free multiplayer word game inspired by boggle." )
 include ./parts/assets.jade
 
 != "</head>"
@@ -16,7 +16,7 @@ body
 		include ./parts/share.jade
 		include ./parts/playercard.jade
 
-		div( class="inner" id="game-inner" )
+		div( class="inner" id="game-inner" v-on:touchstart="touchstart($event)" v-on:touchmove="touchmove($event)" v-on:mousemove="touchmove($event)" )
 			div( class="col left" v-bind:style="{ maxWidth: leftColWidth }" )
 				div( class="remaining" )
 					div( class="list nowrap" v-if="gameData.game.roundStarted" )

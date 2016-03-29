@@ -15,7 +15,7 @@ var Board = require( "./board" );
 var Dictionary = require( './dictionary' );
 var SvgLoader = require( './svg-loader' );
 
-var httpPort = ( process.env.PORT ) ? process.env.PORT : 5000;
+var httpPort = process.env.PORT || 80;
 
 module.exports = new function() {
 
@@ -239,14 +239,14 @@ module.exports = new function() {
 	app.use( RenderSass( __dirname + "/public" ) );
 
 	// Set up static files to serve from the public directory
-	var static = Express.static( __dirname + "/public", {
+	var staticinstance = Express.static( __dirname + "/public", {
 		index: false,
 		maxAge: 1,
 		setHeaders: function( res, path, stat ) {
 			// res.set("Content-Type", "text/html");
 		}
 	} );
-	app.use( static );
+	app.use( staticinstance );
 
 	// Add trailing slashes if they don't exist and there's no filename specified
 	app.use( function( req, res, next ) {

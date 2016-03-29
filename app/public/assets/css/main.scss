@@ -208,6 +208,9 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 		color: $white50;
 		font-size: 13px;
 	}
+	@media ( max-width: $breakMobile ) {
+		display: none;
+	}
 }
 .share:hover {
 	opacity: 1;
@@ -413,6 +416,22 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 			display: none;
 		}
 	}
+	.toggle-menu-btn {
+		svg {
+			width: 100%;
+			height: 100%;
+			fill: $white50;
+		}
+		position: relative;
+		top: 0; left: 0;
+		margin: -10px 0 0 -10px;
+		width: $sidebarWidthMobile;
+		height: $sidebarWidthMobile;
+		display: none;
+		@media ( max-width: $breakTablet ) {
+			display: block;
+		}
+	}
 }
 .sidebar {
 	transition: width 0.2s;
@@ -531,6 +550,7 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 			left: -24px;
 			text-align: center;
 			height: 30px;
+			padding: 5px 40px;
 		}
 	}
 	ul li.me {
@@ -604,7 +624,8 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 		// white-space: nowrap;
 		display: flex;
 		@media ( max-width: $breakMobile ) {
-			flex-direction: column;
+			// flex-direction: column;
+			display: block;
 		}
 		align-content: stretch;
 		height: 100%;
@@ -621,6 +642,9 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 			transition: max-width 0.3s;
 			max-width: 30%;
 			text-align: center;
+			@media ( max-width: $breakMobile ) {
+				display: none;
+			}
 		}
 		.col.center {
 			flex: 3 1;
@@ -837,6 +861,9 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 				margin-top: 5px;
 				font-size: 30px;
 				line-height: 37px;
+				@media ( max-width: $breakMobile ) {
+					margin: 0;
+				}
 			}
 			h3 {
 				font: 200 24px/28px $fontStack;
@@ -870,6 +897,9 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 			}
 		}
 		.word {
+			@media ( max-width: $breakMobile ) {
+				display: none;
+			}
 			max-height: 33%;
 			position: relative;
 			// top: -8%;
