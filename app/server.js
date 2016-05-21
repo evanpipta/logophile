@@ -9,7 +9,7 @@ var Jade = require( "jade" );
 var Sass = require( "node-sass" );
 var RenderSass = require( "express-render-sass" );
 var CookieParser = require( "cookie-parser" );
-var PageMap = require( "./pagemap" );
+var PageRoutes = require( "./routes" );
 var PackageInfo = require( '../package.json' );
 var Board = require( "./board" );
 var Dictionary = require( './dictionary' );
@@ -100,7 +100,7 @@ module.exports = new function() {
 	 * @return {[type]} [description]
 	 */
 	this.mapPages = function() {
-		for ( var path in PageMap ) {
+		for ( var path in PageRoutes ) {
 
 			// Bind get request calback for this url path
 			app.get( path, function( req, res ) {
@@ -138,8 +138,8 @@ module.exports = new function() {
 				var url = req.url.split( "?" )[ 0 ];
 
 				// Check if the url redirects, and return if so
-				if ( !!PageMap[ url ].redirect ) {
-					res.redirect( PageMap[ url ].status, PageMap[ url ].redirect );
+				if ( !!PageRoutes[ url ].redirect ) {
+					res.redirect( PageRoutes[ url ].status, PageRoutes[ url ].redirect );
 					return;
 				}
 
@@ -166,7 +166,7 @@ module.exports = new function() {
 				// Individual user data gets destroyed any time the user loads a new page, and rebuilt when the new websocket connection is opened
 				var GameData = {};
 				var UserData = {};
-				if ( PageMap[ url ].type == "game" ) {
+				if ( PageRoutes[ url ].template == "game" ) {
 					var gid = parseInt( Object.keys( params )[ 0 ] );
 					var g = GameList.getById( gid );
 					console.log( "Game id: " + gid + " Game exists: " + !!g );
@@ -185,7 +185,7 @@ module.exports = new function() {
 				}
 
 				// For the main page, we should do a callback with the board finished
-				if ( PageMap[ url ].type == "main" ) {
+				if ( PageRoutes[ url ].template == "main" ) {
 
 					console.log( "Generating board for main page" );
 					// Make sure to include logophile in the board eventually
@@ -194,10 +194,10 @@ module.exports = new function() {
 					b.randomize( 4, function() {
 
 						console.log( "Sending main page with generated board" );
-						res.send( Jade.renderFile( __dirname + "/templates/" + PageMap[ url ].type + ".jade", {
+						res.send( Jade.renderFile( __dirname + "/templates/" + PageRoutes[ url ].template + ".jade", {
 							rn: Dictionary.getRandom( Math.round( Math.random() * 9 ) + 3 ) + " " + Dictionary.getRandom( Math.round( Math.random() * 9 ) + 3 ),
 							version: PackageInfo.version,
-							pagetype: PageMap[ url ].type,
+							pagetype: PageRoutes[ url ].template,
 							board: JSON.stringify( b.getBoard() ),
 							solution: JSON.stringify( b.solution ),
 							svg: icons.svg,
@@ -209,10 +209,10 @@ module.exports = new function() {
 				}
 				else {
 					// Send data back
-					// res.send("Page type: " + PageMap[ url ].type + "<br>" + "Query string: " + JSON.stringify( params ) );
-					res.send( Jade.renderFile( __dirname + "/templates/" + PageMap[ url ].type + ".jade", {
+					// res.send("Page type: " + PageRoutes[ url ].template + "<br>" + "Query string: " + JSON.stringify( params ) );
+					res.send( Jade.renderFile( __dirname + "/templates/" + PageRoutes[ url ].template + ".jade", {
 						version: PackageInfo.version,
-						pagetype: PageMap[ url ].type,
+						pagetype: PageRoutes[ url ].template,
 						board: "[[' ',' ',' ',' '],[' ',' ',' ',' '],[' ',' ',' ',' '],[' ',' ',' ',' ']]",
 						solution: "{}",
 						svg: icons.svg,

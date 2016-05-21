@@ -1,0 +1,53 @@
+.menu-bar {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%;
+  z-index: 500;
+  padding: 0;
+  background: #333;
+  // box-shadow: 0 0 15px rgba(0,0,0,0.1);
+
+  ul {
+    display: inline-block; vertical-align: top;
+  }
+
+  .side-menu {
+    background: $teal;
+    width: $sidebarWidth;
+    overflow: hidden;
+  }
+
+  ul li {
+    display: inline-block;
+    vertical-align: top;
+  }
+  ul li.fill, ul li a {
+    display: block;
+    padding: 15px 18px;
+    height: 50px;
+    opacity: 0.8;
+    transition: color 0.2s, opacity 0.2s, border 0.2s, background 0.2s;
+    border-bottom: 3px solid transparent;
+    .hamburger {
+      display: block;
+      font-weight: 500;
+      transform: rotateZ(90deg);
+      font-size: 21px;
+    }
+    &:hover, &:focus, &.active {
+      border-bottom: 3px solid $tealLit;
+      opacity: 1;
+    }
+    &.site-title {
+      padding: 16px 5px;
+      margin-left: -5px;
+      font-size: 22px;
+      letter-spacing: -1px;
+      width: 213px;
+      margin-right: -20px;
+      // background: url(/assets/images/logo-48px.png) no-repeat 170px 10px;
+      // background-size: 32px;
+    }
+  }
+
+}

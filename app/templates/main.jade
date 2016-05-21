@@ -4,13 +4,11 @@ meta( name="description", content="Logophile is a free multiplayer word game ins
 include ./parts/assets.jade
 
 != "</head>"
-//- script
 
 body
+
 	include ./parts/popup.jade
-	include ./parts/playercard.jade
-	//- include ./parts/logo-small.jade
-	//- include ./parts/logo-small-white.jade
+	include ./parts/menu-bar.jade
 	include ./parts/share.jade
 
 	div( id="mainpage" )
@@ -21,7 +19,7 @@ body
 				img( src="/assets/images/logo-308px.png" class="main-logo" alt="Logophile" )
 
 
-				div
+				div( class="flash-fix" )
 					div( class="board" )
 						div( class="row" v-bind:style="{ height: 100/gameData.game.board.length+'%' }" v-for="x in gameData.game.board" )
 							div( v-bind:class="{ 'cell': true, 'on': this.boardHighlighted[$parent.$index][$index].highlight == 'on', 'partial': this.boardHighlighted[$parent.$index][$index].highlight == 'partial' }" v-bind:style="{ width: 100/gameData.game.board.length+'%' }" v-for="y in gameData.game.board[$index]" track-by="$index" )

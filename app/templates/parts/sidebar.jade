@@ -1,4 +1,11 @@
 div( class="sidebar" id="sidebar" )
+
+	div( class="game-info" id="game-info" )
+		a( href="#" class="toggle-menu-btn" ) !{locals.svg["menu-2.svg"]}
+		span( class="desktop-view" )
+			p( class="label" ) Current Game
+			h2 [[gameData.game.name]]
+
 	div( class="upper" v-bind:style="{ left: -270 * panelSelected + 'px' }" )
 
 		div( class="leaderboard panel tse-scrollable" v-on:mouseover="freezeBoard($event)" v-on:mouseout="unfreezeBoard($event)" )

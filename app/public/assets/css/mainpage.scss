@@ -16,7 +16,7 @@
 		top: 50%;
 		transition: top 0.3s;
 		h1.notfound {
-			font: 100 40.4px/45px $fontStack;
+			font: 300 40.4px/45px $fontStack;
 			color: $white50;
 			margin-top: -30px;
 			letter-spacing: 1.35px;
@@ -31,7 +31,7 @@
 				margin-bottom: 10px;
 				line-height: 32px;
 			}
-			font-weight: 200;
+			font-weight: 300;
 			letter-spacing: -0.5px;
 			margin-bottom: 20px;
 			transition: opacity 0.2s, top 0.3s;
@@ -79,14 +79,15 @@
 		}
 		.options li {
 			// border-right: 1px solid $white50;
-			margin-right: -3px;
+			margin: 0 5px;
 			@media ( max-width: $breakMobile ) {
 				display: block;
 				width: 100%;
 			}
 		}
 		.options li a { 
-			padding: 17px 26px 13px; opacity: 0.6; background: $white10;
+			padding: 17px 17px 13px; opacity: 0.6;
+			border-bottom: 1px solid #fff;
 			@media ( max-width: $breakMobile ) {
 				width: 100%;
 				display: block;
@@ -102,8 +103,8 @@
 		}
 		.options li a.active { color: $white; opacity: 1; }
 		.options li a.active svg { fill: $white; }
-		.options li a:hover { color: $white; opacity: 1; }
-		.options li a:hover svg { fill: $white; }
+		.options li a:hover, .options li a:focus { color: $white; opacity: 1; }
+		.options li a:hover svg, .options li a:focus svg { fill: $white; }
 		.options li a.disabled { color: $white50; opacity: 0.4; }
 		.options li a.disabled svg { fill: $white50; }
 		.options li a.disabled:hover { color: $white50; opacity: 0.4; }

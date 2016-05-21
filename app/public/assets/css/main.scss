@@ -35,7 +35,7 @@ $orange: #E68729;				// Background color for inactive or static orange elements
 $orangeLit: #FCAC36;				// Background color for hovered / active orange buttons or elements
 
 // Gradient backgrounds!
-$darkGradientPopup: linear-gradient(to bottom, #333 0%, #242424 30%, #242424 100%);
+$darkGradientPopup: linear-gradient(to bottom, #333 0%, #2e2e2e 30%, #2e2e2e 100%);
 $darkGradientSidebar: linear-gradient(to bottom, #333 200px, #242424 400px, #242424 100%);
 // $tealGradient: linear-gradient(to bottom, $teal 0%, #1E79A0 50%, #1C7595 100%);
 $tealGradient: linear-gradient(to bottom, #4F9FBC 0%, $teal 100%);
@@ -61,7 +61,7 @@ $gameEdgePadding: 0;			// Padding around the edge of the game panel
 
 $foundTopPadding: 70px;			// Padding above the found words area, used to prevent the words from scrolling too far over the user data
 
-$gameHeadingsFontWeight: 200;	// The font weight for h2 headings on leaderboard, in the game area, etc.
+$gameHeadingsFontWeight: 300;	// The font weight for h2 headings on leaderboard, in the game area, etc.
 
 $boardSize: 300px;
 
@@ -75,6 +75,8 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 
 // Options
 @import "ui-options";
+
+@import "menu-bar";
 
 // Scrollbar CSS
 @import "trackpad-scroll-emulator";
@@ -121,7 +123,7 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 		fill: $white;
 	}
 }
-.button:hover {
+.button:hover, .button:focus {
 	opacity: 1;
 	background: $white30;
 	// border: 1px solid $frost;
@@ -202,8 +204,8 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 	z-index: 400;
 	position: absolute;
 	transition: left 0.2s, opacity 0.3s;
-	bottom: $cornerOffset * 0.7; left: $cornerOffset;
-	opacity: 0.3;
+	bottom: 0px; right: 5px;
+	text-align: right;
 	* {
 		color: $white50;
 		font-size: 13px;
@@ -211,9 +213,12 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 	@media ( max-width: $breakMobile ) {
 		display: none;
 	}
+	a {
+		color: rgba(255,255,255,0.1);
+	}
 }
-.share:hover {
-	opacity: 1;
+.share a:hover {
+	color: rgba(255,255,255,0.3);
 }
 
 .logo-small {
@@ -350,13 +355,10 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 
 // Sidebar elements
 .game-info, .sidebar {
-	position: fixed;
+	position: absolute;
 	left: 0; top: 0;
-	border-right: 1px solid #333;
+	// border-right: 1px solid #333;
 	width: $sidebarWidth;
-	@media ( max-width: $breakTablet ) {
-		width: $sidebarWidthMobile;
-	}
 }
 .game-info {
 	// border-bottom: 1px solid $white20;
@@ -365,17 +367,14 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 	overflow: hidden;
 	transition: width 0.2s, height 0.2s;
 	height: $gameInfoHeight;
-	padding: 35px $sidebarPadding 30px $sidebarPadding;
-	@media ( max-width: $breakTablet ) {
-		height: $gameInfoHeightMobile;
-		padding: $sidebarPaddingMobile;
-	}
+	padding: 75px $sidebarPadding 30px $sidebarPadding;
 	// Children
 	p.label {
 		font-size: 14px;
+		margin-bottom: 10px;
 	}
 	h2 {
-		font: 300 24px/24px $fontStack;
+		font: 400 24px/24px $fontStack;
 		letter-spacing: -1px;
 		overflow: hidden;
 		width: 210px;
@@ -406,16 +405,6 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 			background: $white50;
 		}
 	}
-	.desktop-view {
-		@media ( max-width: $breakTablet ) {
-			display: none;
-		}
-	}
-	.mobile-view {
-		@media ( min-width: $breakTablet ) {
-			display: none;
-		}
-	}
 	.toggle-menu-btn {
 		svg {
 			width: 100%;
@@ -428,23 +417,33 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 		width: $sidebarWidthMobile;
 		height: $sidebarWidthMobile;
 		display: none;
-		@media ( max-width: $breakTablet ) {
-			display: block;
-		}
 	}
 }
 .sidebar {
-	transition: width 0.2s;
+	box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+	z-index: 100;
+	transition: left 0.3s, opacity 0.3s;
+	opacity: 1;
+	left: 0;
 	height: 100%;
 	overflow: hidden;
 	background: $grey;
 	background: $darkGradientSidebar;
-	transition: padding 0.2s;
 	padding-top: $gameInfoHeight;
-	@media ( max-width: $breakTablet ) {
-		padding-top: $gameInfoHeightMobile;
-	}
 	padding-bottom: $sidebarControlsHeight;
+	position: fixed;
+	@media ( max-width: $breakTablet ) {
+		left: -$sidebarWidth;
+		opacity: 0;
+	}
+	&.expanded {
+		left: 0px;
+		opacity: 1;
+	}
+	&.hidden {
+		left: -$sidebarWidth;
+		opacity: 0;
+	}
 	// Upper contains the leaderboard as well as the game settings
 	.upper {
 		position: relative;
@@ -460,10 +459,6 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 		height: $sidebarControlsHeight;
 		width: $sidebarWidth;
 		background: #333;
-		// padding-bottom: $inputHeight;
-		@media ( max-width: $breakTablet ) {
-			display: none;
-		}
 		text-align: center;
 		ul li a {
 			font-size: 14px;
@@ -482,8 +477,8 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 			transition: fill 0.3s;
 			fill: $white20;
 		}
-		ul li a:hover { opacity: 1; color: $tealLit; }
-		ul li a:hover svg { fill: $tealLit; }
+		ul li a:hover, ul li a:focus { opacity: 1; color: $tealLit; }
+		ul li a:hover svg, ul li a:focus svg { fill: $tealLit; }
 		ul li a.active { color: $tealLit; }
 		ul li a.active svg { fill: $tealLit; }
 		.marker {
@@ -506,9 +501,6 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 	width: 100%;
 	overflow-x: hidden;
 	overflow-y: auto;
-	@media ( max-width: $breakTablet ) {
-		overflow-y: hidden;
-	}
 	height: 100%;
 	// padding: 37px 0;
 	// padding-bottom: $sidebarControlsHeight;
@@ -520,10 +512,7 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 		font-size: 20px;
 		margin-bottom: 20px;
 		// font-weight: $gameHeadingsFontWeight;
-		font-weight: 300;
-		@media ( max-width: $breakTablet ) {
-			display: none;
-		}
+		font-weight: 400;
 		svg {
 			width: 30px;
 			height: 30px;
@@ -546,17 +535,12 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 		overflow: hidden;
 		min-width: 0;
 		text-align: left;
-		@media ( max-width: $breakTablet ) {
-			left: -24px;
-			text-align: center;
-			height: 30px;
-			padding: 5px 40px;
-		}
+		box-shadow: 0 0px 0px rgba(0,0,0,0.0);
 	}
 	ul li.me {
-		background: linear-gradient( 90deg, rgba(255,255,255,0.1) 0%, transparent 100%) repeat scroll 0% 0%;
+		// background: rgba(255,255,255,0.1);
 		font-weight: 600;
-		transition: color 0.2s;
+		transition: color 0.2s, background 0.3s, box-shadow 0.3s;
 	}
 	ul li.me span { font-weight: 600; }
 	ul li span {
@@ -564,12 +548,10 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 		font-weight: 300;
 		transition: color 0.2s;
 	}
-	ul li:hover {
+	ul li:hover, ul li:focus {
 		cursor: pointer;
-		color: $orangeLit;
-	}
-	ul li:hover span {
-		color: $orangeLit;
+		background: rgba(255,255,255,0.04);
+		box-shadow: 0 1px 12px rgba(0,0,0,0.1);
 	}
 	ul li.opt {
 		background: none;
@@ -617,14 +599,9 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 		padding-left: $sidebarWidthMobile;
 	}
 	.inner {
-		background: $dark;
-		background: linear-gradient(160deg, #444 0%, #2c2c2c 10%, #252525 20%, #202020 30%, #252525 100%) repeat scroll 0% 0%;
-		// background: linear-gradient(-5deg, #04163D 0%, #37AED7 93%);
 		padding: $gameEdgePadding;
-		// white-space: nowrap;
 		display: flex;
 		@media ( max-width: $breakMobile ) {
-			// flex-direction: column;
 			display: block;
 		}
 		align-content: stretch;
@@ -866,10 +843,10 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 				}
 			}
 			h3 {
-				font: 200 24px/28px $fontStack;
+				font: 300 24px/28px $fontStack;
 			}
 			h4 {
-				font: 200 16px/22px $fontStack;
+				font: 300 16px/22px $fontStack;
 				color: $frost;
 			}
 			.timer, .timer-label, .round-starts, .round-starts-timer, .score {
