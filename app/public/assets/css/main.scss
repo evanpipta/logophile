@@ -101,6 +101,15 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 	border-bottom: 0;
 	transform: scale(0.999);
 }
+@mixin arrowRight( $height, $width, $color ) {
+	display: block;
+	width: 0; height: 0; overflow: hidden;
+	border-left: $height solid $color;
+	border-top: $width/2 solid transparent;
+	border-bottom: $width/2 solid transparent;
+	border-right: 0;
+	transform: scale(0.999);
+}
 
 .button {
 	display: inline-block;
@@ -137,14 +146,13 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 }
 
 .board {
-	// opacity: 0.5;
 	// background: $darkTransp1;
-	transition: opacity 0.3s;
+	transition: opacity 0.3s, box-shadow 0.3s;
 	width: $boardSize;
 	height: $boardSize;
 	min-height: $boardSize;
 	margin: 0 auto;
-	// box-shadow: 0 0 50px $darkTransp3;
+	box-shadow: 0 3px 20px rgba(0,0,0,0.1);
 	display: block;
 	position: relative;
 	.row {
@@ -217,78 +225,6 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 }
 .share a:hover {
 	color: rgba(255,255,255,0.3);
-}
-
-
-.playercard {
-	z-index: 500;
-	position: absolute;
-	top: 0;
-	right: 0px;
-	padding: $cornerOffset;
-	// border-radius: 0 0 0 20px;
-	text-align: right;
-	// background: $grey;
-	// box-shadow: 0 0 20px 5px $grey70;
-	padding-right: 50px;
-	padding-left: $cornerOffset + 30px;
-	overflow: hidden;
-	transition: background 0.3s;
-	@media ( max-width: $breakMobile ) {
-		display: none;
-	}
-	p {
-		color: $white;
-		font-weight: 300;
-	}
-	p, a {
-		font-size: 16px;
-		line-height: 22px;
-	}
-	h3 {
-		margin-top: 3px;
-		font-size: 22px;
-	}
-	a { 
-		display: block;
-		padding: 4px 8px;
-		width: 100%;
-	}
-	input {
-		display: block;
-		width: 150px;
-		padding: 2px 6px;
-		font-size: 12px;
-		text-align: center;
-		background: $darkTransp3;
-		margin: 5px 0;
-		border: 0;
-	}
-	.expand {
-		position: relative;
-		right: -10px;
-		transition: height 0.2s;
-		height: 0;
-		padding: 10px 0 0 0;
-		overflow: hidden;
-		width: 100%;
-	}
-}
-.playercard:hover {
-	cursor: default;
-	background: $darkTransp5;
-	p {
-		color: $white;
-	}
-	.expand {
-		height: 100px;
-	}
-}
-.playercard::after {
-	content: "";
-	position: absolute;
-	top: $cornerOffset + 30; right: $cornerOffset + 5;
-	@include arrowDown( 8px, 15px, $white20 );
 }
 
 // Sidebar elements
@@ -466,6 +402,7 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 		// background: rgba(255,255,255,0.1);
 		font-weight: 600;
 		transition: color 0.2s, background 0.3s, box-shadow 0.3s;
+		border-left: 4px solid $grey3;
 	}
 	ul li.me span { font-weight: 600; }
 	ul li span {

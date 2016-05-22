@@ -1,38 +1,18 @@
+"use strict";
+
 var Vue = require( "vue" );
-require( 'object-clone' );
+// require( 'object-clone' );
+
 module.exports = new Vue( {
 	el: "#sidebar",
 	data: {
 		gameData: Logophile.GameData,
 		userData: Logophile.User,
-		boardIsFrozen: false,
 		panelSelected: 0,
 		markerLeft: 20,
-		markerWidth: 78,
-		usersFrozen: {
-			playing: [],
-			queued: [],
-			joined: []
-		}
+		markerWidth: 78
 	},
 	computed: {
-
-		/**
-		 * Array of users playing in the current game, sorted by score
-		 * If boardIsFrozen is true, it will return a static list instead of the one from the current model
-		 */
-		playersSorted: function() {
-			if ( !this.boardIsFrozen ) {
-				return this.gameData.users.playing.sort( function( a, b ) {
-					return b.score - a.score;
-				} );
-			}
-			else {
-				return this.usersFrozen.playing.sort( function( a, b ) {
-					return b.score - a.score;
-				} );
-			}
-		},
 
 		/**
 		 * Make sure certain properties are deleted from the game info before returning it
@@ -67,59 +47,6 @@ module.exports = new Vue( {
 	methods: {
 
 		/**
-		 * Sets boardIsFrozen and sets the board to be equal to the current user data model
-		 * @param  {Object} e - DOM event object
-		 */
-		freezeBoard: function( e ) {
-			if ( !this.boardIsFrozen ) {
-				this.boardIsFrozen = true;
-
-				// Copy the values of this.gameData.users into this.usersFrozen
-				// Again, we should really have a working clone function for this, gd
-				for ( var each in this.gameData.users ) {
-					this.usersFrozen[ each ] = [];
-					var list = this.gameData.users[ each ];
-					for ( var i = 0; i < list.length; i++ ) {
-						this.usersFrozen[ each ][ i ] = {};
-						for ( var key in list[ i ] ) {
-							this.usersFrozen[ each ][ i ][ key ] = list[ i ][ key ];
-							if ( typeof list[ i ][ key ] == "object" && !( list[ i ][ key ] instanceof Array ) ) {
-								list[ i ][ key ] = {};
-								for ( var key2 in list[ i ][ key ] ) {
-									this.usersFrozen[ each ][ i ][ key ][ key2 ] = list[ i ][ key2 ];
-								}
-							}
-						}
-					}
-				}
-
-				console.log( "Freezing board" );
-				console.log( JSON.stringify( this.usersFrozen ) );
-
-			}
-		},
-
-		/**
-		 * Sets boardIsFrozen to false, unless the event came from a child of this.$el
-		 * @param  {Object} e - DOM event object
-		 */
-		unfreezeBoard: function( e ) {
-			// We don't want to unfreeze the board if we're hitting a child element
-			var parent = e.toElement || e.relatedTarget;
-			var isChild = false;
-			while ( parent ) {
-				if ( parent == this.$el ) {
-					// If it's a child, return false
-					isChild = true;
-					return false;
-				}
-				parent = parent.parentNode;
-			}
-			console.log( "Unfreezing board" );
-			this.boardIsFrozen = false;
-		},
-
-		/**
 		 * Changes the selected panel to display
 		 * @param  {Number} n Integer from 0 to 3, which goes from leftmost to rightmost panel as it counts up
 		 */
@@ -131,4 +58,51 @@ module.exports = new Vue( {
 		}
 
 	}
+} );
+
+
+// Score updater
+// We aren't using vue for this because it rebuilds the dom too often while the game is going and you can't hover/click on the user list
+$( function() {
+
+	var interval = 1000;
+	var list = $( "#scores" );
+	if ( list.length ) {
+
+		var scoreUpdater = function() {
+
+			// Update the visible scores
+			var elems = $( "#scores li" );
+			elems.each( function() {
+				var score = $( this ).find( ".score" );
+				var user = Logophile.GameData.users.playing[i];
+				if ( user ) {
+					score.text( user.score );
+				}
+			} );
+
+			// Re-sort users
+			var users = Logophile.GameData.users.playing.sort( function( a, b ) {
+				return b.score - a.score;
+			} );
+
+			// Build new html
+			var sortedHtml = '';
+			for ( var i = 0; i < users.length; i++ ) {
+				sortedHtml += '<li' + ( ( users[ i ].name === Logophile.User.name ) ? ' class="me">' : '>' );
+				sortedHtml += ( i + 1 ) + '. ' + users[ i ].name + '<span class="score">' + users[ i ].score + '</span>';
+				sortedHtml += '</li>';
+			}
+
+			// If the html is different, replace it
+			if ( sortedHtml !== list.html().trim() ) {
+				list.html( sortedHtml );
+			}
+
+			setTimeout( scoreUpdater, interval );
+		}
+
+		scoreUpdater();
+	}
+
 } );

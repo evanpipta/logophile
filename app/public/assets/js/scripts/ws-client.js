@@ -74,12 +74,9 @@ module.exports = new function() {
 		 */
 		onGameUpdate: function( args ) {
 			// Sync GameData.game and GameData.users separately
-			Object.$sync( Logophile.GameData.game, args.game, function() {
-				// console.log( "sync result: " + JSON.stringify( Logophile.GameData ) );
-			} );
-			Object.$sync( Logophile.GameData.users, args.users, function() {
-				// console.log( "sync result: " + JSON.stringify( Logophile.GameData ) );
-			} );
+			Object.$sync( Logophile.GameData.game, args.game, function() {} );
+			Object.$sync( Logophile.GameData.users, args.users, function() {} );
+			Object.$sync( Logophile.GameData.usersWithoutScores, args.usersWithoutScores, function() {} );
 		},
 
 		/**

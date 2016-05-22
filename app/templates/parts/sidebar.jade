@@ -6,17 +6,11 @@ div( class="sidebar" id="sidebar" )
 
 	div( class="upper" v-bind:style="{ left: -270 * panelSelected + 'px' }" )
 
-		div( class="leaderboard panel tse-scrollable" v-on:mouseover="freezeBoard($event)" v-on:mouseout="unfreezeBoard($event)" )
+		div( class="leaderboard panel tse-scrollable" )
 			div( class="tse-content" )
 				h3 Player Score !{locals.svg["clipboard-2.svg"]} 
-				ul
-					//- We need to figure out how to make sure this is sorted by the user scores, not just their position in the array
-					li( v-for="user in playersSorted" v-bind:class="{ 'me': user.name == userData.name }" ) [[$index+1]]. [[user.name]]
-						span [[user.score]]
-					//- li 2. Mu Te
-						span 215
-					//- li( class="me" ) 3. Cosine Pi
-						span 59
+				ul( id="scores" )
+					//- Scoreboard is done in jquery
 
 		div( class="game-setup panel tse-scrollable" )
 			div( class="tse-content" )

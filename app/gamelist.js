@@ -107,7 +107,7 @@ module.exports = new function() {
 	this.killTimer = function() {
 		for ( var key in this.games ) {
 			var game = this.games[ key ];
-			if ( game.users.joined.length == 0 && game.users.playing.length == 0 && game.users.queued.length == 0 ) {
+			if ( game.users.playing.length == 0 ) {
 				// Nobody is in the game, start the kill timer if it isn't started
 				if ( !game.killTimeStart ) {
 					game.killTimeStart = ( new Date() ).getTime() / 1000;

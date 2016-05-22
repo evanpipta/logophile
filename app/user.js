@@ -70,7 +70,7 @@ module.exports = function( options ) {
 				if ( self.gameRef && self.gameRef !== newGame ) {
 					self.actions.leaveGame();
 				}
-				newGame.addUser( self, !!args.playing ? args.playing : false );
+				newGame.addUser( self, true );
 
 				// Attach the connection to this gameid
 				args.connection.gameId = args.id;

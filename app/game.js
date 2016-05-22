@@ -61,9 +61,7 @@ module.exports = function( options ) {
 	this.updateTimerId = null;
 
 	this.users = {
-		joined: [], // Joined as spectators
-		playing: [], // Joined as players
-		queued: [] // Waiting until round is over to join as players
+		playing: []
 	}
 
 	/**
@@ -89,7 +87,10 @@ module.exports = function( options ) {
 			action: "onGameUpdate",
 			args: {
 				game: this.getPublicGameData(),
-				users: this.getPublicUserData()
+				users: this.getPublicUserData(),
+				usersWithoutScores: {
+					playing: this.getPublicUserDataShort()
+				}
 			}
 		} ) );
 	}
@@ -206,12 +207,10 @@ module.exports = function( options ) {
 	 */
 	this.getPublicUserData = function() {
 		var pubPlayerData = {
-			playing: [], // Playing now
-			queued: [], // Queued to play
-			joined: [] // Spectating
+			playing: []
 		}
 		var i = 0;
-    var p = null;
+		var p = null;
 		for ( i = 0; i < this.users.playing.length; i++ ) {
 			p = this.users.playing[ i ];
 			pubPlayerData.playing.push( {
@@ -220,20 +219,6 @@ module.exports = function( options ) {
 				// If the round is started, we want to send the score but not the words
 				words: this.data.round.started ? {} : p.data.words,
 				score: p.data.score
-			} );
-		}
-		for ( i = 0; i < this.users.queued.length; i++ ) {
-			p = this.users.queued[ i ];
-			pubPlayerData.queued.push( {
-				name: p.data.name,
-				registered: p.data.registered
-			} );
-		}
-		for ( i = 0; i < this.users.joined.length; i++ ) {
-			p = this.users.joined[ i ];
-			pubPlayerData.joined.push( {
-				name: p.data.name,
-				registered: p.data.registered
 			} );
 		}
 		return pubPlayerData;
@@ -246,23 +231,9 @@ module.exports = function( options ) {
 	this.getPublicUserDataShort = function() {
 		var pubPlayerDataShort = [];
 		var i = 0;
-    var p = null;
+    	var p = null;
 		for ( i = 0; i < this.users.playing.length; i++ ) {
 			p = this.users.playing[ i ];
-			pubPlayerDataShort.push( {
-				name: p.data.name,
-				registered: p.data.registered
-			} );
-		}
-		for ( i = 0; i < this.users.queued.length; i++ ) {
-			p = this.users.queued[ i ];
-			pubPlayerDataShort.push( {
-				name: p.data.name,
-				registered: p.data.registered
-			} );
-		}
-		for ( i = 0; i < this.users.joined.length; i++ ) {
-			p = this.users.joined[ i ];
 			pubPlayerDataShort.push( {
 				name: p.data.name,
 				registered: p.data.registered
@@ -401,10 +372,6 @@ module.exports = function( options ) {
 		this.data.round.lastSolution = this.data.board.solution;
 		this.data.round.lastSolutionCounts = this.data.board.solutionCounts;
 		this.data.round.lastBoardArray = this.data.board.boardArray;
-		// Put users who were queued to join into the active players list
-		for ( var k in this.users.queued ) {
-			this.addUser( this.users.queued[ k ], true );
-		}
 
 		// Send the full game state to clients
 		this.broadcastGameStateFull();
@@ -426,26 +393,6 @@ module.exports = function( options ) {
 	}
 
 	/**
-	 * Gets the round time as a string
-	 * We don't really need this since it's done client side
-	 */
-	// this.getTime = function() {
-	// 	var m = Math.floor( Math.round(this.data.round.elapsed) / 60 ).toString();
-	// 	var s = (Math.round(this.data.round.elapsed) % 60).toString();
-	// 	return m + ":" + ( (s < 10) ? "0"+s : s );
-	// }
-
-	/**
-	 * Gets the round time remaining as a string
-	 * We don't really need this since it's done client side
-	 */
-	// this.getTimeRemaining = function() {
-	// 	var m = Math.floor( Math.round(this.data.round.remaining) / 60 ).toString();
-	// 	var s = (Math.round(this.data.round.remaining) % 60).toString();
-	// 	return m + ":" + ( (s < 10) ? "0"+s : s );
-	// }
-
-	/**
 	 * Checks a word in the current board
 	 * @param {String} word - the word to check
 	 * @return {Boolean|String} true if the word exists, false if it doesn't
@@ -460,7 +407,7 @@ module.exports = function( options ) {
 	 * @param {Object} user - The user to add
 	 * @param {Boolean} playing - (Optional) If set to true, the user will be added as a player. Otherwise, they will be a spectator.
 	 */
-	this.addUser = function( user, playing ) {
+	this.addUser = function( user ) {
 		if ( typeof user == "object" ) {
 			console.log( "Adding user " + user.id + " to game " + this.id );
 
@@ -469,53 +416,24 @@ module.exports = function( options ) {
 				user.gameRef.removeUser( user );
 			}
 
-			// Set game id to this game
+			// Set game id to this game and reset score
 			user.data.joinedId = this.data.id;
 			user.gameRef = this;
 			user.resetScore();
-			if ( typeof playing == "boolean" && playing && ( this.data.allowGuests || user.data.registered ) ) {
-				// For now we're just going to disabled "queued" players and let players join mid-round
-				// Playing
-				// if ( this.data.round.started )
-				// {
-				// 	// Add to queued players
-				// 	if ( this.users.queued.indexOf( user ) < 0 )
-				// 	{
-				// 		user.isPlaying = false;
-				// 		this.users.queued.push( user );
-				// 	}
-				// }
-				// else
-				// {
-				// Add to active players
-				if ( this.users.playing.indexOf( user ) < 0 ) {
-					user.isPlaying = true;
-					this.users.playing.push( user );
-				}
-				// }
-			}
-			else {
-				// Spectating
-				if ( this.users.joined.indexOf( user ) < 0 ) {
-					user.isPlaying = false;
-					this.users.joined.push( user );
-				}
+
+			// Just add everyone as "playing" automatically now
+			if ( this.users.playing.indexOf( user ) < 0 ) {
+				user.isPlaying = true;
+				this.users.playing.push( user );
 			}
 
 			// Send message to the user's client
 			user.connection.send( JSON.stringify( {
 				action: "onGameEnter"
 			} ) );
-			user.connection.send( JSON.stringify( {
-				action: "onGameUpdate",
-				args: {
-					game: this.getPublicGameData(),
-					users: this.getPublicUserData()
-				}
-			} ) );
 
-			// Send short game update to all users
-			this.broadcastGameStateShort();
+			// Full game update to all users
+			this.broadcastGameStateFull();
 
 			return true;
 		}
@@ -556,8 +474,8 @@ module.exports = function( options ) {
 					action: "onGameLeave"
 				} ) );
 
-				// Send short game update to all users
-				this.broadcastGameStateShort();
+				// Full game update to all users
+				this.broadcastGameStateFull();
 			}
 		}
 	}

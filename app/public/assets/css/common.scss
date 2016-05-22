@@ -76,5 +76,5 @@ a.disabled:hover {
 
 // Stops the browser from switching from normal to gpu rendering mode (?) on parents of elements with opacity transitions
 .flash-fix {
-	transform: translate3D(0,0%,0);
+	transform: translate3D(0,0.01%,0);
 }
