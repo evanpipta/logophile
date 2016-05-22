@@ -6,26 +6,27 @@ $popupdark: #1d1d1d;
 	position: fixed; top: 0; left: 0;
 	z-index: 1000;
 	transition: opacity 0.3s;
-	background: rgba( 20,20,20,0.3 );
+	background: rgba( 10,10,10,0.4 );
 	overflow-y: auto;
 	max-height: 100%;
 	// cursor: pointer;
-	display: flex;
-	flex: 1;
-	flex-direction: column;
+	// display: flex;
+	// flex: 1;
+	// flex-direction: column;
 }
 
 .popup-wrapper {
-	padding: 100px 0;
+	padding: 30px 0 0;
 	margin: auto;
 }
 
 .popup {
 	// cursor: default;
+	margin: 0 auto;
 	z-index: 1100;
 	overflow: hidden;
 	box-shadow: 1px 1px 4px rgba(0,0,0,0.2);
-	width: 1049px;
+	width: 600px;
 	@media ( max-width: $breakTablet ) {
 		width: 525px;
 	}
@@ -34,10 +35,10 @@ $popupdark: #1d1d1d;
 	}
 	padding: 0;
 	background: $darkGradientPopup;
-	.content, .content p {
-		font: 200 16px/16px $fontStack; letter-spacing: -0.25px;
+	.content {
+		font: 300 16px/16px $fontStack; letter-spacing: -0.25px;
 		p, h2, h3 {
-			padding: 0 20px;
+			padding: 0 30px;
 		}
 	}
 	* {
@@ -49,8 +50,8 @@ $popupdark: #1d1d1d;
 	h2 {
 		// padding: 13px 20px;
 		margin-bottom: 20px;
-		font: 300 20px/20px $fontStack; letter-spacing: -0.25px;
-		padding: 40px 20px 16px;
+		font: 400 20px/20px $fontStack; letter-spacing: -0.25px;
+		padding: 40px 25px 20px;
 		box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);
 		background: #363636;
 	}
@@ -77,13 +78,14 @@ $popupdark: #1d1d1d;
 		background: transparent;
 		border-radius: 0;
 		border-bottom: 4px solid transparent;
-		color: $white50;
+		color: $white75;
 		transition: color 0.3s, border 0.3s;
-		padding: 13px 20px 9px;
+		padding: 15px 20px 10px;
+		font-weight: 400;
 	}
 	.button:hover, .button:focus {
 		background: transparent;
-		border-bottom: 4px solid $teal;
-		color: $tealLit;
+		border-bottom: 4px solid $tealLit;
+		color: $white;
 	}
 }

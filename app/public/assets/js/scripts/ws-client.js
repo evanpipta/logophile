@@ -32,7 +32,7 @@ module.exports = new function() {
 		setTimeout( function() {
 
 			var DCMessage = Vue.extend({
-				template: '<p class="center">The connection to the game server was closed. You may need to reload the page.</p>'
+				template: '<p class="center">The connection to the game server was closed. You may need to reload the page, or the site may be temporarily down. </p>'
 			});
 
 			Logophile.Popup.create( {
