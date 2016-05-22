@@ -1,11 +1,13 @@
 div( class="menu-bar" id="menu-bar" )
-	ul( class="side-menu" )
+	ul( class="side-menu flash-fix" )
 		li
 			a( href="#" )
 				span( class="hamburger" ) |||
 		li
 			a( href="/#" class="site-title" ) Logophile
 
-	ul( class="user-menu" )
+	ul( class="user-menu flash-fix" )
 		li
-			a( href="#"  )
+			a( href="#" ) <span class="text">Settings</span> !{locals.svg["settings-2.svg"]}
+		li
+			a( href="#" ) <span class="text">[[ displayUserName ]]</span> !{locals.svg["user-4.svg"]}

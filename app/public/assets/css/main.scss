@@ -45,9 +45,7 @@ $breakTabletSmall: 930px;	// Break point for smaller tablet version
 $breakMobile: 680px;			// Break point for full mobile version
 
 $sidebarWidth: 270px;			// Overall Sidebar width
-$sidebarWidthMobile: 42px;		// Sidebar width on mobile
-$gameInfoHeight: 200px;			// Height of the top left game info area
-$gameInfoHeightMobile: 42px;	// Height of the top left game info area on mobile, before it's opened
+$gameInfoHeight: 180px;			// Height of the top left game info area
 
 $sidebarPadding: 40px;			// Padding for elements in the sidebar
 $sidebarPaddingMobile: 10px;		// Padding for elements in the sidebar on mobile
@@ -221,66 +219,6 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 	color: rgba(255,255,255,0.3);
 }
 
-.logo-small {
-	position: absolute;
-	transition: left 0.2s;
-	margin-top: -3px;
-	top: $cornerOffset; left: $cornerOffset;
-	z-index: 400;
-	text-align: center;
-	span {
-		text-transform: uppercase;
-		color: $orange;
-		display: inline-block; vertical-align: top;
-		width: 12px; height: 20px;
-		text-align: center;
-		margin-left: 2px;
-	}
-	span.inverse {
-		background: $orange;
-		color: $grey;
-		width: 20px;
-	}
-	span.version {
-		width: auto;
-		position: absolute;
-		top: 22px; left: 0;
-		color: $grey2;
-		font-size: 12px;
-		text-transform: lowercase;
-	}
-	a {
-		display: inline-block;
-		width: 100%;
-		transition: background 0.3s;
-		height: 58px;
-		padding: 7px 0;
-		// border-radius: 3px;
-	}
-	a:hover {
-		background: $darkTransp1;
-		opacity: 1;
-	}
-}
-
-.logo-small.white {
-	position: static;
-	margin-bottom: 15px;
-	span {
-		color: $white;
-	}
-	span.inverse {
-		background: $white;
-		color: $teal;
-	}
-}
-
-.game .logo-small, .game .share  {
-	left: 60px + $sidebarWidth;
-	@media ( max-width: $breakTablet ) {
-		left: 60px + $sidebarWidthMobile;
-	}
-}
 
 .playercard {
 	z-index: 500;
@@ -371,7 +309,7 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 	// Children
 	p.label {
 		font-size: 14px;
-		margin-bottom: 10px;
+		margin-bottom: 7px;
 	}
 	h2 {
 		font: 400 24px/24px $fontStack;
@@ -404,19 +342,6 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 		li:hover {
 			background: $white50;
 		}
-	}
-	.toggle-menu-btn {
-		svg {
-			width: 100%;
-			height: 100%;
-			fill: $white50;
-		}
-		position: relative;
-		top: 0; left: 0;
-		margin: -10px 0 0 -10px;
-		width: $sidebarWidthMobile;
-		height: $sidebarWidthMobile;
-		display: none;
 	}
 }
 .sidebar {
@@ -596,7 +521,7 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 	height: 100%;
 	padding: 0 0 0 $sidebarWidth;
 	@media ( max-width: $breakTablet ) {
-		padding-left: $sidebarWidthMobile;
+		padding-left: 0;
 	}
 	.inner {
 		padding: $gameEdgePadding;

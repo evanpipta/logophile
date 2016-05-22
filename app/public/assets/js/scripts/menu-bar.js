@@ -1,6 +1,6 @@
 var Vue = require( "vue" );
 module.exports = new Vue( {
-	el: "#playercard",
+	el: "#menu-bar",
 	data: Logophile.User,
 	computed: {
 
