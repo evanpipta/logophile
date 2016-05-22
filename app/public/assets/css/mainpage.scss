@@ -87,11 +87,11 @@
 		}
 		.options li a { 
 			padding: 17px 17px 13px; opacity: 0.6;
-			border-bottom: 1px solid #fff;
+			border-bottom: 3px solid #fff;
 			@media ( max-width: $breakMobile ) {
 				width: 100%;
 				display: block;
-				margin: 10px auto;
+				margin: 0 auto;
 			} 
 		}
 		.options li a svg {
