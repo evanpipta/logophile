@@ -18,12 +18,8 @@ module.exports = new Vue( {
 		 * @return {Number} 
 		 */
 		boardpx: function() {
-			if ( window.innerWidth > 680 ) {
-				return Math.max( 300, Math.min( 500, this.gameData.game.board.length * 100 - 100 ) );
-			}
-			else {
-				return 300;
-			}
+			// UPDATE: let's redo the board size as local browser setting, not automatic resizing
+			return Math.min( 300, window.innerWidth );
 		},
 
 		/**

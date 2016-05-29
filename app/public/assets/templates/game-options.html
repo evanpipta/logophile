@@ -1,12 +1,12 @@
 <ul class="ui-options">
 	<li class="opt break-mobile">
-		<label for="game-name">Game name</label>
+		<label for="game-name">Name</label>
 		<span class="align-right">
 			<input onclick="select()" @blur="parent.validateGameOptions" v-model="parent.gameOpts.name.val" id="game-name" >
 		</span>
 	</li>
 	<li class="opt break-mobile">
-		<label for="timeLimitMins">Time limit</label>
+		<label for="timeLimitMins">Round time</label>
 		<span class="align-right">
 			<input id="timeLimitMins" onclick="select()" @blur="parent.validateGameOptions" maxlength="2" class="two-digit-input" v-model="parent.gameOpts.timeLimitMinutes.val">:<input onclick="select()" @blur="parent.validateGameOptions" maxlength="2" class="two-digit-input" v-model="parent.gameOpts.timeLimitSeconds.val">
 		</span>
@@ -38,7 +38,7 @@
 		</ul>
 	</li> -->
 	<li class="opt" v-bind:class="{ checked: parent.gameOpts.boardHighFrequency.val, unchecked: !parent.gameOpts.boardHighFrequency.val }">
-		<label for="highfreq">High frequency mode</label> <input type="checkbox" id="highfreq" v-model="parent.gameOpts.boardHighFrequency.val">
+		<label for="highfreq" class="check-label">High frequency mode</label> <input type="checkbox" id="highfreq" v-model="parent.gameOpts.boardHighFrequency.val">
 	</li>
 	<li class="opt break-mobile" v-bind:class="{ disabled: parent.gameOpts.boardHighFrequency.val }">
 		<label for="minWords">Minimum words in board</label> 

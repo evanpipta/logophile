@@ -20,7 +20,7 @@ $( document ).ready( function() {
 	// Load Vue elements on window loada
 	Logophile.Popup = require( "./scripts/popup.js" );
 	Logophile.MainPage = require( "./scripts/main-page.js" );
-	Logophile.PlayerCard = require( "./scripts/menu-bar.js" );
+	Logophile.MenuBar = require( "./scripts/menu-bar.js" );
 	Logophile.GameInner = require( "./scripts/game-inner.js" ); // Main "game" controllerq 
 	Logophile.Sidebar = require( "./scripts/sidebar.js" );
 	Logophile.GameInfo = require( "./scripts/game-info.js" );
@@ -200,12 +200,8 @@ module.exports = new Vue( {
 		 * @return {Number} 
 		 */
 		boardpx: function() {
-			if ( window.innerWidth > 680 ) {
-				return Math.max( 300, Math.min( 500, this.gameData.game.board.length * 100 - 100 ) );
-			}
-			else {
-				return 300;
-			}
+			// UPDATE: let's redo the board size as local browser setting, not automatic resizing
+			return Math.min( 300, window.innerWidth );
 		},
 
 		/**
@@ -756,19 +752,63 @@ module.exports.startHighlightTimer();
 },{"simple-ajax":15,"vue":82}],8:[function(require,module,exports){
 var Vue = require( "vue" );
 module.exports = new Vue( {
-	el: "#menu-bar",
-	data: Logophile.User,
-	computed: {
 
+	el: "#menu-bar",
+
+	data: {
+		user: Logophile.User,
+		showSidebarOnMobile: false,
+		showSettingsMenu: false,
+		showUserMenu: false,
+		windowWidth: 1200,
+		// breakpoint should be the same as "$tabletBreakpoint" in main.scss
+		sidebarBreakpoint: 1150,
+		// Added these in case we want to debounce window resize for performance
+		resizeDebounce: 500,
+		lastResizeTime: 0
+	},
+
+	computed: {
 		/**
 		 * The display name for the playercard. Only shows "Guest" if you're a guest, so you don't see the random number after it
 		 * @return {String} - the modified string
 		 */
 		displayUserName: function() {
-			return ( this.registered ) ? this.name : "Guest";
-		}
+			return ( this.user.registered ) ? this.user.name : "Guest";
+		},
 
+		/**
+		 * Whether the sidebar shows depends on the window size and on showSidebarMenuMobile
+		 */
+		showSidebar: function() {
+			return ( this.windowWidth > this.sidebarBreakpoint ) ? true : this.showSidebarOnMobile;
+		}
+	},
+
+	methods: {
+		toggleSidebar: function() {
+			if ( this.windowWidth <= this.sidebarBreakpoint ) {
+				this.showSidebarOnMobile = !this.showSidebarOnMobile;
+			}
+		},
+		toggleSettings: function() {
+			this.showSettingsMenu = !this.showSettingsMenu;
+			this.showUserMenu = false;
+		},
+		toggleUserMenu: function() {
+			this.showUserMenu = !this.showUserMenu;
+			this.showSettingsMenu = false;
+		},
+		onWindowResize: function() {
+			this.windowWidth = window.innerWidth;
+		}
+	},
+
+	ready: function () {
+		window.addEventListener("resize", this.onWindowResize);
+		this.windowWidth = window.innerWidth;
 	}
+
 } );
 },{"vue":82}],9:[function(require,module,exports){
 var Vue = require( "vue" );
@@ -833,7 +873,7 @@ module.exports = new Vue( {
 "use strict";
 
 var Vue = require( "vue" );
-// require( 'object-clone' );
+var MenuBar = require( "./menu-bar.js" );
 
 module.exports = new Vue( {
 	el: "#sidebar",
@@ -873,6 +913,10 @@ module.exports = new Vue( {
 			}
 
 			return infoOut;
+		},
+
+		show: function() {
+			return MenuBar.showSidebar;
 		}
 
 	},
@@ -939,7 +983,7 @@ $( function() {
 
 } );
 
-},{"vue":82}],11:[function(require,module,exports){
+},{"./menu-bar.js":8,"vue":82}],11:[function(require,module,exports){
 	
 var Vue = require("vue");
 
@@ -1067,7 +1111,7 @@ module.exports = new function() {
 		setTimeout( function() {
 
 			var DCMessage = Vue.extend({
-				template: '<p class="center">The connection to the game server was closed. You may need to reload the page.</p>'
+				template: '<p class="center">The connection to the game server was closed. You may need to reload the page, or the site may be temporarily down. </p>'
 			});
 
 			Logophile.Popup.create( {

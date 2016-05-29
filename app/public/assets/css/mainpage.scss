@@ -1,7 +1,6 @@
 #mainpage {
-	overflow: hidden;
-	height: 100%; width: 100%;
-
+	padding-top: 100px;
+	background: $darkGradientBody;
 	.menu {
 		// background: $grey;
 		width: 850px;
@@ -13,7 +12,6 @@
 		}
 		margin: 0 auto;
 		position: relative;
-		top: 50%;
 		transition: top 0.3s;
 		h1.notfound {
 			font: 300 40.4px/45px $fontStack;
@@ -40,7 +38,7 @@
 		}
 		.inner {
 			transition: transform 0.3s;
-			transform: translateY(-50%);
+			// transform: translateY(-50%);
 			p {
 				transition: opacity 0.2s, top 0.3s;
 				font-size: 14px;
@@ -87,7 +85,7 @@
 		}
 		.options li a { 
 			padding: 17px 17px 13px; opacity: 0.6;
-			border-bottom: 3px solid #fff;
+			border-bottom: 1px solid #fff;
 			@media ( max-width: $breakMobile ) {
 				width: 100%;
 				display: block;

@@ -12,8 +12,7 @@ html {
 	height: 100%;
 }
 body {
-	background: $grey;
-	background: linear-gradient(160deg, #444 0%, #2c2c2c 10%, #252525 20%, #202020 30%, #252525 100%) no-repeat scroll 0% 0%;
+	background: #252525;
 	height: 100%;
 	position: relative;
 }
@@ -77,4 +76,13 @@ a.disabled:hover {
 // Stops the browser from switching from normal to gpu rendering mode (?) on parents of elements with opacity transitions
 .flash-fix {
 	transform: translate3D(0,0.01%,0);
+}
+
+// Sets an element to "full vertical height" and also gives it vertical centering with flexbox
+.full-height {
+	min-height: 100vh;
+	padding: 70px 0 !important;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
 }

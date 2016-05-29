@@ -22,7 +22,7 @@
 		transition: background 0.2s;
 		@media ( max-width: $breakMobile ) {
 			width: 100%;
-			min-width: 360px;
+			min-width: 320px;
 		}
 		.two-digit-input {
 			width: 54px;
@@ -63,6 +63,9 @@
 			text-align: left;
 			cursor: pointer;
 			font-weight: 300;
+			&.check-label {
+				width: 100%;
+			}
 		}
 		span {
 			font-size: 14px;

@@ -37,6 +37,7 @@ $orangeLit: #FCAC36;				// Background color for hovered / active orange buttons 
 // Gradient backgrounds!
 $darkGradientPopup: linear-gradient(to bottom, #333 0%, #2e2e2e 30%, #2e2e2e 100%);
 $darkGradientSidebar: linear-gradient(to bottom, #333 200px, #242424 400px, #242424 100%);
+$darkGradientBody: linear-gradient(160deg, #444 0%, #2c2c2c 10%, #252525 20%, #202020 30%, #252525 100%) no-repeat scroll 0% 0% #252525;
 // $tealGradient: linear-gradient(to bottom, $teal 0%, #1E79A0 50%, #1C7595 100%);
 $tealGradient: linear-gradient(to bottom, #4F9FBC 0%, $teal 100%);
 
@@ -67,6 +68,8 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 
 // Import resets and global element styles
 @import "common";
+
+@import "grid";
 
 // Popup css
 @import "popup";
@@ -148,13 +151,22 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 .board {
 	// background: $darkTransp1;
 	transition: opacity 0.3s, box-shadow 0.3s;
-	width: $boardSize;
-	height: $boardSize;
-	min-height: $boardSize;
-	margin: 0 auto;
+	width: 100%;
+	margin: 20px auto;
 	box-shadow: 0 3px 20px rgba(0,0,0,0.1);
 	display: block;
 	position: relative;
+	&::after {
+		// Makes the board square in the responsive layout
+		content: '';
+		display: block;
+		padding-bottom: 100%;
+	}
+	.inner {
+		position: absolute;
+		height: 100%;
+		width: 100%;
+	}
 	.row {
 		margin-top:-1px;
 		height: 25%;
@@ -208,7 +220,7 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 
 .share {
 	z-index: 400;
-	position: absolute;
+	position: fixed;
 	transition: left 0.2s, opacity 0.3s;
 	bottom: 0px; right: 5px;
 	text-align: right;
@@ -315,7 +327,7 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 		transition: left 0.2s;
 	}
 	.controls {
-		position: fixed;
+		// position: fixed;
 		bottom: 0;
 		height: $sidebarControlsHeight;
 		width: $sidebarWidth;
@@ -419,18 +431,20 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 		background: none;
 		width: 100%;
 		height: auto;
-		padding: 5px 40px 30px;
+		padding: 5px 21px 30px;
 		font-size: 15px;
 		white-space: normal;
 		position: relative;
+		border: none;
 		span {
 			display: block;
 			position: absolute;
 			bottom: 2px;
 			padding-bottom: 6px;
-			left: 40px;
+			left: 21px;
 			white-space: nowrap;
 			border-bottom: 1px solid $grey3;
+			width: 196px;
 		}
 	}
 	ul li.opt:last-child {
@@ -455,63 +469,22 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 
 // Game elements
 .game {
+	background: $darkGradientBody;
 	height: 100%;
 	padding: 0 0 0 $sidebarWidth;
 	@media ( max-width: $breakTablet ) {
 		padding-left: 0;
 	}
-	.inner {
-		padding: $gameEdgePadding;
-		display: flex;
-		@media ( max-width: $breakMobile ) {
-			display: block;
-		}
-		align-content: stretch;
-		height: 100%;
-		.col {
-			text-align: center;
-			display: inline-block;
-			height: 100%;
-			vertical-align: top;
-			height: 100%;
-			// border-right: 1px solid $grey2;
-			flex: 2 1;
-		}
-		.col.left {
-			transition: max-width 0.3s;
-			max-width: 30%;
-			text-align: center;
-			@media ( max-width: $breakMobile ) {
-				display: none;
-			}
-		}
-		.col.center {
-			flex: 3 1;
-			max-width: $boardSize;
-			min-width: $boardSize;
-			// The width of this may be set by vue depending on board size
-			// But we want to override that with !important on small viewports
-			@media( max-width: $breakMobile )
-			{
-				min-width: 100% !important;
-				max-width: 100% !important;
-				width: 100% !important;
-			}
-		}
-	}
 	h2 { margin: 0 0 20px 0; }
 	h2, h2 span { font: $gameHeadingsFontWeight 24px/28px $fontStack; }
 	h2 span { float: right; }
-
+	.col {
+		text-align: center;
+	}
 	.remaining {
-		@media( max-width: $breakMobile )
-		{
+		@media( max-width: $breakMobile ) {
 			display: none;
 		}
-		height: 100%;
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
 		h2 span {
 			float: none;
 		}
@@ -563,18 +536,10 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 	}
 	.remaining-num {
 		margin-left: 5px; 
-		// padding-left: 10px;
-		// border-left: 1px solid $grey3;
 	}
 
 	.found {
-		height: 100%;
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		padding: $foundTopPadding $sidebarPadding*1.5 $foundTopPadding*1.3;
-		@media ( max-width: $breakMobile )
-		{
+		@media ( max-width: $breakMobile ) {
 			padding-top: 0;
 		}
 		text-align: left;
@@ -635,8 +600,6 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 	// solution verison of found words
 	.found.solution {
 		display: block;
-		max-height: 100%;
-		overflow-y: scroll;
 		box-sizing: border-box;
 		.found-section ul li {
 			// border-radius: 2px;
@@ -678,12 +641,6 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 	}
 
 	.game-center {
-		padding: 70px 0 50px;
-		height: 100%;
-		display: flex;
-		flex-direction: column;
-		// align-content: space-between;
-		justify-content: space-around;
 		.hud {
 			max-height: 33%;
 			.round-ended, .round-starts, .round-starts-timer {

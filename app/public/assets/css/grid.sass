@@ -1,0 +1,142 @@
+
+// Page widths at differen breaks (including left/right padding)
+$width-full: 1060px
+$width3: 880px
+$width2: 700px
+
+// Full break
+$breakFull: 1350px
+
+// Gutter width between columns
+$gutter: 30px
+
+// Space at the end of each row
+$row-margin: 18px
+
+.main-grid
+  // Fix collapsing margins on top/bottom
+  margin: -1px auto 0
+  padding: 1px $gutter/2
+  // Width breakpoints
+  width: $width-full
+  @media ( max-width: $breakFull )
+    width: $width3
+  @media ( max-width: $breakTabletSmall )
+    width: 100%
+    max-width: $width2
+
+.grid-row
+  display: block
+  width: $width-full - $gutter
+  @media ( max-width: $breakFull )
+    width: $width3 - $gutter
+  @media ( max-width: $breakTabletSmall )
+    width: 100%
+    max-width: $width2 - $gutter
+  height: auto
+  // Fix collapsing margins on top/bottom
+  margin: -1px auto 0px
+  padding: 1px auto 0
+  &:first-child
+    margin-top: $row-margin - 1
+  // clear fix (prevents row height collapsing)
+  &:after, &:before
+    content: " "
+    display: block
+    height: 0
+    clear: both
+  .col
+    display: inline-block
+    float: left
+    vertical-align: top
+    // Fix collapsing margins on top/bottom
+    margin: -1px auto $row-margin
+    padding: 1px $gutter/2 0
+    width: 100%
+    &.span11
+      width: 91.66%
+    &.span10
+      width: 83.33%
+    &.span9
+      width: 75%
+    &.span8
+      width: 66.66%
+    &.span7
+      width: 58.33%
+    &.span6
+      width: 50%
+    &.span5
+      width: 41.66%
+    &.span4
+      width: 33.33%
+    &.span3
+      width: 25%
+    &.span2
+      width: 16.66%
+    &.span1
+      width: 8.33%
+
+    // Break for all non-mini columns at the mobile breakpoint
+    &.span11:not(.mini), &.span10:not(.mini), &.span9:not(.mini), &.span8:not(.mini), &.span7:not(.mini), &.span6:not(.mini), 
+    &.span5:not(.mini), &.span4:not(.mini), &.span3:not(.mini), &.span2:not(.mini), &.span1:not(.mini)
+      @media ( max-width: $breakMobile )
+        width: 100%
+
+    // Break columns with ".wide" at the portrait breakpoint
+    &.span11.wide, &.span10.wide, &.span9.wide, &.span8.wide, &.span7.wide, &.span6.wide, 
+    &.span5.wide, &.span4.wide, &.span3.wide, &.span2.wide, &.span1.wide
+      @media ( max-width: $breakTabletSmall )
+        width: 100%
+
+    // Custom breaks for span3 (4x1 -> 2x2 -> 1x4)
+    &.span3
+      @media ( max-width: $breakTabletSmall )
+        width: 50%
+      @media ( max-width: $breakMobile )
+        width: 100%
+    &.span3.wide
+      @media ( max-width: $breakFull )
+        width: 50%
+      @media ( max-width: $breakTabletSmall )
+        width: 100%
+    // For asymmetical rows
+    &.span3.wide.asym
+      @media ( max-width: $breakFull )
+        width: 25%
+      @media ( max-width: $breakTabletSmall )
+        width: 100%
+
+    // Custom breaks for span2 (6x1 -> 3x2 -> 1x6)
+    &.span2
+      @media ( max-width: $breakTabletSmall )
+        width: 33%
+      @media ( max-width: $breakMobile )
+        width: 100%
+    &.span2.wide
+      @media ( max-width: $breakFull )
+        width: 33%
+      @media ( max-width: $breakTabletSmall )
+        width: 100%
+    &.span2.asym
+      @media ( max-width: $breakTabletSmall )
+        width: 100%
+
+    // Columns with bleed extend all the way into the gutter
+    &.bleed
+      padding: 1px 0 0
+
+// .clip wrappers for rows - hides overflow outside of layout width
+// Useful for clipping the excess edges of .bleed columns at the edges of the layout
+.clip
+  width: $width-full - $gutter*2
+  @media ( max-width: $breakFull )
+    width: $width3 - $gutter*2
+  @media ( max-width: $breakTabletSmall )
+    width: 100%
+    max-width: $width2 - $gutter*2
+  // Do clipping except in mobile (doesn't work at 100% width)
+  @media ( min-width: $breakMobile )
+    overflow-x: hidden
+    margin-left: $gutter/2
+    .row
+      margin-left: -$gutter/2

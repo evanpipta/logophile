@@ -1,7 +1,7 @@
 "use strict";
 
 var Vue = require( "vue" );
-// require( 'object-clone' );
+var MenuBar = require( "./menu-bar.js" );
 
 module.exports = new Vue( {
 	el: "#sidebar",
@@ -41,6 +41,10 @@ module.exports = new Vue( {
 			}
 
 			return infoOut;
+		},
+
+		show: function() {
+			return MenuBar.showSidebar;
 		}
 
 	},

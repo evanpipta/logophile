@@ -19,7 +19,7 @@ $( document ).ready( function() {
 	// Load Vue elements on window loada
 	Logophile.Popup = require( "./scripts/popup.js" );
 	Logophile.MainPage = require( "./scripts/main-page.js" );
-	Logophile.PlayerCard = require( "./scripts/menu-bar.js" );
+	Logophile.MenuBar = require( "./scripts/menu-bar.js" );
 	Logophile.GameInner = require( "./scripts/game-inner.js" ); // Main "game" controllerq 
 	Logophile.Sidebar = require( "./scripts/sidebar.js" );
 	Logophile.GameInfo = require( "./scripts/game-info.js" );
