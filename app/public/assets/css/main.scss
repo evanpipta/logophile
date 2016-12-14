@@ -315,7 +315,7 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 		transition: left 0.2s;
 	}
 	.controls {
-		position: fixed;
+		// position: fixed;
 		bottom: 0;
 		height: $sidebarControlsHeight;
 		width: $sidebarWidth;
@@ -419,18 +419,20 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 		background: none;
 		width: 100%;
 		height: auto;
-		padding: 5px 40px 30px;
+		padding: 5px 21px 30px;
 		font-size: 15px;
 		white-space: normal;
 		position: relative;
+		border: none;
 		span {
 			display: block;
 			position: absolute;
 			bottom: 2px;
 			padding-bottom: 6px;
-			left: 40px;
+			left: 21px;
 			white-space: nowrap;
 			border-bottom: 1px solid $grey3;
+			width: 196px;
 		}
 	}
 	ul li.opt:last-child {
@@ -452,6 +454,7 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 		padding: 30px 0 0;
 	}
 }
+
 
 // Game elements
 .game {
