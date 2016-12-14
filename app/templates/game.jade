@@ -7,6 +7,7 @@ include ./parts/assets.jade
 
 body
 
+	include ./parts/background.jade
 	include ./parts/popup.jade
 	include ./parts/menu-bar.jade
 	include ./parts/share.jade
@@ -37,7 +38,7 @@ body
 
 				div( class="col span6 center" )
 					div( class="game-center" )
-						div( class="hud" id="hud" )
+						div( class="hud" id="hud" v-bind:style="{ maxWidth: boardpx+'px' }" )
 
 							div( class="time-wrapper" v-if="gameData.game.initd && gameData.game.roundStarted" )
 								h2( class="timer" )
@@ -58,7 +59,7 @@ body
 							h2( class="waiting-to-start" v-if="!gameData.game.initd" ) Waiting to start first round
 							a( href="#" class="button" v-if="!gameData.game.initd" v-on:click="startGame()") !{locals.svg["play.svg"]} Start Game 
 
-						div( class="board" v-bind:class="{ 'active': gameData.game.roundStarted || gameData.game.rounds < 0 }" )
+						div( class="board" v-bind:class="{ 'active': gameData.game.roundStarted || gameData.game.rounds < 0 }" v-bind:style="{ maxWidth: boardpx+'px' }" )
 							div( class="inner" )
 								div( class="row" v-bind:style="{ height: 100/gameData.game.board.length+'%' }" v-for="x in gameData.game.board" )
 									div( v-bind:class="{ 'cell': true, 'alt': false, 'on': this.boardHighlighted[$parent.$index][$index].highlight == 'on', 'partial': this.boardHighlighted[$parent.$index][$index].highlight == 'partial' }"  
@@ -67,7 +68,7 @@ body
 										div( class="letter" v-bind:style="{ fontSize: boardpx*0.5/gameData.game.board.length + 'px' }" ).
 											[[ gameData.game.board[$parent.$index][$index].letter ]]
 
-						div( class="word" )
+						div( class="word" v-bind:style="{ maxWidth: boardpx+'px' }" )
 							input( type="text" value="type here" 
 								v-model="wordToCheck"
 								v-on:keydown.enter="submit($event)" 

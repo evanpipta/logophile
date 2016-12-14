@@ -79,6 +79,8 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 
 @import "menu-bar";
 
+@import "background";
+
 // Scrollbar CSS
 @import "trackpad-scroll-emulator";
 
@@ -469,7 +471,9 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 
 // Game elements
 .game {
-	background: $darkGradientBody;
+	position: relative;
+	z-index: 10;
+	// background: $darkGradientBody;
 	height: 100%;
 	padding: 0 0 0 $sidebarWidth;
 	@media ( max-width: $breakTablet ) {
@@ -642,7 +646,7 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 
 	.game-center {
 		.hud {
-			max-height: 33%;
+			margin: 0 auto;
 			.round-ended, .round-starts, .round-starts-timer {
 				color: $white;
 			}
@@ -693,12 +697,8 @@ $cornerOffset: 20px;				// How much absolute positioned elements at the screen c
 			}
 		}
 		.word {
-			@media ( max-width: $breakMobile ) {
-				display: none;
-			}
-			max-height: 33%;
 			position: relative;
-			// top: -8%;
+			margin: 0 auto;
 			input[type="text"] {
 				@include textInput(22px, 6px);
 				border: 0;

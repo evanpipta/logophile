@@ -1,5 +1,4 @@
 {
-
 	"/": {
 		"template": "main"
 	},
@@ -7,7 +6,6 @@
 		"redirect": "/",
 		"status": 301
 	},
-
 	"/game/": {
 		"template": "game"
 	},
@@ -19,5 +17,4 @@
 		"redirect": "/game/",
 		"status": 301
 	}
-
 }

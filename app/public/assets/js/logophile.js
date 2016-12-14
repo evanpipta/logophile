@@ -16,15 +16,14 @@ Logophile.BoardHighlighter = require( "./scripts/board-highlighter.js" );
 
 $( document ).ready( function() {
 
-	// Load Vue elements on window loada
-	Logophile.Popup = require( "./scripts/popup.js" );
-	Logophile.MainPage = require( "./scripts/main-page.js" );
-	Logophile.MenuBar = require( "./scripts/menu-bar.js" );
-	Logophile.GameInner = require( "./scripts/game-inner.js" ); // Main "game" controllerq 
-	Logophile.Sidebar = require( "./scripts/sidebar.js" );
-	Logophile.GameInfo = require( "./scripts/game-info.js" );
-
-	// Logophile.CanvasRenderer = require('./scripts/canvas-renderer');
+	Logophile.Popup =	 $("#popup-background")[0]	? require( "./scripts/popup.js" ) : null;
+	Logophile.MainPage = $("#mainpage")[0] ? require( "./scripts/main-page.js" ) : null;
+	Logophile.MenuBar = $("#menu-bar")[0] ? require( "./scripts/menu-bar.js" ) : null;
+	Logophile.GameInner = $("#game-inner")[0] ? require( "./scripts/game-inner.js" ) : null;
+	Logophile.Sidebar = $("#sidebar")[0] ? require( "./scripts/sidebar.js" ) : null;
+	Logophile.GameInfo = $("#game-info")[0] ? require( "./scripts/game-info.js" ) : null;
+	
+	Logophile.Background = require("./scripts/background.js");
 
 	$( ".tse-scrollable" ).each( function() {
 		$( this ).TrackpadScrollEmulator();

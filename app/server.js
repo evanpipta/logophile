@@ -24,9 +24,7 @@ module.exports = new function() {
 	// Load the svg icons
 	var icons = new SvgLoader( {
 		svgdir: "/svg",
-		callback: function() {
-			console.log( "svg icons loaded" );
-		}
+		callback: () => { console.log( "svg icons loaded" ) }
 	} );
 
 	var self = this;
@@ -35,18 +33,11 @@ module.exports = new function() {
 	 * Create a new user in the game list with session id and connection attached
 	 */
 	this.createUser = function( sessId, connection ) {
-
 		// Instantiate a new user using the session id
-		var user = UserList.create( {
-			id: sessId
-		} );
+		var user = UserList.create( { id: sessId } );
 		user.server = this;
 		user.bindConnection( connection );
 		console.log( "Creating new user " + sessId );
-
-		// If the session is logged in, attach login data to the new user
-
-
 	}
 
 	/**
@@ -88,12 +79,10 @@ module.exports = new function() {
 	}
 
 	// Create socket server and bind connection event
-	var socketServer = new WebSocketServer( {
-		"port": 8080
-	} );
-	socketServer.on( "connection", function( conn ) {
+	var socketServer = new WebSocketServer( { "port": 8080 } );
+	socketServer.on( "connection", ( conn ) => {
 		self.handleConnection( conn );
-	} );
+	});
 
 	/**
 	 * Map requests for actual pages, to handle some redirects and asks the html builder for the correct page type

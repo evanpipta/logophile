@@ -26,6 +26,7 @@ $row-margin: 18px
     max-width: $width2
 
 .grid-row
+  text-align: center
   display: block
   width: $width-full - $gutter
   @media ( max-width: $breakFull )
@@ -47,7 +48,7 @@ $row-margin: 18px
     clear: both
   .col
     display: inline-block
-    float: left
+    // float: left
     vertical-align: top
     // Fix collapsing margins on top/bottom
     margin: -1px auto $row-margin
@@ -75,6 +76,8 @@ $row-margin: 18px
       width: 16.66%
     &.span1
       width: 8.33%
+    &:last-child
+      margin-right: -2%
 
     // Break for all non-mini columns at the mobile breakpoint
     &.span11:not(.mini), &.span10:not(.mini), &.span9:not(.mini), &.span8:not(.mini), &.span7:not(.mini), &.span6:not(.mini), 
