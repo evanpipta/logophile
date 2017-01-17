@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Logophile | Multiplayer Online Boggle</title>
+		<meta name="description" content="Logophile is a free multiplayer word game inspired by boggle.">
+		<% include partials/metatags.ejs %>
+		<% include partials/assets.ejs %>
+	</head>
+	<body>
+		<% include partials/popup.ejs %>
+		<% include partials/menu-bar.ejs %>
+		<% include partials/share.ejs %>
+
+		<div id="mainpage">
+			<div class="menu" v-bind:class="{ 'open' : !!openScreen }">
+				<div class="inner">
+					<%# img( src="/assets/images/logo-308px.png" class="main-logo" alt="Logophile" ) %>
+
+					<div class="flash-fix">
+						<div class="board">
+							<div class="row" 
+								v-bind:style="{height: 100/gameData.game.board.length+'%'}"
+								v-for="x in gameData.game.board">
+								<div v-bind:class="{
+										'cell': true,
+										'on': this.boardHighlighted[$parent.$index][$index].highlight == 'on', 
+										'partial': this.boardHighlighted[$parent.$index][$index].highlight == 'partial'
+									}"
+									v-bind:style="{width: 100/gameData.game.board.length+'%'}"
+									v-for="y in gameData.game.board[$index]"
+									track-by="$index">
+									<div class="letter" style="font-size: 24px; font-weight: 300;">
+										[[ gameData.game.board[$parent.$index][$index].letter ]]
+									</div>
+								</div>
+							</div>
+						</div>
+						<h2>Logophile.online &mdash; Play free online boggle games with other people!</h2>
+						<p>
+							<span class="logophile">Logophile</span> is a multiplayer word game inspired by boggle that can be played on desktop and mobile browsers. Invite friends or play by yourself. Customize the board settings to create the type of game you want to play, or join an existing one! Logophile is a <span class="logophile">work in progress</span>, so keep that in mind and have fun!
+						</p>
+					</div>
+
+					<ul class="options inline">
+						<li>
+							<a href="#" class="disabled" title="Currently Unavailable" 
+								v-bind:class="{'active' : openScreen == 'gameList'}">
+								<%- locals.svg['browser-upload-2.svg'] %> Join Game
+							</a>
+						</li>
+						<li>
+							<a href="#" 
+								v-on:click="createGamePopup()" 
+								v-bind:class="{ 'active' : openScreen == 'createNew' }">
+								<%- locals.svg['browser-new-window-2.svg'] %> Create New Game
+							</a>
+						</li>
+						<li>
+							<a href="#" class="disabled" title="Currently Unavailable" 
+								v-bind:class="{ 'active' : openScreen == 'howToPlay' }">
+								<%- locals.svg["bulb.svg"] %> How to Play
+							</a>
+						</li>
+					</ul>
+
+				</div>
+			</div>
+		</div>
+		
+		<% include partials/footer-assets.ejs %>
+	</body>
+</html>

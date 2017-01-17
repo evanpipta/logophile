@@ -1,10 +1,10 @@
 {
   "name": "logophile",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "a word solving game",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
+    "start": "PORT=3000 node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Evan Pipta",
@@ -14,9 +14,9 @@
     "bcrypt": "^0.8.5",
     "cookie-parser": "^1.4.0",
     "defaults": "^1.0.3",
+    "ejs": "^2.5.5",
     "express": "^4.13.3",
     "express-render-sass": "^0.1.0",
-    "jade": "^1.11.0",
     "jquery": "^2.2.0",
     "node-sass": "^3.3.3",
     "object-clone": "^0.1.1",

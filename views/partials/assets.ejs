@@ -1,0 +1,49 @@
+<link rel="stylesheet" type="text/css" href="/assets/css/main.css">
+
+<script>
+	window.Logophile = {
+		RandomName: '<%= locals.rn %>',
+		GameData: {
+			game: {
+				id: 0,
+				name: '',
+				board: <%- locals.board || '{}' %>,
+				boardSize: 4,
+				timeLimit: 60,
+				pauseTime: 0,
+				ranked: false,
+				allowGuests: true,
+				scoreStyle: 'Normal',
+				private: false,
+				initd: false,
+				roundStarted: false,
+				roundTime: 0,
+				paused: true,
+				rounds: 0,
+				minLettersToScore: 4,
+				boardHighFrequency: true,
+				boardRequireLength: 9,
+				boardMinWords: 300,
+				wordCounts: {},
+				solution: <%- locals.solution || '{}' %>
+			},
+			users: {
+				playing: []
+			},
+			usersWithoutScores: {
+				playing: []
+			}
+		},
+		User: {
+			id: '',
+			logged: false,
+			joinedId: 0,
+			gameRef: null,
+			isPlaying: false,
+			words: {},
+			score: 0,
+			name: '',
+			registered: false
+		}
+	};
+</script>
