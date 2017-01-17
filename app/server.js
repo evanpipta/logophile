@@ -5,7 +5,6 @@ var User = require( "./user" );
 var UserList = require( "./userlist" );
 var GameList = require( "./gamelist" );
 var Express = require( "express" );
-var Jade = require( "jade" );
 var Sass = require( "node-sass" );
 var RenderSass = require( "express-render-sass" );
 var CookieParser = require( "cookie-parser" );
@@ -22,12 +21,12 @@ module.exports = new function() {
 	console.log( "starting server" );
 
 	// Load the svg icons
-	var icons = new SvgLoader( {
+	var icons = new SvgLoader({
 		svgdir: "/svg",
 		callback: function() {
 			console.log( "svg icons loaded" );
 		}
-	} );
+	});
 
 	var self = this;
 
@@ -45,8 +44,6 @@ module.exports = new function() {
 		console.log( "Creating new user " + sessId );
 
 		// If the session is logged in, attach login data to the new user
-
-
 	}
 
 	/**
@@ -84,16 +81,11 @@ module.exports = new function() {
 			// Otherwise bind this connection to the existing user
 			UserList.users[ cookie.sessId ].bindConnection( connection );
 		}
-
 	}
 
-	// Create socket server and bind connection event
-	var socketServer = new WebSocketServer( {
-		"port": 8080
-	} );
-	socketServer.on( "connection", function( conn ) {
-		self.handleConnection( conn );
-	} );
+	// Websocket server
+	const wss = new WebSocketServer({'port': 8080});
+	wss.on('connection', self.handleConnection);
 
 	/**
 	 * Map requests for actual pages, to handle some redirects and asks the html builder for the correct page type
@@ -166,15 +158,16 @@ module.exports = new function() {
 				// Individual user data gets destroyed any time the user loads a new page, and rebuilt when the new websocket connection is opened
 				var GameData = {};
 				var UserData = {};
-				if ( PageRoutes[ url ].template == "game" ) {
-					var gid = parseInt( Object.keys( params )[ 0 ] );
+				if (PageRoutes[ url ].template == "game") {
+					var gid = parseInt(Object.keys(params)[0]);
 					var g = GameList.getById( gid );
 					console.log( "Game id: " + gid + " Game exists: " + !!g );
 					if ( !g ) {
-						// If the game doesn't exist, return a game doesn't exist page
-						res.send( Jade.renderFile( __dirname + "/templates/nogame.jade", {
-							version: PackageInfo.version
-						} ) );
+						res.locals = {
+							PackageInfo,
+							svg: icons.svg
+						};
+						res.status(200).render(`nogame.ejs`);
 						return;
 					}
 					else {
@@ -184,72 +177,57 @@ module.exports = new function() {
 					}
 				}
 
-				// For the main page, we should do a callback with the board finished
-				if ( PageRoutes[ url ].template == "main" ) {
-
-					console.log( "Generating board for main page" );
-					// Make sure to include logophile in the board eventually
-					// For now just test to make sure we can generate the board properly
+				if (PageRoutes[url].template == 'main') {
+					// Generate a random board to display on the homepage
+					console.log('Generating random board for homepage');
 					var b = new Board();
-					b.randomize( 4, function() {
-
-						console.log( "Sending main page with generated board" );
-						res.send( Jade.renderFile( __dirname + "/templates/" + PageRoutes[ url ].template + ".jade", {
-							rn: Dictionary.getRandom( Math.round( Math.random() * 9 ) + 3 ) + " " + Dictionary.getRandom( Math.round( Math.random() * 9 ) + 3 ),
-							version: PackageInfo.version,
-							pagetype: PageRoutes[ url ].template,
-							board: JSON.stringify( b.getBoard() ),
-							solution: JSON.stringify( b.solution ),
-							svg: icons.svg,
-							pretty: "  "
-						} ) );
-
-					} );
-
-				}
-				else {
-					// Send data back
-					// res.send("Page type: " + PageRoutes[ url ].template + "<br>" + "Query string: " + JSON.stringify( params ) );
-					res.send( Jade.renderFile( __dirname + "/templates/" + PageRoutes[ url ].template + ".jade", {
-						version: PackageInfo.version,
-						pagetype: PageRoutes[ url ].template,
+					b.randomize(4, () => {
+						res.locals = {
+							PackageInfo,
+							rn: `${Dictionary.getRandom(Math.round(Math.random() * 9) + 3)} ${Dictionary.getRandom(Math.round(Math.random() * 9) + 3)}`,
+							pagetype: PageRoutes[url].template,
+							board: JSON.stringify(b.getBoard()),
+							solution: JSON.stringify(b.solution),
+							svg: icons.svg
+						};
+						res.status(200).render('homepage.ejs');
+					});
+				} else {
+					res.locals = {
+						PackageInfo,
+						pagetype: PageRoutes[url].template,
 						board: "[[' ',' ',' ',' '],[' ',' ',' ',' '],[' ',' ',' ',' '],[' ',' ',' ',' ']]",
 						solution: "{}",
-						svg: icons.svg,
-						pretty: "  "
-					} ) );
+						svg: icons.svg
+					};
+					res.status(200).render(`${PageRoutes[url].template}.ejs`);
 				}
-
-			} );
+			});
 		}
 	}
 
-	// Create express server and listen for requests
+	// Server server
 	var app = Express();
-	var expressServer = app.listen( httpPort, function() {
-		var host = expressServer.address().address;
-		var port = expressServer.address().port;
-		console.log( 'Server listening at http://' + host + port );
-	} );
+	app.listen(httpPort, () => {
+		console.log(`Server listening on port ${httpPort}`);
+	});
 
 	// Cookie parser
-	app.use( CookieParser() );
+	app.use(CookieParser());
 
 	// Auto-render any SCSS or SASS to CSS when requesting a .css file
-	app.use( RenderSass( __dirname + "/public" ) );
+	// Maybe this should actually be done offline
+	app.use(RenderSass(`${__dirname}/public`));
 
 	// Set up static files to serve from the public directory
-	var staticinstance = Express.static( __dirname + "/public", {
+	app.use(Express.static(`${__dirname}/public`, {
 		index: false,
 		maxAge: 1,
-		setHeaders: function( res, path, stat ) {
-			// res.set("Content-Type", "text/html");
-		}
-	} );
-	app.use( staticinstance );
+		setHeaders: (res, path, stat) => {/*res.set("Content-Type", "text/html");*/}
+	}));
 
-	// Add trailing slashes if they don't exist and there's no filename specified
-	app.use( function( req, res, next ) {
+	// Add trailing slashes
+	app.use((req, res, next) => {
 		var spliturl = req.url.split( "?" );
 		var urlparts = spliturl[ 0 ].split( "/" );
 		if ( urlparts[ urlparts.length - 1 ].indexOf( "." ) > -1 ) {
@@ -266,16 +244,20 @@ module.exports = new function() {
 		else {
 			next();
 		}
-	} );
+	});
 
 	// Map non-static pages
 	this.mapPages();
 
-	// 404
-	app.use( function( req, res, next ) {
-		res.status( 404 ).send( Jade.renderFile( __dirname + "/templates/404.jade", {
-			version: PackageInfo.version
-		} ) );
-	} );
+	/**
+	 * Handle 404
+	 */
+	app.use((req, res, next) => {
+		res.locals = {
+			PackageInfo,
+			svg: icons.svg
+		};
+		res.status(404).render('404.ejs');
+	});
 
 }
