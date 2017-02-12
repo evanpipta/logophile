@@ -1,5 +1,6 @@
 var Defaults = require( "defaults" );
-var Frequencies = require( "./frequencies" );
+
+var Frequencies = require( "../config/frequencies" );
 var Board = require( "./board" );
 var Dictionary = require( "./dictionary" );
 var User = require( "./user" );
@@ -55,7 +56,7 @@ module.exports = function( options ) {
 	this.data.pauseStartTime = 0;
 
 	// Current board
-	this.data.board = new Board( this.data.boardSize );
+	this.data.board = new Board({ size: this.data.boardSize });
 
 	// Timer for broadcasting game updates to connected users
 	this.updateTimerId = null;

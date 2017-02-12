@@ -1,4 +1,5 @@
-var Fs = require( "fs" );
+var fs = require('fs');
+var path = require('path');
 
 /**
  * Dictionary object
@@ -6,7 +7,7 @@ var Fs = require( "fs" );
 module.exports = new function() {
 
 	var dict = this;
-	var dictionaryFilename = __dirname + "/CSW.json";
+	var dictionaryFilename = path.join(__dirname, '..', 'config', 'CSW.json');
 	var encoding = "utf8";
 	var loaded = false;
 
@@ -22,7 +23,7 @@ module.exports = new function() {
 	 */
 	this.preComputeDictionary = function( dictTextFile ) {
 		console.time( "Output dictionary JSON to " + dictionaryFilename );
-		Fs.readFile( dictTextFile, encoding, function( err, data ) {
+		fs.readFile( dictTextFile, encoding, function( err, data ) {
 
 			if ( err ) {
 				throw err;
@@ -44,7 +45,7 @@ module.exports = new function() {
 				}
 			}
 
-			Fs.writeFile( dictionaryFilename, JSON.stringify( output ), encoding, function( err ) {
+			fs.writeFile( dictionaryFilename, JSON.stringify( output ), encoding, function( err ) {
 				if ( err ) {
 					throw err;
 				}
@@ -61,7 +62,7 @@ module.exports = new function() {
 	this.loadDictionary = function() {
 		console.time( "Loaded dictionary file" );
 		// Read the file into fileContents
-		Fs.readFile( dictionaryFilename, encoding, function( err, data ) {
+		fs.readFile( dictionaryFilename, encoding, function( err, data ) {
 			if ( err ) {
 				throw err;
 			}

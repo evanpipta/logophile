@@ -1,17 +1,22 @@
-require( "object-clone" );
-var Dictionary = require( "./dictionary" );
-var Sequence = require( "./sequence" );
-var Frequencies = require( "./frequencies" );
-var Score = require( "./score" );
+require('object-clone');
+
+const frequencies = require('../config/frequencies');
+const Dictionary = require('./dictionary');
+const Sequence = require('./sequence');
+const Score = require('./score');
 
 /**
  * Board class
- * @param {Number} size - board size 
+ * @param {object} options - board options
  */
-module.exports = function( size ) {
+module.exports = function(options) {
 
-	// keys are the letters and values are their frequency
-	this.letters = Frequencies[ "UNIQUES" ];
+	this.letters = frequencies['UNIQUES']; // keys are the letters and values are their frequency
+
+	this.wordLengthRequirement = options.wordLengthRequirement || 8; // minimum letters in longest word
+	this.highFreq = options.highFreq || false; // High frequency mode
+	this.minWords = options.minWords || 0;	// minimum words to generate in board
+	this.boardSize = options.size || 4;	// board size
 
 	// All the words in the board
 	this.solution = {};
@@ -19,7 +24,6 @@ module.exports = function( size ) {
 	// All words in the board sorted by length
 	this.solutionSorted = {};
 
-	this.boardSize = typeof size == "number" ? size : 4;
 	this.boardArray = [];
 	this.bonusword = "";
 
@@ -30,12 +34,6 @@ module.exports = function( size ) {
 	this.boardsChecked = 0;
 	this.bestMinWordLength = 0;
 	this.isRandomizing = false;
-
-	// Boards being generated must have at least one word with this length to be used
-	this.wordLengthRequirement = 9;
-
-	// Minimum word requirement
-	this.minWords = 0;
 
 	// The game this board is part of, if any
 	this.gameRef = null;
@@ -98,9 +96,9 @@ module.exports = function( size ) {
 	/**
 	 * Randomize the board
 	 */
-	this.randomize = function( size, callback ) {
+	this.randomize = function(size, callback) {
 
-		this.boardSize = typeof size == "number" ? size : this.boardSize;
+		this.boardSize = size || this.boardSize;
 		this.boardArray = [];
 		for ( var i = 0; i < this.boardSize; i++ ) {
 			this.boardArray[ i ] = [];

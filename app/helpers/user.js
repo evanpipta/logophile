@@ -1,6 +1,5 @@
 var Defaults = require( "defaults" );
 var GameList = require( "./gamelist" );
-var UserList = require( "./userlist" );
 var Score = require( "./score" );
 var MultiConnection = require( "./multiconnection" );
 

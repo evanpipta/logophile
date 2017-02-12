@@ -1,0 +1,12 @@
+[
+	{
+		"route": "/",
+		"name": "index"
+	}, {
+		"route": "/game",
+		"name": "game"
+	}, {
+		"route": "/game/:id",
+		"name": "game"
+	}
+]
