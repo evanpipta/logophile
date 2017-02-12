@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "PORT=3000 node index.js",
+    "build": "browserify ./app/public/assets/js/logophile.js -o ./app/public/assets/js/logophile.build.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Evan Pipta",
