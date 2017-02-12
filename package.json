@@ -1,10 +1,10 @@
 {
   "name": "logophile",
-  "version": "0.2.5",
+  "version": "0.4.0",
   "description": "a word solving game",
   "main": "index.js",
   "scripts": {
-    "start": "PORT=3000 node index.js",
+    "start": "npm run build && PORT=3000 node index.js",
     "build": "browserify ./app/public/assets/js/logophile.js -o ./app/public/assets/js/logophile.build.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -22,11 +22,11 @@
     "jquery": "^2.2.0",
     "node-sass": "^3.3.3",
     "object-clone": "^0.1.1",
-    "vue": "^1.0.0-rc.2",
+    "vue": "^2.1.10",
     "ws": "^0.8.0"
   },
   "engines": {
-    "node": "0.12.7",
+    "node": ">=6.3.1",
     "npm": "2.11.3"
   },
   "devDependencies": {
