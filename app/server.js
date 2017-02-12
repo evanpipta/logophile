@@ -9,57 +9,30 @@ const renderSass = require('express-render-sass');
 const webSocketWrapper = require('./helpers/web-socket-wrapper');
 webSocketWrapper.startServer();
 
-// Config
+// Config stuff
 const package = require('../package');
 const routes = require('./config/routes');
 
-const sessionTimeout = 900000;
 const port = process.env.PORT || 80;
-
-// Load svgs into memory
-// Maybe we can just render them straight by 'including' them in the ejs
-let svg = {};
-// const svgLoader = require('./helpers/svg-loader');
-// svgLoader({
-// 	dirname: `${__dirname}/svg`,
-// 	done: (svgs) => {
-// 		svg = svgs;
-// 		console.log('svg icons loaded');
-// 	}
-// });
-
 
 const app = express();
 app.set('view engine', 'ejs');
-
-
-// Parse cookies
 app.use(cookieParser());
-
-
-// Render .scss and .sass files to css upon request
-// This should be done offline in future for performance
 app.use(renderSass(`${__dirname}/public`));
-
-
-// Serve static files
 app.use(express.static(`${__dirname}/public`, { index: false, maxAge: 1 }));
-
 
 // Session cookie
 app.use((req, res, next) => {
 	const session = req.cookies.session || Math.random().toString().slice(2) + Date.now().toString();
-	res.cookie('session', session, { maxAge: sessionTimeout });
+	res.cookie('session', session, { maxAge: 900000 });
 	next();
 });
-
 
 // Side-wide locals
 app.use((req, res, next) => {
-	res.locals = { package, svg };
+	res.locals = { package };
 	next();
 });
-
 
 // Load all the routes
 for (const routeInstance of routes) {
@@ -67,18 +40,12 @@ for (const routeInstance of routes) {
 	app.get(routeInstance.route, controller({ routeInstance, app }));
 }
 
-
-/**
- * Handle 404
- */
+// Handle 404
 app.use((req, res, next) => {
 	res.status(404).render('404');
 });
 
-
-/**
- * Start the server
- */
+// Start the server
 app.listen(port, () => {
 	console.log(`Server listening on port ${port}`);
 });

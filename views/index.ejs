@@ -45,20 +45,20 @@
 						<li>
 							<a href="#" class="disabled" title="Currently Unavailable" 
 								v-bind:class="{'active' : openScreen == 'gameList'}">
-								<%- locals.svg['browser-upload-2.svg'] %> Join Game
+								<%- include('svg/browser-upload-2.svg') %> Join Game
 							</a>
 						</li>
 						<li>
 							<a href="#" 
 								v-on:click="createGamePopup()" 
 								v-bind:class="{ 'active' : openScreen == 'createNew' }">
-								<%- locals.svg['browser-new-window-2.svg'] %> Create New Game
+								<%- include('svg/browser-new-window-2.svg') %> Create New Game
 							</a>
 						</li>
 						<li>
 							<a href="#" class="disabled" title="Currently Unavailable" 
 								v-bind:class="{ 'active' : openScreen == 'howToPlay' }">
-								<%- locals.svg["bulb.svg"] %> How to Play
+								<%- include('svg/bulb.svg') %> How to Play
 							</a>
 						</li>
 					</ul>

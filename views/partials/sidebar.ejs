@@ -8,7 +8,7 @@
 	<div class="upper" v-bind:style="{ left: -270 * panelSelected + 'px' }">
 		<div class="leaderboard panel tse-scrollable">
 			<div class="tse-content">
-				<h3>Player Score <%- locals.svg['clipboard-2.svg'] %></h3>
+				<h3>Player Score <%- include('svg/clipboard-2.svg') %></h3>
 				<ul id="scores">
 					<%// Scoreboard is done in jquery %>
 				</ul>
@@ -17,7 +17,7 @@
 
 		<div class="game-setup panel tse-scrollable">
 			<div class="tse-content">
-				<h3>Game Info <%- locals.svg['mixer.svg'] %></h3>
+				<h3>Game Info <%- include('svg/mixer.svg') %></h3>
 				<ul class="ui-options">
 					<li v-for="value in gameInfo" class="opt"> [[$key]]:
 						<!-- <span v-if="typeof value == 'boolean'" class="checkbox" v-bind:class="{ checked: value }" ></span>%> -->
@@ -29,7 +29,7 @@
 		</div>
 
 		<div class="chat panel">
-			<h3 style="margin-top: 30px;">Player Chat <%- locals.svg['speech-bubble-right-2.svg'] %></h3>
+			<h3 style="margin-top: 30px;">Player Chat <%- include('svg/speech-bubble-right-2.svg') %></h3>
 		</div>
 	</div>
 
