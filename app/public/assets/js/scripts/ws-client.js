@@ -1,5 +1,3 @@
-
-var Vue = require("vue");
 require("./vue-sync.js");
 
 module.exports = new function() {

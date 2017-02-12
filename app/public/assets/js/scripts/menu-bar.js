@@ -1,4 +1,4 @@
-var Vue = require( "vue" );
+
 module.exports = new Vue( {
 	el: "#menu-bar",
 	data: Logophile.User,

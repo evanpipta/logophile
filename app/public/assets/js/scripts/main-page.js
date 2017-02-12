@@ -1,5 +1,4 @@
-var Vue = require( "vue" );
-var Ajax = require( "simple-ajax" );
+// var Ajax = require( "simple-ajax" );
 module.exports = new Vue( {
 
 	el: "#mainpage",
@@ -55,33 +54,38 @@ module.exports = new Vue( {
 		 */
 		createGamePopup: function() {
 
-			// Get popup html via ajax
-			var ajax = new Ajax( "/assets/templates/game-options.html" );
-			ajax.on( "success", function( event ) {
+			$.ajax({
+				url: '/assets/templates/game-options.html',
+				method: 'GET',
+				success: (data) => {
+					if (data) {
+						// Create template from response html
+						var GameOptionsTemplate = Vue.extend({
+							data: function() {
+								return {
+									parent: Logophile.MainPage
+								};
+							},
+							template: data
+						});
 
-				// Create template from response html
-				var GameOptionsTemplate = Vue.extend( {
-					data: function() {
-						return {
-							parent: Logophile.MainPage
-						};
-					},
-					template: event.target.responseText
-				} );
-
-				// Do popup
-				Logophile.Popup.create( {
-					buttons: [ {
-						text: "Create Game",
-						click: Logophile.MainPage.createGame
-					} ],
-					title: "New Game Options",
-					showCancel: true,
-					content: new GameOptionsTemplate(),
-				} );
-
-			} );
-			ajax.send();
+						// Do popup
+						Logophile.Popup.create({
+							buttons: [{
+								text: "Create Game",
+								click: Logophile.MainPage.createGame
+							}],
+							title: "New Game Options",
+							showCancel: true,
+							content: new GameOptionsTemplate(),
+						});
+					}
+				}
+			});
+			// var ajax = new Ajax( "/assets/templates/game-options.html" );
+			// ajax.on( "success", function( event ) {
+			// } );
+			// ajax.send();
 
 		},
 

@@ -1,8 +1,3 @@
-"use strict";
-
-var Vue = require( "vue" );
-// require( 'object-clone' );
-
 module.exports = new Vue( {
 	el: "#sidebar",
 	data: {
@@ -62,7 +57,8 @@ module.exports = new Vue( {
 
 
 // Score updater
-// We aren't using vue for this because it rebuilds the dom too often while the game is going and you can't hover/click on the user list
+// We aren't using vue for this because it rebuilds the dom too often while the game is going 
+// and you can't hover/click on the user list
 $( function() {
 
 	var interval = 1000;

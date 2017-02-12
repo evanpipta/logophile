@@ -1,2 +1,0 @@
-var ajax = require('ajax');
-

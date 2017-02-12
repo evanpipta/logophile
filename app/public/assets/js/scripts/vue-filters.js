@@ -1,5 +1,3 @@
-	
-var Vue = require("vue");
 
 // Custom vue filters
 
