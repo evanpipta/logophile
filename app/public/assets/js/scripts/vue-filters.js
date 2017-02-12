@@ -1,4 +1,3 @@
-
 // Custom vue filters
 
 /**

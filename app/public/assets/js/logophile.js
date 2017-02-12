@@ -1,11 +1,7 @@
-// Global Vue and $
+// Global Vue, $, Logophile
 console.log('app running');
 
-// Scrollbar plugin
-require('./lib/jquery.trackpad-scroll-emulator.min.js');
 require('./scripts/vue-filters');
-
-Vue.config.delimiters = ['[[', ']]'];
 
 // Use Logophile namespace
 Logophile.GameOptions = require('./scripts/game-options.js');

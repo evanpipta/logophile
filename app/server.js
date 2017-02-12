@@ -1,263 +1,170 @@
-var FileSystem = require( "fs" );
-var Async = require( "async" );
-var WebSocketServer = require( "ws" ).Server;
-var User = require( "./user" );
-var UserList = require( "./userlist" );
-var GameList = require( "./gamelist" );
-var Express = require( "express" );
-var Sass = require( "node-sass" );
-var RenderSass = require( "express-render-sass" );
-var CookieParser = require( "cookie-parser" );
-var PageRoutes = require( "./routes" );
-var PackageInfo = require( '../package.json' );
-var Board = require( "./board" );
-var Dictionary = require( './dictionary' );
-var SvgLoader = require( './svg-loader' );
+// modules
+const express = require('express');
+const cookieParser = require('cookie-parser');
+const renderSass = require('express-render-sass');
 
-var httpPort = process.env.PORT || 80;
+// Logophile classes
+const User = require( "./user" );
+const UserList = require( "./userlist" );
+const GameList = require( "./gamelist" );
+const Board = require( "./board" );
+const Dictionary = require( './dictionary' );
+const svgLoader = require( './svg-loader' );
 
-module.exports = new function() {
+// Logophile websocket wrapper
+// Binds incoming websocket connections to a new or existing user instance
+const webSocketWrapper = require('./web-socket-wrapper.js');
+webSocketWrapper.startServer();
 
-	console.log( "starting server" );
+// Other
+const package = require( '../package.json' );
+const routes = require('./routes');
 
-	// Load the svg icons
-	var icons = new SvgLoader({
-		svgdir: "/svg",
-		callback: function() {
-			console.log( "svg icons loaded" );
-		}
-	});
+// Session cookie lifetime
+const sessionTimeout = 900000;
 
-	var self = this;
+// http port
+const port = process.env.PORT || 80;
 
-	/**
-	 * Create a new user in the game list with session id and connection attached
-	 */
-	this.createUser = function( sessId, connection ) {
-
-		// Instantiate a new user using the session id
-		var user = UserList.create( {
-			id: sessId
-		} );
-		user.server = this;
-		user.bindConnection( connection );
-		console.log( "Creating new user " + sessId );
-
-		// If the session is logged in, attach login data to the new user
+// Load svgs into memory
+// Maybe we can just render them straight by "including" them in the ejs
+let svg;
+svgLoader({
+	dirname: `${__dirname}/svg`,
+	done: (svgs) => {
+		svg = svgs;
+		console.log('svg icons loaded');
 	}
+});
 
-	/**
-	 * Handles a new websocket connection
-	 * @param  {Object} connection - the web socket connection
-	 */
-	this.handleConnection = function( connection ) {
 
-		console.log( "New websocket connection" );
+// Express stuff
+const app = express();
 
-		// Check session cookie
-		var cookie = {};
-		if ( !!connection.upgradeReq.headers.cookie ) {
-			// Split cookie into an object holding each value
-			var cstring = connection.upgradeReq.headers.cookie;
-			cstring = cstring.split( "; " );
-			for ( var i = 0; i < cstring.length; i++ ) {
-				var kv = cstring[ i ].split( "=" );
-				cookie[ kv[ 0 ] ] = kv[ 1 ];
-			}
-		}
-		if ( !cookie.sessId ) {
-			console.log( "Websocket connection received without session id, closing it." );
-			connection.close();
-			return;
-		}
-		console.log( "Request from session ID: " + cookie.sessId );
-		console.log( "Currently existing users: " + Object.keys( UserList.users ) );
 
-		// If no user exists yet from this session, create one
-		if ( !UserList.users[ cookie.sessId ] ) {
-			self.createUser( cookie.sessId, connection );
+// Parse cookies
+app.use(cookieParser());
+
+
+// Render .scss and .sass files to css upon request
+// This should be done offline in future for performance
+app.use(renderSass(`${__dirname}/public`));
+
+
+// Serve static files
+app.use(express.static(`${__dirname}/public`, {
+	index: false,
+	maxAge: 1
+}));
+
+
+// Add trailing slashes to all non-filename requests
+app.use((req, res, next) => {
+	var spliturl = req.url.split('?');
+	var urlparts = spliturl[0].split('/');
+
+	if (urlparts[urlparts.length - 1].indexOf('.') > -1) {
+		// Filename, go to next
+		next();
+	} else if (spliturl[0].substr(-1) !== '/') {
+		var finalurl = spliturl[0] + '/';
+		if (spliturl.length > 1 && spliturl[1]) {
+			finalurl += `?${spliturl[1]}`;
 		}
-		else {
-			// Otherwise bind this connection to the existing user
-			UserList.users[ cookie.sessId ].bindConnection( connection );
-		}
+		res.redirect(301, finalurl);
+	} else {
+		next();
 	}
+});
 
-	// Websocket server
-	const wss = new WebSocketServer({'port': 8080});
-	wss.on('connection', self.handleConnection);
 
-	/**
-	 * Map requests for actual pages, to handle some redirects and asks the html builder for the correct page type
-	 * @return {[type]} [description]
-	 */
-	this.mapPages = function() {
-		for ( var path in PageRoutes ) {
+// Session cookie
+app.use((req, res, next) => {
+	const session = req.cookies.session || Math.random().toString().slice(2) + Date.now().toString();
+	res.cookie('session', session, { maxAge: sessionTimeout });
+	next();
+});
 
-			// Bind get request calback for this url path
-			app.get( path, function( req, res ) {
 
-				// Check if session cookie exists
-				// console.log( req.cookies );
-				var sessId = req.cookies.sessId;
-				if ( sessId === undefined ) {
-					// Generate a unique session id to save as a cookie
-					newSessId = Math.random().toString();
-					newSessId = newSessId.substring( 2, newSessId.length );
+// Temp
+app.use((req, res, next) => {
+	console.log(req.query);
+	next();
+});
 
-					// It's VERY unlikely that two concurrent users would ever get assigned the same session id, but let's just be 100% sure
-					while ( !!UserList.users[ newSessId ] ) {
-						// console.log("Session id already exists in users, generating new one.");
-						newSessId = Math.random().toString();
-						newSessId = newSessId.substring( 2, newSessId.length );
-					}
 
-					// Set new cookie
-					res.cookie( 'sessId', newSessId, {
-						maxAge: 900000
-					} );
-					// console.log( 'Sesson id created successfully:' + newSessId );
-				}
-				else {
-					// Restart cookie age with same value
-					res.cookie( 'sessId', sessId, {
-						maxAge: 900000
-					} );
-					// console.log( 'Session id: ' + sessId );
-				}
+// Populate game data
+// app.use((req, res, next) => {
 
-				// Split url into path and query string
-				var url = req.url.split( "?" )[ 0 ];
+// });
 
-				// Check if the url redirects, and return if so
-				if ( !!PageRoutes[ url ].redirect ) {
-					res.redirect( PageRoutes[ url ].status, PageRoutes[ url ].redirect );
-					return;
-				}
 
-				// Split query string into a params object - we use this for determining what game the user is entering
-				// We may use it to determine other things
-				var qstring = req.url.split( "?" )[ 1 ];
-				var params = {};
-				if ( qstring ) {
-					console.log( qstring );
-					qstring = qstring.split( "#" )[ 0 ];
-					qstring = qstring.split( "&" );
-					for ( var i = 0; i < qstring.length; i++ ) {
-						var item = qstring[ i ].split( "=" );
-						var k = item[ 0 ],
-							v = item[ 1 ];
-						// console.log( k + ", " + v );
-						params[ k ] = v;
-						// console.log( params[ k ] );
-					}
-				}
+// for (const routeInstance in routes) {
 
-				// Populate initial game and game user data if the page we're on points to an active game
-				// We only populate initial game data in the http request, not the individual user data
-				// Individual user data gets destroyed any time the user loads a new page, and rebuilt when the new websocket connection is opened
-				var GameData = {};
-				var UserData = {};
-				if (PageRoutes[ url ].template == "game") {
-					var gid = parseInt(Object.keys(params)[0]);
-					var g = GameList.getById( gid );
-					console.log( "Game id: " + gid + " Game exists: " + !!g );
-					if ( !g ) {
-						res.locals = {
-							PackageInfo,
-							svg: icons.svg
-						};
-						res.status(200).render(`nogame.ejs`);
-						return;
-					}
-					else {
-						// Assign game data for output in template
-						GameData = g.getPublicGameData();
-						UserData = g.getPublicUserData();
-					}
-				}
+// }
 
-				if (PageRoutes[url].template == 'main') {
-					// Generate a random board to display on the homepage
-					console.log('Generating random board for homepage');
-					var b = new Board();
-					b.randomize(4, () => {
-						res.locals = {
-							PackageInfo,
-							rn: `${Dictionary.getRandom(Math.round(Math.random() * 9) + 3)} ${Dictionary.getRandom(Math.round(Math.random() * 9) + 3)}`,
-							pagetype: PageRoutes[url].template,
-							board: JSON.stringify(b.getBoard()),
-							solution: JSON.stringify(b.solution),
-							svg: icons.svg
-						};
-						res.status(200).render('homepage.ejs');
-					});
-				} else {
-					res.locals = {
-						PackageInfo,
-						pagetype: PageRoutes[url].template,
-						board: "[[' ',' ',' ',' '],[' ',' ',' ',' '],[' ',' ',' ',' '],[' ',' ',' ',' ']]",
-						solution: "{}",
-						svg: icons.svg
-					};
-					res.status(200).render(`${PageRoutes[url].template}.ejs`);
-				}
-			});
-		}
-	}
+// 				// Populate initial game and game user data if the page we're on points to an active game
+// 				// We only populate initial game data in the http request, not the individual user data
+// 				// Individual user data gets destroyed any time the user loads a new page, and rebuilt when the new websocket connection is opened
+// 				var GameData = {};
+// 				var UserData = {};
+// 				if (routes[ url ].template == "game") {
+// 					var gid = parseInt(Object.keys(params)[0]);
+// 					var g = GameList.getById( gid );
+// 					console.log( "Game id: " + gid + " Game exists: " + !!g );
+// 					if ( !g ) {
+// 						res.locals = {
+// 							package,
+// 							svg: icons.svg
+// 						};
+// 						res.status(200).render(`nogame.ejs`);
+// 						return;
+// 					}
+// 					else {
+// 						// Assign game data for output in template
+// 						GameData = g.getPublicGameData();
+// 						UserData = g.getPublicUserData();
+// 					}
+// 				}
 
-	// Server server
-	var app = Express();
-	app.listen(httpPort, () => {
-		console.log(`Server listening on port ${httpPort}`);
-	});
+// 				if (routes[url].template == 'main') {
+// 					// Generate a random board to display on the homepage
+// 					console.log('Generating random board for homepage');
+// 					var b = new Board();
+// 					b.randomize(4, () => {
+// 						res.locals = {
+// 							package,
+// 							rn: `${Dictionary.getRandom(Math.round(Math.random() * 9) + 3)} ${Dictionary.getRandom(Math.round(Math.random() * 9) + 3)}`,
+// 							pagetype: routes[url].template,
+// 							board: JSON.stringify(b.getBoard()),
+// 							solution: JSON.stringify(b.solution),
+// 							svg: icons.svg
+// 						};
+// 						res.status(200).render('homepage.ejs');
+// 					});
+// 				} else {
+// 					res.locals = {
+// 						package,
+// 						pagetype: routes[url].template,
+// 						board: "[[' ',' ',' ',' '],[' ',' ',' ',' '],[' ',' ',' ',' '],[' ',' ',' ',' ']]",
+// 						solution: "{}",
+// 						svg: icons.svg
+// 					};
+// 					res.status(200).render(`${routes[url].template}.ejs`);
+// 				}
 
-	// Cookie parser
-	app.use(CookieParser());
+/**
+ * Handle 404
+ */
+app.use((req, res, next) => {
+	res.locals = { package, svg };
+	res.status(404).render('404.ejs');
+});
 
-	// Auto-render any SCSS or SASS to CSS when requesting a .css file
-	// Maybe this should actually be done offline
-	app.use(RenderSass(`${__dirname}/public`));
 
-	// Set up static files to serve from the public directory
-	app.use(Express.static(`${__dirname}/public`, {
-		index: false,
-		maxAge: 1,
-		setHeaders: (res, path, stat) => {/*res.set("Content-Type", "text/html");*/}
-	}));
-
-	// Add trailing slashes
-	app.use((req, res, next) => {
-		var spliturl = req.url.split( "?" );
-		var urlparts = spliturl[ 0 ].split( "/" );
-		if ( urlparts[ urlparts.length - 1 ].indexOf( "." ) > -1 ) {
-			// Filename, go to next
-			next();
-		}
-		else if ( spliturl[ 0 ].substr( -1 ) !== "/" ) {
-			var finalurl = spliturl[ 0 ] + "/";
-			if ( spliturl.length > 1 && spliturl[ 1 ] ) {
-				finalurl += "?" + spliturl[ 1 ];
-			}
-			res.redirect( 301, finalurl );
-		}
-		else {
-			next();
-		}
-	});
-
-	// Map non-static pages
-	this.mapPages();
-
-	/**
-	 * Handle 404
-	 */
-	app.use((req, res, next) => {
-		res.locals = {
-			PackageInfo,
-			svg: icons.svg
-		};
-		res.status(404).render('404.ejs');
-	});
-
-}
+/**
+ * Start the server
+ */
+app.listen(port, () => {
+	console.log(`Server listening on port ${port}`);
+});

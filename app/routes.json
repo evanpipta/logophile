@@ -1,23 +1,12 @@
-{
-
-	"/": {
-		"template": "main"
+[
+	{
+		"route": "/",
+		"name": "home",
+		"template": "index"
 	},
-	"/index.html": {
-		"redirect": "/",
-		"status": 301
-	},
-
-	"/game/": {
+	{
+		"route": "/game/",
+		"name": "game",
 		"template": "game"
-	},
-	"/game/index.html": {
-		"redirect": "/game/",
-		"status": 301
-	},
-	"/game.html": {
-		"redirect": "/game/",
-		"status": 301
 	}
-
-}
+]
